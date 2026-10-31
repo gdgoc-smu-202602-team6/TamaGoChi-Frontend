@@ -63,3 +63,38 @@ export const Spacing = {
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;
+
+// Shared game palette. The existing system theme remains available to other screens.
+export const GameColors = {
+  sky: '#8099F2',
+  skyLight: '#A9C9FF',
+  ink: '#24213D',
+  inkMuted: '#625C78',
+  cream: '#FFF7DA',
+  paper: '#FFFFFF',
+  yellow: '#F6D85F',
+  yellowShade: '#DFA647',
+  green: '#87C45B',
+  greenDark: '#4D753E',
+  coral: '#CC555E',
+  heart: '#E9788F',
+  heartEmpty: '#6371A5',
+  lavender: '#A387E5',
+  track: '#E2DCCF',
+  grass: '#85BB58',
+  soil: '#BA8E59',
+} as const;
+
+export const GameUi = {
+  borderWidth: 3,
+  radius: { card: 24, button: 16, badge: 24 },
+  depth: 5,
+  contentWidth: 440,
+  typography: {
+    brand: { fontSize: 29, lineHeight: 38, fontWeight: '900' },
+    title: { fontSize: 19, lineHeight: 27, fontWeight: '800' },
+    body: { fontSize: 14, lineHeight: 21, fontWeight: '500' },
+    caption: { fontSize: 12, lineHeight: 18, fontWeight: '600' },
+    number: { fontFamily: Fonts.mono, fontWeight: '800', fontVariant: ['tabular-nums'] },
+  },
+} as const;

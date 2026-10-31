@@ -1,31 +1,37 @@
 import { NativeTabs } from 'expo-router/native-tabs';
-import { useColorScheme } from 'react-native';
-
-import { Colors } from '@/constants/theme';
+import { Platform } from 'react-native';
+import { GameColors } from '@/constants/theme';
 
 export default function AppTabs() {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
-
   return (
     <NativeTabs
-      backgroundColor={colors.background}
-      indicatorColor={colors.backgroundElement}
-      labelStyle={{ selected: { color: colors.text } }}>
+      backgroundColor={GameColors.ink}
+      indicatorColor={GameColors.yellow}
+      backBehavior="initialRoute"
+      labelVisibilityMode="labeled"
+      iconColor={{ default: GameColors.skyLight, selected: Platform.OS === 'android' ? GameColors.ink : GameColors.yellow }}
+      labelStyle={{
+        default: { color: GameColors.skyLight },
+        selected: { color: GameColors.yellow },
+      }}>
       <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/home.png')}
-          renderingMode="template"
-        />
+        <NativeTabs.Trigger.Label>내 방</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="house.fill" md="home" />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="explore">
-        <NativeTabs.Trigger.Label>Explore</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
-        />
+      <NativeTabs.Trigger name="notice">
+        <NativeTabs.Trigger.Label>공지</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="bell.fill" md="notifications" />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="shop">
+        <NativeTabs.Trigger.Label>상점</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="bag.fill" md="shopping_bag" />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="mypage">
+        <NativeTabs.Trigger.Label>마이</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="person.fill" md="person" />
       </NativeTabs.Trigger>
     </NativeTabs>
   );
