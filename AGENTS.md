@@ -1,5 +1,9 @@
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
+## TamaGoChi UI design
+
+Before implementing a screen, read [the UI design criteria](docs/ui-design.md) and briefly tell the user which reference elements will be used. The functional specification takes precedence over the user's Claude Design reference images. Keep assets replaceable, reuse shared design tokens/components, and do not infer new behavior or API contracts from the images.
+
 ## Expo has changed — do not trust your training data
 
 Expo ships breaking changes every SDK release. APIs you remember are likely renamed, moved, or removed. Before writing any code that touches an Expo, EAS, or React Native API:
