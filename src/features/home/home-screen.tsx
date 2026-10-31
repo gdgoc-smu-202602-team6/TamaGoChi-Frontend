@@ -16,10 +16,14 @@ type HomeScreenProps = {
   onEditRoom?: () => void;
   onVisitFriends?: () => void;
   onOpenGuestbook?: () => void;
+  refreshKey?: number;
+  studyActionLabel?: string;
+  studyActionDisabled?: boolean;
+  studyActionError?: string | null;
 };
 
-export function HomeScreen({ service, onStartStudy, onEditRoom, onVisitFriends, onOpenGuestbook }: HomeScreenProps) {
-  const { state, retry } = useHome(service);
+export function HomeScreen({ service, onStartStudy, onEditRoom, onVisitFriends, onOpenGuestbook, refreshKey, studyActionLabel, studyActionDisabled, studyActionError }: HomeScreenProps) {
+  const { state, retry } = useHome(service, refreshKey);
   return (
     <View style={styles.screen}>
       <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
@@ -38,7 +42,7 @@ export function HomeScreen({ service, onStartStudy, onEditRoom, onVisitFriends, 
                 <RoomPreview bugs={state.data.bugs.count} name={state.data.room.name} characterLabel={state.data.room.characterLabel} />
                 <GameButton label="방 꾸미기" compact variant="secondary" onPress={onEditRoom} style={styles.editButton} />
               </View>
-              <StudySummary home={state.data} onStartStudy={onStartStudy} />
+              <StudySummary home={state.data} onStartStudy={onStartStudy} actionLabel={studyActionLabel} actionDisabled={studyActionDisabled} actionError={studyActionError} />
               <View style={styles.actions}>
                 <GameButton label="친구 방" compact variant="secondary" onPress={onVisitFriends} style={styles.action} />
                 <GameButton label="방명록" compact variant="secondary" onPress={onOpenGuestbook} style={styles.action} />

@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "strict": true,
+    "skipLibCheck": true,
+    "types": [],
+    "rootDir": "src",
+    "outDir": ".expo/tests",
+    "noEmitOnError": true
+  },
+  "include": ["src/mocks/study-backend.ts", "src/utils/study-time.ts"]
+}
