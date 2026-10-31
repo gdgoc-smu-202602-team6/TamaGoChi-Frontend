@@ -9,9 +9,15 @@ import { GameColors, GameUi, Spacing } from '@/constants/theme';
 import type { HomeOverview } from '@/types/home';
 import { formatRemainingMinutes, formatStudyClock } from '@/utils/format-duration';
 
-type StudySummaryProps = { home: HomeOverview; onStartStudy?: () => void };
+type StudySummaryProps = {
+  home: HomeOverview;
+  onStartStudy?: () => void;
+  actionLabel?: string;
+  actionDisabled?: boolean;
+  actionError?: string | null;
+};
 
-export function StudySummary({ home, onStartStudy }: StudySummaryProps) {
+export function StudySummary({ home, onStartStudy, actionLabel, actionDisabled, actionError }: StudySummaryProps) {
   const { attendance, bugs } = home;
   const hasBugs = bugs.count > 0;
   return (
@@ -40,7 +46,8 @@ export function StudySummary({ home, onStartStudy }: StudySummaryProps) {
           <ProgressMeter value={bugs.progressSeconds} target={bugs.requiredSeconds} label="다음 버그 퇴치 진행률" color={GameColors.lavender} />
         </View>
       ) : <Text style={styles.cleanMessage}>방이 반짝반짝! 오늘도 함께 공부해요.</Text>}
-      <GameButton label={hasBugs ? '▶ 공부해서 버그 퇴치' : '▶ 공부 시작!'} onPress={onStartStudy} />
+      <GameButton label={actionLabel ?? (hasBugs ? '▶ 공부해서 버그 퇴치' : '▶ 공부 시작!')} onPress={onStartStudy} disabled={actionDisabled} />
+      {actionError && <Text accessibilityRole="alert" style={styles.error}>{actionError}</Text>}
       <Text style={styles.reward}>1분 공부 = {StudyRules.boltPerMinute} Bolt · {StudyRules.xpPerMinute} XP</Text>
     </GameCard>
   );
@@ -58,4 +65,5 @@ const styles = StyleSheet.create({
   progressTitle: { ...GameUi.typography.caption, color: GameColors.ink, fontWeight: '800' },
   cleanMessage: { ...GameUi.typography.body, color: GameColors.greenDark, textAlign: 'center' },
   reward: { ...GameUi.typography.caption, color: GameColors.inkMuted, textAlign: 'center', fontSize: 11 },
+  error: { ...GameUi.typography.body, color: GameColors.coral, textAlign: 'center' },
 });

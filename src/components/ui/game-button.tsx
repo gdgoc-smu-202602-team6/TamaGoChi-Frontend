@@ -7,11 +7,12 @@ type GameButtonProps = {
   onPress?: () => void;
   variant?: 'primary' | 'secondary';
   compact?: boolean;
+  disabled?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
-export function GameButton({ label, onPress, variant = 'primary', compact, style }: GameButtonProps) {
-  const disabled = !onPress;
+export function GameButton({ label, onPress, variant = 'primary', compact, disabled: explicitlyDisabled, style }: GameButtonProps) {
+  const disabled = explicitlyDisabled || !onPress;
   return (
     <View style={[styles.depth, style]}>
       <Pressable

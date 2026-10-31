@@ -8,7 +8,7 @@ type HomeState =
   | { status: 'ready'; data: HomeOverview }
   | { status: 'error' };
 
-export function useHome(service: HomeService = homeService) {
+export function useHome(service: HomeService = homeService, refreshKey = 0) {
   const [state, setState] = useState<HomeState>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
 
@@ -28,7 +28,7 @@ export function useHome(service: HomeService = homeService) {
     return () => {
       active = false;
     };
-  }, [service, attempt]);
+  }, [service, attempt, refreshKey]);
 
   function retry() {
     setState({ status: 'loading' });
