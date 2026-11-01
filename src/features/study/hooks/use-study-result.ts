@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { studyService } from '@/services/study';
+import { useGameServices } from '@/state/game-services';
 import type { StudyResult } from '@/types/study';
 
 type ResultState = { sessionId: string } & (
@@ -10,6 +10,7 @@ type ResultState = { sessionId: string } & (
 );
 
 export function useStudyResult(sessionId: string) {
+  const { study: studyService } = useGameServices();
   const [state, setState] = useState<ResultState>({ sessionId, status: 'loading' });
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
@@ -19,7 +20,7 @@ export function useStudyResult(sessionId: string) {
       () => { if (active) setState({ sessionId, status: 'error' }); },
     );
     return () => { active = false; };
-  }, [sessionId, attempt]);
+  }, [sessionId, attempt, studyService]);
 
   function retry() {
     setState({ sessionId, status: 'loading' });

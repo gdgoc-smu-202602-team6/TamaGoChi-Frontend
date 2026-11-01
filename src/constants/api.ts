@@ -1,4 +1,5 @@
 export const apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://api.tmgoc.kro.kr';
+export const isMockMode = process.env.EXPO_PUBLIC_DATA_MODE === 'mock';
 
 // Configured by the team after the backend allows this exact web origin / mobile scheme.
 export const authResetRedirectUrl = process.env.EXPO_PUBLIC_AUTH_RESET_REDIRECT_URL;

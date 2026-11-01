@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { homeService } from '@/services/home';
+import { useGameServices } from '@/state/game-services';
 import type { HomeOverview, HomeService } from '@/types/home';
 
 type HomeState =
@@ -8,7 +8,9 @@ type HomeState =
   | { status: 'ready'; data: HomeOverview }
   | { status: 'error' };
 
-export function useHome(service: HomeService = homeService, refreshKey = 0) {
+export function useHome(override?: HomeService, refreshKey = 0) {
+  const services = useGameServices();
+  const service = override ?? services.home;
   const [state, setState] = useState<HomeState>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
 

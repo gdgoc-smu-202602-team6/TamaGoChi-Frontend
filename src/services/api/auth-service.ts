@@ -23,6 +23,7 @@ export function createAuthService(client: HttpClient, tokens: TokenStore): AuthS
     return parseUser((await client.request<unknown>('/users/me', { token })).data);
   }
   return {
+    getToken: () => sessionOperation(() => storage(() => tokens.get())),
     restore: () => sessionOperation(async () => {
       const token = await storage(() => tokens.get());
       if (!token) return null;

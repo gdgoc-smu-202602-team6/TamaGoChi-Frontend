@@ -17,6 +17,7 @@ export type TokenStore = {
 };
 
 export type AuthService = {
+  getToken: () => Promise<string | null>;
   restore: () => Promise<AuthUser | null>;
   signIn: (email: string, password: string) => Promise<AuthUser>;
   signOut: () => Promise<void>;

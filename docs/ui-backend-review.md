@@ -66,7 +66,23 @@ ZIP에는 `All Screens.dc.html`, `Study Timer App v4.dc.html`, Claude Design 런
 | `GET /auth/get-session` | `200`, `null` | 비인증 세션 조회 경로가 응답한다. 로그인 성공 검증은 아니다. |
 | `OPTIONS /users/me/studySessions` | `405`, CORS 허용 헤더 없음 | `Origin: http://localhost:8081`, 요청 method `POST`, 요청 headers `authorization,content-type`의 preflight가 실패했다. |
 
-현재 확인한 조건에서는 브라우저에서 API를 직접 호출하는 Web 연동이 CORS에 막힌다. Backend에서 개발·배포 Web origin과 OPTIONS·허용 헤더를 설정해야 한다. Web에서 로그인 응답의 토큰 헤더를 읽는 방식이면 해당 헤더 노출도 함께 확인한다. Native 앱의 Bearer 호출은 브라우저 CORS와 별도로 검증해야 한다. 현재 프론트엔드 Mock 실행에는 영향이 없다.
+위 표는 최초 점검 당시의 결과다. 당시에는 브라우저에서 API를 직접 호출하는 Web 연동이 CORS에 막혔다. 후속 수정·재점검 결과는 아래와 [인증 흐름](auth-flow.md)에 기록한다. Native 앱의 Bearer 호출은 브라우저 CORS와 별도로 검증해야 한다.
+
+### localhost CORS 수정 후 재점검
+
+같은 날 Backend [`98441b9ec93e1089f6419476286bc4ef812b6e44`](https://github.com/gdgoc-smu-202602-team6/TamaGoChi-Backend/commit/98441b9ec93e1089f6419476286bc4ef812b6e44)을 확인했다. better-auth의 trusted origin 판정을 Nest CORS에도 사용하며, 환경 변수 `TRUSTED_ORIGINS`를 추가했다. localhost 설정은 배포 예시뿐 아니라 운영 응답에서도 확인했다.
+
+| 점검 | 결과 |
+| --- | --- |
+| localhost:8081·8082의 `/auth/sign-in/email` OPTIONS | 204, 요청 origin·authorization/content-type 허용 |
+| localhost:19006의 `/auth/request-password-reset` OPTIONS | 204, 요청 origin·authorization/content-type 허용 |
+| localhost의 `/users/me`, `/users/me/studySessions` OPTIONS | 204, GET·POST·PATCH 등 method 허용 |
+| 127.0.0.1, 외부 도메인, localhost로 시작하는 외부 도메인 | CORS 허용 origin 헤더 없음 |
+| 실제 Chrome localhost:8082 → 운영 API | health 200·미인증 계정 401·빈 세션 200·잘못된 로그인 400 응답을 JSON으로 읽음. 잘못된 자격 증명은 앱에서 로그인 오류로 안내 |
+| 잘못된 재설정 토큰 + localhost callback | 302, localhost `/reset-password?error=INVALID_TOKEN`으로 복귀 |
+| 같은 잘못된 토큰 + 외부 callback | 403 `INVALID_CALLBACK_URL` |
+
+localhost의 CORS 문제는 해결됐다. 검증은 계정·메일·비밀번호를 생성하거나 변경하지 않는 요청으로 제한했다. 유효한 계정의 로그인 성공·토큰 수신, 실제 메일 수신·비밀번호 변경은 추가 확인 범위다. 모바일 scheme·실제 Web 배포 origin은 따로 허용해야 한다. 프론트엔드 Metro의 `unknown module "59"`는 이 수정 후에도 재현되어 별도 문제로 남는다.
 
 ## 저장소에서 확인한 구현 범위
 
@@ -93,6 +109,8 @@ ZIP에는 `All Screens.dc.html`, `Study Timer App v4.dc.html`, Claude Design 런
 공통 계약은 Bearer 인증, `application/problem+json` 오류, UTC timestamp, KST 04:00 서비스 날짜, `pageSize`·`pageToken` 페이지네이션이다. 서버 응답을 별도 DTO/mapper로 받아 기존 Home·Study 서비스에 연결한다. 진행 중 세션의 서버 `studiedSeconds`와 foreground 재조회도 사용하여 기기 시계 차이를 처리한다.
 
 ## 다음 구현 순서
+
+아래는 최초 검토 시 계획이며, 이후 인증과 [Home·Study 서버 연동](study-api-flow.md)을 구현했다. 현재 동작·검증 범위는 각 기능 문서를 따른다.
 
 1. API 환경 변수·공통 HTTP/Problem 처리와 DTO 경계, 인증 상태·플랫폼별 토큰 보관을 구성한다.
 2. v4 로그인·가입·이메일 인증 안내·비밀번호 재설정 화면을 실제 인증에 연결한다. Backend의 Web CORS와 메일 링크 복귀 조건을 함께 확인한다. Google/Kakao는 공유 명세의 범위로 두고 공급자·모바일 callback 설정과 배포 지원을 확인해 연결한다.

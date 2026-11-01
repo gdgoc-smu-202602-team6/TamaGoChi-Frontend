@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 
-import { getElapsedStudySeconds } from '@/utils/study-time';
+import type { StudySession } from '@/types/study';
+import { elapsedSessionSeconds, monotonicNow } from '@/utils/session-clock';
 
-export function useElapsedTime(startedAt: string | undefined) {
-  const [now, setNow] = useState(Date.now);
+export function useElapsedTime(session: StudySession | null) {
+  const [now, setNow] = useState(monotonicNow);
   useEffect(() => {
     // The interval only redraws. Elapsed time always comes from the persisted timestamp.
-    const update = () => setNow(Date.now());
+    const update = () => setNow(monotonicNow());
     const interval = setInterval(update, 1000);
     const subscription = AppState.addEventListener('change', (status) => {
       if (status === 'active') update();
@@ -16,6 +17,6 @@ export function useElapsedTime(startedAt: string | undefined) {
       clearInterval(interval);
       subscription.remove();
     };
-  }, [startedAt]);
-  return startedAt ? getElapsedStudySeconds(startedAt, now) : 0;
+  }, [session?.id]);
+  return session ? elapsedSessionSeconds(session, Math.max(now, session.timing?.monotonicMs ?? 0)) : 0;
 }

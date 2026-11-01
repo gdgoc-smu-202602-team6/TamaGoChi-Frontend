@@ -2,10 +2,10 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { AppState } from 'react-native';
 
 import { authService } from '@/services/auth';
-import { apiErrorMessage } from '@/services/api/http-client';
+import { apiErrorMessage, ApiError } from '@/services/api/http-client';
 import type { AuthService, AuthUser } from '@/types/auth';
 
-type AuthState = { status: 'loading' | 'ready' | 'error'; user: AuthUser | null; error: string | null };
+type AuthState = { status: 'loading' | 'ready' | 'error'; user: AuthUser | null; token: string | null; epoch: number; error: string | null };
 type AuthContextValue = {
   state: AuthState;
   busy: boolean;
@@ -19,7 +19,7 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children, service = authService }: PropsWithChildren<{ service?: AuthService }>) {
-  const [state, setState] = useState<AuthState>({ status: 'loading', user: null, error: null });
+  const [state, setState] = useState<AuthState>({ status: 'loading', user: null, token: null, epoch: 0, error: null });
   const [busy, setBusy] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState('');
   const active = useRef(true);
@@ -30,7 +30,9 @@ export function AuthProvider({ children, service = authService }: PropsWithChild
     const request = ++version.current;
     try {
       const user = await service.restore();
-      if (active.current && request === version.current) setState({ status: 'ready', user, error: null });
+      const token = user ? await service.getToken() : null;
+      if (user && !token) throw new ApiError('response');
+      if (active.current && request === version.current) setState(previous => ({ status: 'ready', user, token, epoch: previous.epoch + (previous.user?.id !== user?.id || previous.token !== token ? 1 : 0), error: null }));
     } catch (error) {
       if (active.current && request === version.current) setState((previous) => ({ ...previous, status: 'error', error: apiErrorMessage(error) }));
     }
@@ -47,15 +49,17 @@ export function AuthProvider({ children, service = authService }: PropsWithChild
     if (operation.current) return operation.current;
     version.current += 1;
     setBusy(true);
-    const pending = work().then((user) => {
-      if (active.current) setState({ status: 'ready', user, error: null });
+    const pending = work().then(async (user) => {
+      const token = user ? await service.getToken() : null;
+      if (user && !token) throw new ApiError('response');
+      if (active.current) setState(previous => ({ status: 'ready', user, token, epoch: previous.epoch + 1, error: null }));
     }).finally(() => {
       operation.current = null;
       if (active.current) setBusy(false);
     });
     operation.current = pending;
     return pending;
-  }, []);
+  }, [service]);
   const signIn = useCallback((email: string, password: string) => changeSession(() => service.signIn(email, password)), [changeSession, service]);
   const signOut = useCallback(() => changeSession(async () => { await service.signOut(); return null; }), [changeSession, service]);
   const value = useMemo(() => ({ state, busy, refresh, signIn, signOut, service, verificationEmail, setVerificationEmail }), [state, busy, refresh, signIn, signOut, service, verificationEmail]);

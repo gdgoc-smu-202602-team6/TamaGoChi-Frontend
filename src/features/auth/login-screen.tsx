@@ -8,6 +8,7 @@ import { useAuthAction } from '@/features/auth/hooks/use-auth-action';
 import { ApiError } from '@/services/api/http-client';
 import { useAuth } from '@/state/auth-context';
 import { validateEmail } from '@/utils/auth-validation';
+import { isMockMode } from '@/constants/api';
 
 export function LoginScreen() {
   const auth = useAuth();
@@ -16,14 +17,14 @@ export function LoginScreen() {
   const [needsVerification, setNeedsVerification] = useState(false);
   const action = useAuthAction();
   const busy = action.pending || auth.busy || auth.state.status === 'loading';
-  if (auth.state.status === 'ready' && auth.state.user) return <Redirect href="/account" />;
+  if (auth.state.status === 'ready' && auth.state.user) return <Redirect href={isMockMode ? '/account' : '/'} />;
 
   async function submit() {
     const invalid = validateEmail(email) ?? (!password ? '비밀번호를 입력해 주세요.' : null);
     if (invalid) { action.setError(invalid); return; }
     setNeedsVerification(false);
     const result = await action.run(() => auth.signIn(email.trim(), password));
-    if (result.ok) { setPassword(''); router.replace('/account'); }
+    if (result.ok) { setPassword(''); router.replace(isMockMode ? '/account' : '/'); }
     else if (result.reason instanceof ApiError && result.reason.code === 'EMAIL_NOT_VERIFIED') setNeedsVerification(true);
   }
   return <AuthFrame title="반가워요!" subtitle="이메일로 로그인하고 내 계정을 확인해요." tab="login" busy={busy}>
@@ -33,6 +34,6 @@ export function LoginScreen() {
     {needsVerification && <GameButton label="인증 메일 확인" variant="secondary" disabled={busy} onPress={() => { auth.setVerificationEmail(email.trim()); router.push('/verify-email'); }} />}
     <GameButton label={busy ? '로그인 확인 중…' : '로그인'} disabled={busy} onPress={() => { void submit(); }} />
     <GameButton label="비밀번호를 잊었어요" compact variant="secondary" disabled={busy} onPress={() => router.push('/forgot-password')} />
-    <GameButton label="내 방 미리보기" compact variant="secondary" disabled={busy} onPress={() => router.dismissTo('/')} />
+    {isMockMode && <GameButton label="내 방 미리보기" compact variant="secondary" disabled={busy} onPress={() => router.dismissTo('/')} />}
   </AuthFrame>;
 }

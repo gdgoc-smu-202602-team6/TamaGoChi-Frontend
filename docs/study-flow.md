@@ -1,5 +1,7 @@
 # Study 화면과 Mock 서비스
 
+이 문서는 명시적인 `EXPO_PUBLIC_DATA_MODE=mock`의 로컬 구현을 설명한다. 현재 기본 모드의 [Home·Study 서버 연동](study-api-flow.md)과 구분한다. API 모드에서는 이 Mock으로 오류를 대체하거나 로컬 정산하지 않는다.
+
 ## 화면과 상태
 
 - 내 방의 공부 시작 버튼은 세션 저장이 성공한 뒤 `/study`로 이동한다.

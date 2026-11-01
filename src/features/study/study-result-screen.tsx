@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
 
 import { GameButton } from '@/components/ui/game-button';
 import { GameCard } from '@/components/ui/game-card';
@@ -10,12 +11,24 @@ import { RoomPreview } from '@/features/home/components/room-preview';
 import { useHome } from '@/features/home/hooks/use-home';
 import { useStudyResult } from '@/features/study/hooks/use-study-result';
 import { formatStudyClock } from '@/utils/format-duration';
+import { useStudy } from '@/state/study-context';
+import { studyErrorMessage } from '@/services/study';
 
 export function StudyResultScreen() {
   const { sessionId } = useLocalSearchParams<{ sessionId?: string | string[] }>();
   const { state, retry } = useStudyResult(typeof sessionId === 'string' ? sessionId : '');
   const { state: home } = useHome();
+  const { acknowledgeResult } = useStudy();
+  const [returning, setReturning] = useState(false);
+  const [returnError, setReturnError] = useState<string | null>(null);
   const goHome = () => router.dismissTo('/');
+  async function finishViewing() {
+    if (returning || typeof sessionId !== 'string') return;
+    setReturning(true); setReturnError(null);
+    try { await acknowledgeResult(sessionId); goHome(); }
+    catch (error) { setReturnError(studyErrorMessage(error)); }
+    finally { setReturning(false); }
+  }
 
   if (state.status !== 'ready') return (
     <GameScreen title="공부 결과" subtitle="오늘도 차곡차곡 쌓았어요.">
@@ -56,8 +69,11 @@ export function StudyResultScreen() {
         {result.attendanceXp > 0 && <Text style={styles.bonus}>출석 달성 보너스 +{result.attendanceXp} XP</Text>}
         {result.goalXp > 0 && <Text style={styles.bonus}>하루 목표 달성 보너스 +{result.goalXp} XP</Text>}
         {result.bugsRemoved > 0 && <Text style={styles.bonus}>버그 {result.bugsRemoved}마리를 퇴치했어요!</Text>}
+        {!!result.heartsChange && <Text style={styles.bonus}>Heart {result.heartsChange > 0 ? '+' : ''}{result.heartsChange}</Text>}
+        {result.levelAfter !== undefined && result.levelBefore !== undefined && result.levelAfter > result.levelBefore && <Text style={styles.bonus}>레벨 업! LV.{result.levelBefore} → LV.{result.levelAfter}</Text>}
       </GameCard>
-      <GameButton label="내 방으로" onPress={goHome} />
+      {returnError && <Text accessibilityRole="alert" style={styles.body}>{returnError}</Text>}
+      <GameButton label={returning ? '내 방으로 이동 중…' : '내 방으로'} disabled={returning} onPress={() => { void finishViewing(); }} />
     </GameScreen>
   );
 }
