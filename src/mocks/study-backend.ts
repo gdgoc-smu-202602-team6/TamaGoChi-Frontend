@@ -2,6 +2,8 @@ import { StudyRules } from '../constants/study';
 import type { HomeOverview } from '../types/home';
 import { StudyServiceError, type StudyResult, type StudySession } from '../types/study';
 import { getElapsedStudySeconds, getServiceDayKey, splitStudyInterval } from '../utils/study-time';
+import { ShopError, itemSlots, type ItemSlot, type ShopOverview } from '../types/shop';
+import { mockShopItems } from './shop';
 
 export const MOCK_STUDY_STORAGE_KEY = '@tamagochi/mock-study/v1';
 
@@ -19,6 +21,7 @@ type Database = {
   days: Record<string, DayRecord>;
   active: StudySession | null;
   results: StudyResult[];
+  shop?: { ownedItemIds: string[]; equipped: Partial<Record<ItemSlot, string>> };
 };
 type MockBackendOptions = {
   storage: Storage;
@@ -53,7 +56,9 @@ function validateDatabase(value: unknown): asserts value is Database {
     && isNumber(value.bugProgressMs) && isRecord(value.days)
     && Object.entries(value.days).every(([key, day]) => /^\d{4}-\d{2}-\d{2}$/.test(key) && isRecord(day)
       && isNumber(day.studyMs) && typeof day.attendanceAwarded === 'boolean' && typeof day.goalAwarded === 'boolean')
-    && (value.active === null || isSession(value.active)) && Array.isArray(value.results) && value.results.every(isResult);
+    && (value.active === null || isSession(value.active)) && Array.isArray(value.results) && value.results.every(isResult)
+    && (value.shop === undefined || (isRecord(value.shop) && Array.isArray(value.shop.ownedItemIds) && value.shop.ownedItemIds.every(id => typeof id === 'string')
+      && isRecord(value.shop.equipped) && Object.entries(value.shop.equipped).every(([slot, id]) => itemSlots.includes(slot as ItemSlot) && typeof id === 'string' && (value.shop as { ownedItemIds: unknown[] }).ownedItemIds.includes(id))));
   if (!valid) throw new StudyServiceError('invalid-record', '저장된 공부 기록을 읽지 못했어요. 기록을 유지한 채 다시 시도해 주세요.');
 }
 
@@ -107,7 +112,30 @@ export function createMockStudyBackend({ storage, initialHome, isOnline, now = D
     return state;
   }
 
+  function shopState(state: Database): NonNullable<Database['shop']> {
+    if (state.shop) return state.shop;
+    const defaults = mockShopItems.filter(item => item.defaultOwned);
+    return { ownedItemIds: defaults.map(item => item.id), equipped: Object.fromEntries(defaults.map(item => [item.slot, item.id])) };
+  }
+
   return {
+    getShop: () => serial(async (): Promise<ShopOverview> => {
+      const state = await load();
+      const shop = shopState(state);
+      return { items: mockShopItems, balance: state.bolt, level: state.base.profile.level, ownedItemIds: [...shop.ownedItemIds], equippedItemIds: Object.values(shop.equipped).filter((id): id is string => !!id) };
+    }),
+    purchase: (itemId: string) => serial(async () => {
+      const state = await load();
+      const shop = shopState(state);
+      const item = mockShopItems.find(one => one.id === itemId);
+      if (!item) throw new ShopError('not-found');
+      if (shop.ownedItemIds.includes(item.id)) return;
+      if (state.base.profile.level < item.minLevel) throw new ShopError('level-locked', item.minLevel);
+      if (state.bolt < item.price) throw new ShopError('insufficient-volts', item.price - state.bolt);
+      state.bolt -= item.price;
+      state.shop = { ownedItemIds: [...shop.ownedItemIds, item.id], equipped: { ...shop.equipped, [item.slot]: item.id } };
+      try { await save(state); } catch { throw new ShopError('storage'); }
+    }),
     getActiveSession: () => serial(async () => (await load()).active),
     getResult: (sessionId: string) => serial(async () => (await load()).results.find((result) => result.sessionId === sessionId) ?? null),
 
