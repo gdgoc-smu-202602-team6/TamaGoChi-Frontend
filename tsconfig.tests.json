@@ -6,9 +6,10 @@
     "strict": true,
     "skipLibCheck": true,
     "types": [],
+    "lib": ["ES2022", "DOM", "ES2022.Intl"],
     "rootDir": "src",
     "outDir": ".expo/tests",
     "noEmitOnError": true
   },
-  "include": ["src/mocks/study-backend.ts", "src/utils/study-time.ts"]
+  "include": ["src/mocks/study-backend.ts", "src/utils/study-time.ts", "src/services/api/auth-service.ts", "src/utils/auth-validation.ts"]
 }
