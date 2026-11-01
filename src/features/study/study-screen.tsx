@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { GameButton } from '@/components/ui/game-button';
@@ -18,9 +18,22 @@ import { formatStudyClock } from '@/utils/format-duration';
 export function StudyScreen() {
   const { state, operation, revision, refresh, finishStudy } = useStudy();
   const { state: home } = useHome(undefined, revision);
-  const elapsed = useElapsedTime(state.session?.startedAt);
+  const elapsed = useElapsedTime(state.session);
   const [error, setError] = useState<string | null>(null);
   const finishing = useRef(false);
+  const expiryCheck = useRef<string | null>(null);
+  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    if (state.status === 'ready' && !state.session && state.completedSessionId) {
+      router.replace({ pathname: '/study-result/[sessionId]', params: { sessionId: state.completedSessionId } });
+    }
+  }, [state.status, state.session, state.completedSessionId]);
+  useEffect(() => {
+    if (state.session?.timing && elapsed >= state.session.timing.maxSeconds && expiryCheck.current !== state.session.id) {
+      expiryCheck.current = state.session.id;
+      void refresh();
+    }
+  }, [elapsed, state.session, refresh]);
 
   async function finish() {
     if (!state.session || finishing.current) return;

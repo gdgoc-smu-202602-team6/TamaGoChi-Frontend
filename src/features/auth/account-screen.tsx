@@ -8,6 +8,7 @@ import { GameColors, GameUi } from '@/constants/theme';
 import { AuthMessage } from '@/features/auth/components/auth-frame';
 import { useAuthAction } from '@/features/auth/hooks/use-auth-action';
 import { useAuth } from '@/state/auth-context';
+import { isMockMode } from '@/constants/api';
 
 export function AccountScreen() {
   const { state, signOut, busy, refresh } = useAuth();
@@ -26,7 +27,7 @@ export function AccountScreen() {
         </>}
       {action.error && <AuthMessage error>{action.error}</AuthMessage>}
     </GameCard>
-    <GameButton label="내 방 미리보기" variant="secondary" disabled={busy} onPress={() => router.dismissTo('/')} />
+    <GameButton label={isMockMode ? '내 방 미리보기' : '내 방으로'} variant="secondary" disabled={busy} onPress={() => router.dismissTo('/')} />
   </GameScreen>;
 }
 

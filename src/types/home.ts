@@ -1,4 +1,4 @@
-// UI model only. Map the eventual backend response to this shape in the service layer.
+// UI model only. Backend DTOs are mapped to this shape in the service layer.
 export type HomeOverview = {
   readonly profile: {
     readonly nickname: string;

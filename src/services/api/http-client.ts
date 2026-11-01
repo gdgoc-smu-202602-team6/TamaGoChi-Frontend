@@ -1,6 +1,6 @@
 export class ApiError extends Error {
   constructor(
-    readonly kind: 'http' | 'network' | 'timeout' | 'response' | 'storage' | 'config',
+    readonly kind: 'http' | 'network' | 'timeout' | 'response' | 'storage' | 'config' | 'session',
     readonly status?: number,
     readonly code?: string,
   ) {
@@ -67,6 +67,7 @@ export function createHttpClient({ baseUrl, fetcher = fetch, timeoutMs = 15000 }
 
 export function apiErrorMessage(error: unknown): string {
   if (!(error instanceof ApiError)) return '요청을 완료하지 못했어요. 다시 시도해 주세요.';
+  if (error.kind === 'session') return '로그인 정보가 바뀌었어요. 현재 계정에서 다시 시도해 주세요.';
   if (error.kind === 'network' || error.kind === 'timeout') return '서버에 연결하지 못했어요. 연결 상태를 확인하고 다시 시도해 주세요.';
   if (error.kind === 'storage') return '로그인 정보를 저장하거나 지우지 못했어요. 다시 시도해 주세요.';
   if (error.kind === 'config') return '지금은 연결을 준비하고 있어요. 잠시 후 다시 시도해 주세요.';

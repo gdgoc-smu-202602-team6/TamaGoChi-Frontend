@@ -4,7 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuthProvider } from '@/state/auth-context';
-import { StudyProvider } from '@/state/study-context';
+import { GameServicesProvider } from '@/state/game-services';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -13,8 +13,8 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
-        <StudyProvider>
-          <AnimatedSplashOverlay />
+        <AnimatedSplashOverlay />
+        <GameServicesProvider>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="study" />
@@ -26,7 +26,7 @@ export default function RootLayout() {
             <Stack.Screen name="reset-password" />
             <Stack.Screen name="account" />
           </Stack>
-        </StudyProvider>
+        </GameServicesProvider>
       </AuthProvider>
     </ThemeProvider>
   );

@@ -7,6 +7,7 @@ import { AuthFrame, AuthMessage } from '@/features/auth/components/auth-frame';
 import { useAuthAction } from '@/features/auth/hooks/use-auth-action';
 import { useAuth } from '@/state/auth-context';
 import { validateEmail, validateNewPassword, validateNickname } from '@/utils/auth-validation';
+import { isMockMode } from '@/constants/api';
 
 export function SignupScreen() {
   const auth = useAuth();
@@ -15,7 +16,7 @@ export function SignupScreen() {
   const [password, setPassword] = useState('');
   const action = useAuthAction();
   const busy = action.pending || auth.state.status === 'loading';
-  if (auth.state.status === 'ready' && auth.state.user) return <Redirect href="/account" />;
+  if (auth.state.status === 'ready' && auth.state.user) return <Redirect href={isMockMode ? '/account' : '/'} />;
   async function submit() {
     const invalid = validateNickname(nickname) ?? validateEmail(email) ?? validateNewPassword(password);
     if (invalid) { action.setError(invalid); return; }

@@ -16,6 +16,11 @@ export default function HomeRoute() {
     setError(null);
     try {
       if (state.status === 'error') { await refresh(); return; }
+      if (state.completedSessionId && !state.session) {
+        router.push({ pathname: '/study-result/[sessionId]', params: { sessionId: state.completedSessionId } });
+        return;
+      }
+      if (state.session) { router.push('/study'); return; }
       await startStudy();
       router.push('/study');
     } catch (reason) {
@@ -28,7 +33,7 @@ export default function HomeRoute() {
   const label = state.status === 'loading' ? '공부 상태 확인 중…'
     : operation === 'start' ? '공부 시작 중…'
     : state.status === 'error' ? '공부 상태 다시 확인'
-    : state.session ? '진행 중인 공부 보기' : undefined;
+    : state.session ? '진행 중인 공부 보기' : state.completedSessionId ? '끝난 공부 결과 확인' : undefined;
 
   return <HomeScreen
     onStartStudy={openStudy}

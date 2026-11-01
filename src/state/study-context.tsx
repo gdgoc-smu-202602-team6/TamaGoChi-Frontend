@@ -1,13 +1,15 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type PropsWithChildren } from 'react';
 import { AppState } from 'react-native';
 
-import { studyErrorMessage, studyService } from '@/services/study';
+import { studyErrorMessage } from '@/services/study';
 import type { StudyResult, StudyService, StudySession } from '@/types/study';
+import { sessionEndIntent } from '@/utils/session-clock';
 
 type StudyState = {
   status: 'loading' | 'ready' | 'error';
   session: StudySession | null;
   error: string | null;
+  completedSessionId: string | null;
 };
 type StudyContextValue = {
   state: StudyState;
@@ -16,12 +18,13 @@ type StudyContextValue = {
   refresh: () => Promise<void>;
   startStudy: () => Promise<StudySession>;
   finishStudy: (sessionId: string) => Promise<StudyResult>;
+  acknowledgeResult: (sessionId: string) => Promise<void>;
 };
 
 const StudyContext = createContext<StudyContextValue | null>(null);
 
-export function StudyProvider({ children, service = studyService }: PropsWithChildren<{ service?: StudyService }>) {
-  const [state, setState] = useState<StudyState>({ status: 'loading', session: null, error: null });
+export function StudyProvider({ children, service, enabled = true }: PropsWithChildren<{ service: StudyService; enabled?: boolean }>) {
+  const [state, setState] = useState<StudyState>({ status: 'loading', session: null, completedSessionId: null, error: null });
   const [operation, setOperation] = useState<StudyContextValue['operation']>(null);
   const [revision, setRevision] = useState(0);
   const alive = useRef(true);
@@ -30,11 +33,12 @@ export function StudyProvider({ children, service = studyService }: PropsWithChi
   const finishing = useRef<Promise<StudyResult> | null>(null);
 
   const refresh = useCallback(async () => {
+    if (!enabled || starting.current || finishing.current) return;
     const request = ++generation.current;
     try {
-      const session = await service.getActiveSession();
+      const recovery = service.getRecovery ? await service.getRecovery() : { session: await service.getActiveSession(), completedSessionId: null };
       if (alive.current && request === generation.current) {
-        setState({ status: 'ready', session, error: null });
+        setState({ status: 'ready', ...recovery, error: null });
         setRevision((value) => value + 1);
       }
     } catch (error) {
@@ -42,7 +46,7 @@ export function StudyProvider({ children, service = studyService }: PropsWithChi
         setState((previous) => ({ ...previous, status: 'error', error: studyErrorMessage(error) }));
       }
     }
-  }, [service]);
+  }, [service, enabled]);
 
   useEffect(() => {
     alive.current = true;
@@ -50,19 +54,23 @@ export function StudyProvider({ children, service = studyService }: PropsWithChi
     const subscription = AppState.addEventListener('change', (status) => {
       if (status === 'active') void refresh();
     });
+    const polling = enabled && service.getRecovery ? setInterval(() => {
+      if (AppState.currentState === 'active') void refresh();
+    }, 30000) : undefined;
     return () => {
       alive.current = false;
       generation.current += 1;
       subscription.remove();
+      clearInterval(polling);
     };
-  }, [refresh]);
+  }, [refresh, enabled, service]);
 
   const startStudy = useCallback(() => {
     if (starting.current) return starting.current;
-    generation.current += 1;
+    const request = ++generation.current;
     setOperation('start');
     const promise = Promise.resolve().then(() => service.startSession()).then((session) => {
-      if (alive.current) setState({ status: 'ready', session, error: null });
+      if (alive.current && request === generation.current) setState(previous => ({ ...previous, status: 'ready', session, error: null }));
       return session;
     }).finally(() => {
       starting.current = null;
@@ -74,11 +82,12 @@ export function StudyProvider({ children, service = studyService }: PropsWithChi
 
   const finishStudy = useCallback((sessionId: string) => {
     if (finishing.current) return finishing.current;
-    generation.current += 1;
+    const request = ++generation.current;
     setOperation('finish');
-    const promise = Promise.resolve().then(() => service.finishSession(sessionId)).then((result) => {
-      if (alive.current) {
-        setState({ status: 'ready', session: null, error: null });
+    const endedAt = sessionEndIntent();
+    const promise = Promise.resolve().then(() => service.finishSession(sessionId, endedAt)).then((result) => {
+      if (alive.current && request === generation.current) {
+        setState({ status: 'ready', session: null, completedSessionId: result.sessionId, error: null });
         setRevision((value) => value + 1);
       }
       return result;
@@ -90,7 +99,14 @@ export function StudyProvider({ children, service = studyService }: PropsWithChi
     return promise;
   }, [service]);
 
-  const value = useMemo(() => ({ state, operation, revision, refresh, startStudy, finishStudy }), [state, operation, revision, refresh, startStudy, finishStudy]);
+  const acknowledgeResult = useCallback(async (id: string) => {
+    await service.acknowledgeResult?.(id);
+    if (alive.current) {
+      setState(previous => previous.completedSessionId === id ? { ...previous, completedSessionId: null } : previous);
+      setRevision(value => value + 1);
+    }
+  }, [service]);
+  const value = useMemo(() => ({ state, operation, revision, refresh, startStudy, finishStudy, acknowledgeResult }), [state, operation, revision, refresh, startStudy, finishStudy, acknowledgeResult]);
   return <StudyContext value={value}>{children}</StudyContext>;
 }
 

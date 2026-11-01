@@ -11,5 +11,5 @@
     "outDir": ".expo/tests",
     "noEmitOnError": true
   },
-  "include": ["src/mocks/study-backend.ts", "src/utils/study-time.ts", "src/services/api/auth-service.ts", "src/utils/auth-validation.ts"]
+  "include": ["src/mocks/study-backend.ts", "src/utils/study-time.ts", "src/services/api/*.ts", "src/utils/auth-validation.ts", "src/utils/session-clock.ts"]
 }
