@@ -25,6 +25,7 @@ export default function RootLayout() {
             <Stack.Screen name="forgot-password" />
             <Stack.Screen name="reset-password" />
             <Stack.Screen name="account" />
+            <Stack.Screen name="clubs/join" />
           </Stack>
         </GameServicesProvider>
       </AuthProvider>

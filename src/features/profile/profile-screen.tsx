@@ -36,6 +36,7 @@ export function ProfileScreen() {
           <DailyGoalEditor key={`${data.serviceDay}:${data.scheduledGoals.find(goal => goal.startOn === data.tomorrow)?.minutes ?? '-'}`} profile={data} disabled={profile.refreshing || profile.unverified} saving={profile.saving} onSave={minutes => { void profile.saveGoal(minutes); }} />
         </>}
         <GameCard>
+          <GameButton compact variant="secondary" label="동아리 가입·신청" onPress={() => router.push('/clubs/join')} />
           <GameButton compact variant="secondary" label={auth.user ? '내 계정' : '이메일로 로그인'} onPress={() => router.push(auth.user ? '/account' : '/login')} />
           <GameButton compact variant="secondary" label="잠금한 앱 관리 · 준비 중" disabled />
           <GameButton compact variant="secondary" label="보유 아이템 · 준비 중" disabled />

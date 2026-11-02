@@ -94,9 +94,9 @@ test('cursor overlap retains already-confirmed read state and does not duplicate
   assert.deepEqual(appendNoticePage([{ ...notice, read: true }], [notice, { ...notice, id: id(5) }]), [{ ...notice, read: true }, { ...notice, id: id(5) }]);
 });
 function mockFixture() {
-  let raw = null, fail = false, writes = 0;
-  const store = { async getItem() { return raw; }, async setItem(key, value) { assert.equal(key, MOCK_NOTICE_STORAGE_KEY); if (fail) throw new Error('disk'); raw = value; writes++; } };
-  return { service: createMockNoticeService(store), reopen: () => createMockNoticeService(store), raw: () => raw, setRaw: value => { raw = value; }, fail: value => { fail = value; }, writes: () => writes };
+  let fail = false, writes = 0; const data = new Map();
+  const store = { async getItem(key) { return data.get(key) ?? null; }, async setItem(key, value) { assert.equal(key, MOCK_NOTICE_STORAGE_KEY); if (fail) throw new Error('disk'); data.set(key, value); writes++; } };
+  return { service: createMockNoticeService(store), reopen: () => createMockNoticeService(store), raw: () => data.get(MOCK_NOTICE_STORAGE_KEY) ?? null, setRaw: value => { data.set(MOCK_NOTICE_STORAGE_KEY, value); }, fail: value => { fail = value; }, writes: () => writes };
 }
 test('mock read state persists, is idempotent, and remains independent between clubs', async () => {
   const f = mockFixture(), [first, second] = await f.service.listMyClubs(), board = await f.service.getBoard(first.id, {});
