@@ -8,6 +8,8 @@ import { createApiHomeService } from '@/services/api/home-service';
 import { createApiStudyService } from '@/services/api/study-service';
 import { createApiShopService } from '@/services/api/shop-service';
 import { createApiProfileService } from '@/services/api/profile-service';
+import { createApiNoticeService } from '@/services/api/notice-service';
+import { createMockNoticeService } from '@/mocks/notices';
 import { mockBackend } from '@/services/mock-backend';
 import { useAuth } from '@/state/auth-context';
 import { StudyProvider } from '@/state/study-context';
@@ -15,8 +17,10 @@ import type { HomeService } from '@/types/home';
 import type { StudyService } from '@/types/study';
 import type { ShopService } from '@/types/shop';
 import type { ProfileService } from '@/types/profile';
+import type { NoticeService } from '@/types/notice';
+import { ClubProvider } from '@/state/club-context';
 
-type GameServices = { home: HomeService; study: StudyService; shop: ShopService; profile: ProfileService };
+type GameServices = { home: HomeService; study: StudyService; shop: ShopService; profile: ProfileService; notices: NoticeService };
 type GameContext = GameServices & { revision: number; invalidate: () => void };
 const GameServicesContext = createContext<GameContext | null>(null);
 
@@ -38,17 +42,23 @@ function GameScope({ children }: PropsWithChildren) {
   useEffect(() => { lease.open(); return () => { lease.close(); }; }, [lease]);
   // A scope owns a fixed token. Old async work can never acquire another account's token.
   const services = useMemo<GameServices>(() => {
-    if (isMockMode) return { home: mockBackend, study: mockBackend, shop: mockBackend, profile: mockBackend };
+    if (isMockMode) return { home: mockBackend, study: mockBackend, shop: mockBackend, profile: mockBackend, notices: createMockNoticeService(AsyncStorage) };
     const token = state.token;
     const client = createAuthorizedClient(apiClient, { getToken: async () => token, isCurrent: lease.isCurrent, onUnauthorized: () => { void refresh(); } });
     const key = `@tamagochi/api-study/v1/${encodeURIComponent(apiBaseUrl)}/${encodeURIComponent(state.user?.id ?? 'anonymous')}`;
-    return { home: createApiHomeService(client), shop: createApiShopService(client), profile: createApiProfileService(client), study: createApiStudyService(client, {
+    return { home: createApiHomeService(client), shop: createApiShopService(client), profile: createApiProfileService(client), notices: createApiNoticeService(client), study: createApiStudyService(client, {
       get: () => AsyncStorage.getItem(key), set: value => AsyncStorage.setItem(key, value),
     }) };
   }, [state.token, state.user?.id, refresh, lease]);
+  const clubStore = useMemo(() => {
+    const key = isMockMode ? '@tamagochi/mock-club-selection/v1' : `@tamagochi/club-selection/v1/${encodeURIComponent(apiBaseUrl)}/${encodeURIComponent(state.user?.id ?? 'anonymous')}`;
+    return { get: () => AsyncStorage.getItem(key), set: (id: string | null) => id === null ? AsyncStorage.removeItem(key) : AsyncStorage.setItem(key, id) };
+  }, [state.user?.id]);
   const value = useMemo(() => ({ ...services, revision, invalidate }), [services, revision, invalidate]);
   return <GameServicesContext value={value}>
-    <StudyProvider service={services.study} enabled={isMockMode || (state.status === 'ready' && !!state.user)}>{children}</StudyProvider>
+    <ClubProvider service={services.notices} store={clubStore} enabled={isMockMode || (state.status === 'ready' && !!state.user)}>
+      <StudyProvider service={services.study} enabled={isMockMode || (state.status === 'ready' && !!state.user)}>{children}</StudyProvider>
+    </ClubProvider>
   </GameServicesContext>;
 }
 
