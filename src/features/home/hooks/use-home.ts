@@ -30,7 +30,7 @@ export function useHome(override?: HomeService, refreshKey = 0) {
     return () => {
       active = false;
     };
-  }, [service, attempt, refreshKey]);
+  }, [service, attempt, refreshKey, services.revision]);
 
   function retry() {
     setState({ status: 'loading' });

@@ -5,13 +5,14 @@ import { GameColors, GameUi, Spacing } from '@/constants/theme';
 type GameButtonProps = {
   label: string;
   onPress?: () => void;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'success';
+  accessibilityLabel?: string;
   compact?: boolean;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
-export function GameButton({ label, onPress, variant = 'primary', compact, disabled: explicitlyDisabled, style }: GameButtonProps) {
+export function GameButton({ label, onPress, variant = 'primary', compact, disabled: explicitlyDisabled, style, accessibilityLabel }: GameButtonProps) {
   const disabled = explicitlyDisabled || !onPress;
   return (
     <View style={[styles.depth, style]}>
@@ -19,11 +20,12 @@ export function GameButton({ label, onPress, variant = 'primary', compact, disab
         onPress={onPress}
         disabled={disabled}
         accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
         accessibilityState={{ disabled }}
         aria-disabled={disabled}
         style={({ pressed }) => [
           styles.face,
-          { backgroundColor: variant === 'primary' ? GameColors.yellow : GameColors.cream },
+          { backgroundColor: variant === 'primary' ? GameColors.yellow : variant === 'success' ? GameColors.green : GameColors.cream },
           compact && styles.compact,
           pressed && styles.pressed,
         ]}>
@@ -46,7 +48,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: { ...GameUi.typography.title, color: GameColors.ink, textAlign: 'center' },
-  compact: { minHeight: 44, paddingHorizontal: Spacing.three },
+  compact: { minHeight: 44, paddingHorizontal: Spacing.two },
   compactLabel: { ...GameUi.typography.body, fontWeight: '800' },
   disabledLabel: { color: GameColors.inkMuted },
   pressed: { transform: [{ translateY: 2 }] },

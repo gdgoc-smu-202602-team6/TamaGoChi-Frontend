@@ -3,6 +3,7 @@ export class ApiError extends Error {
     readonly kind: 'http' | 'network' | 'timeout' | 'response' | 'storage' | 'config' | 'session',
     readonly status?: number,
     readonly code?: string,
+    readonly details?: { requiredLevel?: number; shortBy?: number },
   ) {
     // Never include response bodies, credentials, URLs with reset tokens, or authorization headers.
     super(`API ${kind}${status ? ` (${status})` : ''}`);
@@ -25,6 +26,17 @@ function errorCode(data: unknown): string | undefined {
   const record = data as Record<string, unknown>;
   if (typeof record.code === 'string') return record.code;
   if (typeof record.type === 'string') return record.type.split('/').at(-1);
+}
+
+function problemDetails(data: unknown): ApiError['details'] {
+  if (!data || typeof data !== 'object') return;
+  const record = data as Record<string, unknown>;
+  const details: NonNullable<ApiError['details']> = {};
+  for (const key of ['requiredLevel', 'shortBy'] as const) {
+    const value = record[key];
+    if (typeof value === 'number' && Number.isSafeInteger(value) && value >= 0) details[key] = value;
+  }
+  return details;
 }
 
 export function createHttpClient({ baseUrl, fetcher = fetch, timeoutMs = 15000 }: {
@@ -55,7 +67,7 @@ export function createHttpClient({ baseUrl, fetcher = fetch, timeoutMs = 15000 }
           try { data = await response.json(); }
           catch { if (response.ok) throw new ApiError('response'); }
         }
-        if (!response.ok) throw new ApiError('http', response.status, errorCode(data));
+        if (!response.ok) throw new ApiError('http', response.status, errorCode(data), problemDetails(data));
         return { data: data as T, headers: response.headers };
       } catch (error) {
         if (error instanceof ApiError) throw error;
