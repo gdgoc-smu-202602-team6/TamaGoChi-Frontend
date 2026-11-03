@@ -31,6 +31,7 @@ export default function RootLayout() {
             <Stack.Screen name="clubs/[clubId]/applications" />
             <Stack.Screen name="clubs/[clubId]/notices/compose" />
             <Stack.Screen name="clubs/[clubId]/notices/[noticeId]/edit" />
+            <Stack.Screen name="clubs/[clubId]/notice-categories" />
           </Stack>
         </GameServicesProvider>
       </AuthProvider>

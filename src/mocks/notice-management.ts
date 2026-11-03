@@ -5,9 +5,9 @@ import { NoticeComposeError } from '../types/notice-compose';
 import { NoticeManagementError } from '../types/notice-management';
 import { createMockClubAdminService } from './club-admin';
 import { joinedMockClubs, type MockApplicationStore } from './clubs';
-import { readCreatedMockClubs } from './created-clubs';
 import { MOCK_NOTICE_CONTENT_KEY, readMockNoticeState } from './notice-content';
-import { createMockNoticeService, mockNoticeCategories } from './notices';
+import { createMockNoticeService } from './notices';
+import { getMockNoticeCategories } from './notice-categories-data';
 
 export function createMockNoticeManagementService(storage: MockApplicationStore) {
   const access = createMockClubAdminService(storage), notices = createMockNoticeService(storage);
@@ -20,7 +20,7 @@ export function createMockNoticeManagementService(storage: MockApplicationStore)
     async context(clubId) {
       if (!(await access.getPermissions(clubId)).includes('notices.write')) throw new NoticeManagementError('forbidden');
       const club = (await joinedMockClubs(storage)).find(club => club.id === clubId)!;
-      return { club, categories: (await readCreatedMockClubs(storage)).some(one => one.id === clubId) ? mockNoticeCategories.slice(0, 1) : mockNoticeCategories };
+      return { club, categories: await getMockNoticeCategories(storage, clubId) };
     },
     get,
     async update(clubId, id, patch) {
