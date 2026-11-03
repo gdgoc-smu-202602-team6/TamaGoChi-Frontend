@@ -4,7 +4,7 @@ import { NoticeComposeError, type NoticeComposeStore } from '../types/notice-com
 import { createMockClubAdminService } from './club-admin';
 import { joinedMockClubs, type MockApplicationStore } from './clubs';
 import { readCreatedMockClubs } from './created-clubs';
-import { MOCK_NOTICE_CONTENT_KEY, readMockNoticeContent } from './notice-content';
+import { MOCK_NOTICE_CONTENT_KEY, readMockNoticeContent, readMockNoticeState } from './notice-content';
 import { createMockNoticeService, mockNoticeCategories } from './notices';
 
 export function createMockNoticeComposeService(storage: MockApplicationStore, store: NoticeComposeStore, now = Date.now) {
@@ -16,10 +16,10 @@ export function createMockNoticeComposeService(storage: MockApplicationStore, st
       return { club, categories: (await readCreatedMockClubs(storage)).some(club => club.id === clubId) ? mockNoticeCategories.slice(0, 1) : mockNoticeCategories };
     },
     async create(clubId, input) {
-      const current = await readMockNoticeContent(storage);
+      const state = await readMockNoticeState(storage);
       const notice = { id: `mock-notice-${now()}-${Math.random().toString(36).slice(2)}`, categoryId: input.categoryId, ...(input.subcategoryId ? { subcategoryId: input.subcategoryId } : {}),
         title: input.title, body: input.body, pinned: input.pinned, authorUserId: 'mock-me', createdAt: new Date(now()).toISOString(), read: false, notificationState: input.notify ? 'PENDING' as const : 'NONE' as const };
-      try { await storage.setItem(MOCK_NOTICE_CONTENT_KEY, JSON.stringify({ version: 1, notices: [...current, { clubId, notice }] })); }
+      try { await storage.setItem(MOCK_NOTICE_CONTENT_KEY, JSON.stringify({ ...state, notices: [...state.notices, { clubId, notice }] })); }
       catch { throw new NoticeComposeError('storage'); }
       return notice;
     },

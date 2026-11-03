@@ -1,7 +1,7 @@
 import type { JoinedClub, Notice, NoticeCategory, NoticeFilter, NoticeService } from '../types/notice';
 import { joinedMockClubs } from './clubs';
 import { readCreatedMockClubs } from './created-clubs';
-import { readMockNoticeContent } from './notice-content';
+import { readMockNoticeState } from './notice-content';
 
 const clubs: readonly JoinedClub[] = [
   { id: 'mock-club-study', name: '함께 공부하는 모임', memberCount: 12 },
@@ -33,8 +33,9 @@ export function createMockNoticeService(storage: { getItem: (key: string) => Pro
   const isCreated = async (id: string) => (await readCreatedMockClubs(storage)).some(club => club.id === id);
   async function notices(clubId: string) {
     await ensureClub(clubId);
-    const read = await reads(), custom = (await readMockNoticeContent(storage)).filter(one => one.clubId === clubId).map(one => one.notice);
-    return [...(await isCreated(clubId) ? [] : demoNotices(clubId)), ...custom].map(one => ({ ...one, read: one.read || read.includes(one.id) }))
+    const read = await reads(), state = await readMockNoticeState(storage), custom = state.notices.filter(one => one.clubId === clubId).map(one => one.notice);
+    const entries = new Map([...(await isCreated(clubId) ? [] : demoNotices(clubId)).map(one => ({ ...one, notificationState: 'NONE' as const })), ...custom].map(one => [one.id, one]));
+    return [...entries.values()].filter(one => !state.deleted.some(deleted => deleted.clubId === clubId && deleted.noticeId === one.id)).map(one => ({ ...one, read: one.read || read.includes(one.id) }))
       .sort((a, b) => Number(b.pinned) - Number(a.pinned) || Date.parse(b.createdAt) - Date.parse(a.createdAt));
   }
   const filtered = (items: Notice[], filter: NoticeFilter) => items.filter(one => (!filter.categoryId || one.categoryId === filter.categoryId) && (!filter.subcategoryId || one.subcategoryId === filter.subcategoryId));

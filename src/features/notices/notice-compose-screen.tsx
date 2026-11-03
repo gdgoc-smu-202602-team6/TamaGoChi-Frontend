@@ -5,12 +5,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GameButton } from '@/components/ui/game-button';
 import { GameCard } from '@/components/ui/game-card';
-import { GameInput } from '@/components/ui/game-input';
 import { GameToggle } from '@/components/ui/game-toggle';
 import { isMockMode } from '@/constants/api';
 import { GameColors, GameUi, Spacing } from '@/constants/theme';
-import { noticeCharacterCount, notificationLabels } from '@/utils/notice-compose';
-import { FilterChips } from './components/filter-chips';
+import { notificationLabels } from '@/utils/notice-compose';
+import { NoticeFields } from './components/notice-fields';
 import { useNoticeCompose } from './hooks/use-notice-compose';
 
 export function NoticeComposeScreen({ clubId }: { clubId: string }) {
@@ -20,7 +19,6 @@ export function NoticeComposeScreen({ clubId }: { clubId: string }) {
   const publishing = editor.operation === 'publish', prevent = !allowLeave && (editor.dirty || publishing);
   const disablePrevention = usePreventRemove(prevent, ({ repeat }) => { if (!publishing) { leaveAction.current = repeat; setLeavePrompt(true); } });
   const disabled = !!editor.operation || !editor.verified || leavePrompt || resetPrompt;
-  const category = board ? board.categories.find(one => one.id === draft.categoryId) : undefined;
   function leave(action: () => void) {
     if (editor.operation) return;
     if (prevent) { leaveAction.current = action; setLeavePrompt(true); }
@@ -48,17 +46,9 @@ export function NoticeComposeScreen({ clubId }: { clubId: string }) {
           </GameCard>}
           <GameButton compact variant="secondary" label="작성 상태 다시 확인" disabled={!!editor.operation || leavePrompt || resetPrompt} onPress={() => { void editor.refresh(); }} />
           {board && board.status.kind === 'ready' && <GameCard contentStyle={styles.form}>
-            <Text style={styles.label}>분류</Text>
-            <FilterChips label="공지 작성 분류" options={board.categories} value={draft.categoryId} disabled={disabled} onChange={id => editor.change({ categoryId: id, subcategoryId: undefined })} />
-            {!board.categories.length && <Text style={styles.error}>선택할 분류가 없어요. 분류를 확인한 뒤 다시 불러와 주세요.</Text>}
-            {!!category?.subcategories.length && <><Text style={styles.label}>세부 분류</Text><FilterChips label="공지 작성 세부 분류" options={[{ id: '', name: '선택 안 함' }, ...category.subcategories]} value={draft.subcategoryId ?? ''} disabled={disabled} onChange={id => editor.change({ subcategoryId: id || undefined })} /></>}
-            <GameInput label="제목" value={draft.title} onChangeText={title => editor.change({ title })} editable={!disabled} hint={`${noticeCharacterCount(draft.title) ?? '—'}/50자`} />
-            <GameInput label="내용" value={draft.body} onChangeText={body => editor.change({ body })} editable={!disabled} multiline textAlignVertical="top" style={styles.bodyInput} hint={`${noticeCharacterCount(draft.body) ?? '—'}/2,000자 · 긴 한글 본문을 입력할 수 있어요.`} />
-            <View style={styles.options}>
-              <GameToggle label="상단 고정" hint="공지 목록 위쪽에 표시해요." value={draft.pinned} disabled={disabled} onChange={pinned => editor.change({ pinned })} />
-              <View style={styles.divider} />
+            <NoticeFields draft={draft} categories={board.categories} disabled={disabled} label="공지 작성" onChange={editor.change}>
               <GameToggle label="푸시 알림 보내기" hint="등록 후 서버에 알림 발송을 요청해요." value={draft.notify} disabled={disabled} onChange={notify => editor.change({ notify })} />
-            </View>
+            </NoticeFields>
           </GameCard>}
           {board && board.status.kind === 'created' && <GameCard>
             <Text accessibilityRole="header" style={styles.title}>공지 등록 확인</Text>
@@ -90,6 +80,5 @@ const styles = StyleSheet.create({
   topbar: { paddingVertical: 12 }, heading: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 }, headingTitle: { flex: 1 }, title: { ...GameUi.typography.title, color: GameColors.ink },
   body: { ...GameUi.typography.body, color: GameColors.ink }, label: { ...GameUi.typography.body, color: GameColors.ink, fontWeight: '800' },
   caption: { ...GameUi.typography.caption, color: GameColors.inkMuted }, error: { ...GameUi.typography.body, color: GameColors.coral },
-  form: { backgroundColor: GameColors.cream, gap: Spacing.three }, bodyInput: { minHeight: 180 },
-  options: { padding: 12, backgroundColor: GameColors.paper, borderRadius: GameUi.radius.card, borderWidth: 2, borderColor: GameColors.ink, gap: 10 }, divider: { height: 2, backgroundColor: GameColors.track },
+  form: { backgroundColor: GameColors.cream, gap: Spacing.three },
 });
