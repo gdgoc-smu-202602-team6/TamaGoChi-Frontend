@@ -9,7 +9,7 @@ import { GameColors, GameUi, Spacing } from '@/constants/theme';
 import { FilterChips } from '@/features/notices/components/filter-chips';
 import type { PlacementTarget } from '@/types/room';
 import { shopCategories, type ShopCategory } from '@/types/shop';
-import { availableTargets, effectivePlacement, roomAppearance, roomSize, targetLabels } from '@/utils/room-layout';
+import { availableTargets, roomAppearance, roomSize, targetLabels } from '@/utils/room-layout';
 import { RoomInventory } from './components/room-inventory';
 import { RoomScene } from './components/room-scene';
 import { useRoomEditor } from './hooks/use-room-editor';
@@ -34,7 +34,6 @@ export function RoomEditScreen() {
   const targets = snapshot ? availableTargets(snapshot.draft) : [];
   const activeTarget = selected && targets.includes(selected) ? selected : null;
   const size = snapshot ? roomSize(snapshot.draft, snapshot.data.items) : 0;
-  const point = activeTarget && snapshot ? effectivePlacement(snapshot.draft, activeTarget, size) : null;
   return <SafeAreaView style={styles.screen}>
     <ScrollView scrollEnabled={!dragging} contentContainerStyle={styles.scroll}>
       <View style={styles.content}>
@@ -55,19 +54,15 @@ export function RoomEditScreen() {
         {reloadPrompt && <GameCard><Text style={styles.body}>현재 편집을 버리고 서버에 저장된 방을 불러올까요?</Text><GameButton label="편집 유지" onPress={() => setReloadPrompt(false)} /><GameButton variant="secondary" label="서버 방으로 되돌리기" onPress={() => { setReloadPrompt(false); void editor.refresh(true); }} /></GameCard>}
         {snapshot ? <>
           <RoomScene appearance={roomAppearance(snapshot.data, snapshot.draft)} bugs={snapshot.data.condition.bugs} interaction={{ selected: activeTarget, disabled: sceneDisabled, onSelect: setSelected, onMove: editor.move, onDragging: setDragging }} />
+          <View style={styles.dragHint}>
+            <Text accessibilityLiveRegion="polite" style={styles.dragLabel}>{activeTarget ? `${targetLabels[activeTarget]} ${dragging ? '옮기는 중…' : '선택됨'}` : '물건을 터치한 채 끌어보세요.'}</Text>
+            <GameButton compact variant="secondary" label="위치 초기화" disabled={disabled} onPress={editor.resetPositions} />
+          </View>
           <GameCard>
             <Text accessibilityRole="header" style={styles.title}>보유 아이템</Text>
             <Text style={styles.caption}>선택하면 미리보기에 반영돼요. 완료를 눌러야 저장됩니다. 현재 방 {size}×{size}칸</Text>
             <FilterChips label="아이템 분류" value={category} options={shopCategories.map(id => ({ id, name: categoryLabels[id] }))} onChange={id => setCategory(id as ShopCategory)} disabled={disabled} />
             <RoomInventory data={snapshot.data} layout={snapshot.draft} category={category} disabled={disabled} onToggle={editor.toggle} />
-            <Text accessibilityRole="header" style={styles.title}>위치 조정</Text>
-            <Text style={styles.caption}>방 안의 물건을 끌어 옮겨요. 아래에서 대상을 고른 뒤 버튼으로도 이동할 수 있어요. 물건끼리 겹쳐도 됩니다.</Text>
-            <FilterChips label="배치 대상" value={activeTarget ?? ''} options={targets.map(id => ({ id, name: targetLabels[id] }))} onChange={id => setSelected(id as PlacementTarget)} disabled={disabled} />
-            {point && <>
-              <Text accessibilityLiveRegion="polite" style={styles.body}>{targetLabels[point.target]} · {point.x.toFixed(2)}, {point.y.toFixed(2)}칸{point.target === 'DESK' || point.target === 'BOOKSHELF' ? ' · 반 칸씩 이동' : ''}</Text>
-              <View style={styles.moves}>{([{ label: 'X −', dx: -.5, dy: 0 }, { label: 'X +', dx: .5, dy: 0 }, { label: 'Y −', dx: 0, dy: -.5 }, { label: 'Y +', dx: 0, dy: .5 }]).map(move => <GameButton key={move.label} compact label={move.label} accessibilityLabel={`${targetLabels[point.target]} ${move.label}`} disabled={disabled} onPress={() => editor.move({ ...point, x: point.x + move.dx, y: point.y + move.dy })} />)}</View>
-            </>}
-            <GameButton compact variant="secondary" label="위치 초기화" disabled={disabled} onPress={editor.resetPositions} />
             <Text style={styles.caption}>벽의 시계·창문·스탠드는 고정 위치이며, 캐릭터 장식은 캐릭터와 함께 이동해요. 방은 다른 보유 방으로 교체할 수 있어요.</Text>
             <GameButton label={saving ? '저장 확인 중…' : '완료 · 저장하고 나가기'} disabled={disabled} onPress={() => { void save(); }} />
             <GameButton compact variant="secondary" label="상점 가기" disabled={!!editor.operation || dragging} onPress={() => leave('/shop')} />
@@ -82,5 +77,7 @@ const styles = StyleSheet.create({
   content: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center', paddingHorizontal: 18, gap: Spacing.three },
   heading: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 12 }, title: { ...GameUi.typography.title, color: GameColors.ink },
   body: { ...GameUi.typography.body, color: GameColors.ink }, caption: { ...GameUi.typography.caption, color: GameColors.inkMuted },
-  error: { ...GameUi.typography.body, color: GameColors.coral }, notice: { ...GameUi.typography.body, color: GameColors.ink, backgroundColor: GameColors.cream, padding: 12, borderRadius: 12 }, moves: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  error: { ...GameUi.typography.body, color: GameColors.coral }, notice: { ...GameUi.typography.body, color: GameColors.ink, backgroundColor: GameColors.cream, padding: 12, borderRadius: 12 },
+  dragHint: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 12, padding: 12, backgroundColor: GameColors.cream, borderWidth: GameUi.borderWidth, borderColor: GameColors.ink, borderRadius: GameUi.radius.button },
+  dragLabel: { ...GameUi.typography.body, color: GameColors.ink, flexGrow: 1, flexShrink: 1 },
 });

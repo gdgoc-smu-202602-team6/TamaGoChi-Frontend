@@ -19,7 +19,9 @@ function FloorObject({ point, size, viewportWidth, children, interaction }: { po
   const start = useRef<{ point: Placement; pageX: number; pageY: number } | null>(null);
   const anchor = placementToScene(point, size), scale = 3 / size;
   const [baseWidth, baseHeight, feet] = dimensions[point.target], width = baseWidth * scale, height = baseHeight * scale;
+  const horizontalHit = Math.max(0, (44 - width * viewportWidth / 480) / 2), verticalHit = Math.max(0, (44 - height * viewportWidth / 480) / 2);
   return <View testID={`room-object-${point.target}`} accessible={!!interaction} accessibilityRole={interaction ? 'button' : undefined}
+    hitSlop={interaction ? { left: horizontalHit, right: horizontalHit, top: verticalHit, bottom: verticalHit } : undefined}
     onStartShouldSetResponder={() => !!interaction && !interaction.disabled}
     onResponderGrant={event => { start.current = { point, pageX: event.nativeEvent.pageX, pageY: event.nativeEvent.pageY }; interaction?.onSelect(point.target); interaction?.onDragging(true); }}
     onResponderMove={event => { if (start.current && !interaction?.disabled && event.nativeEvent.touches.length <= 1) interaction?.onMove(dragOnFloor(start.current.point, event.nativeEvent.pageX - start.current.pageX, event.nativeEvent.pageY - start.current.pageY, viewportWidth, size)); }}
@@ -27,6 +29,7 @@ function FloorObject({ point, size, viewportWidth, children, interaction }: { po
     onResponderTerminate={() => { if (start.current) interaction?.onMove(start.current.point); start.current = null; interaction?.onDragging(false); }}
     onResponderTerminationRequest={() => false}
     accessibilityLabel={`배치 ${targetLabels[point.target]}`} accessibilityState={{ selected: interaction?.selected === point.target, disabled: interaction?.disabled }}
+    accessibilityHint={interaction ? '터치한 채 끌어서 옮겨요.' : undefined}
     onAccessibilityTap={() => interaction?.onSelect(point.target)}
     style={[styles.object, { left: `${(anchor.x - width / 2) / 4.8}%`, top: `${(anchor.y - height * feet) / 4}%`, width: `${width / 4.8}%`, height: `${height / 4}%`, zIndex: point.target === 'RUG' ? 1 : 10 + Math.round(anchor.y) }, interaction?.selected === point.target && styles.selected]}>
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>{children}</View>
