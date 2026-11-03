@@ -28,6 +28,7 @@ export function ClubJoinScreen() {
         refreshing={join.refreshing} onRefresh={() => { void join.refresh(); }}
         ListHeaderComponent={<View style={styles.header}>
           <View style={styles.heading}><GameButton compact variant="secondary" label="◀ 내 방" onPress={() => router.dismissTo('/')} /><Text accessibilityRole="header" style={styles.title}>동아리 가입</Text></View>
+          <GameButton compact variant="secondary" label="새 동아리 만들기" onPress={() => router.push('/clubs/create')} />
           <GameCard>
             <Text accessibilityRole="header" style={styles.cardTitle}>초대 코드 입력</Text>
             <GameInput label="초대 코드" hint="운영진에게 받은 영문 대문자·숫자 8자리를 입력해 주세요." value={join.code} onChangeText={join.changeCode} autoCapitalize="characters" autoCorrect={false} maxLength={32} editable={!join.operation} returnKeyType="search" onSubmitEditing={() => { if (validInviteCode(join.code)) void join.search(); }} />

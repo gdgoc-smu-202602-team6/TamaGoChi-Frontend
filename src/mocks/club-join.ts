@@ -1,6 +1,7 @@
 import { ClubJoinError, type ClubApplication, type ClubJoinService } from '../types/club-join';
 import { normalizeInviteCode, validInviteCode } from '../utils/club-join';
 import { joinedMockClubs, MOCK_APPLICATION_STORAGE_KEY, mockClubCatalog, mockInviteCodes, readMockApplications, type MockApplicationStore } from './clubs';
+import { readCreatedMockClubs } from './created-clubs';
 
 export function createMockClubJoinService(storage: MockApplicationStore, now = Date.now): ClubJoinService {
   let queue: Promise<unknown> = Promise.resolve(), sequence = 0;
@@ -18,7 +19,8 @@ export function createMockClubJoinService(storage: MockApplicationStore, now = D
     findClub: code => serial(async () => {
       const normalized = normalizeInviteCode(code);
       if (!validInviteCode(normalized)) throw new ClubJoinError('invalid-code');
-      return mockClubCatalog.find(club => club.id === mockInviteCodes[normalized]) ?? null;
+      const club = mockClubCatalog.find(club => club.id === mockInviteCodes[normalized]) ?? (await readCreatedMockClubs(storage)).find(club => club.inviteCode === normalized);
+      return club ? { id: club.id, name: club.name, memberCount: club.memberCount, parts: club.parts } : null;
     }),
     apply: (clubId, partId) => serial(async () => {
       const current = await readMockApplications(storage), pending = current.find(one => one.clubId === clubId && one.state === 'PENDING');
