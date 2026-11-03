@@ -44,3 +44,5 @@ Mock 설정은 `@tamagochi/mock-club-settings/v1`의 `{ version: 1, clubs: { [cl
 운영 API 네트워크를 차단하고 가짜 클립보드를 사용했다. 운영 동아리 이름이나 코드를 변경하지 않았다. 실제 계정의 재발급·여러 기기의 동시 수정·실기기 클립보드·키보드·화면 읽기는 별도 검증이 필요하다.
 
 미리보기: `http://localhost:8082/notice`의 첫 동아리에서 `동아리 기본 설정`을 누른다. 직접 주소는 `/clubs/mock-club-study/settings`다. 두 번째 Mock 동아리는 일반 부원이므로 진입 버튼이 없다. 실제 API에서는 해당 동아리의 `club.update` 권한이 필요하다.
+
+후속 [파트 관리](club-parts-flow.md)를 별도의 `parts.manage` 권한으로 연결했다. 기본 설정 화면의 진입도 이 권한을 독립적으로 확인한다.

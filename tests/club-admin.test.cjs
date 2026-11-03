@@ -81,9 +81,9 @@ test('mismatched successful receipts require a matching final read; unsupported 
 function mockFixture(){const data=new Map(),writes=[];let fail=false;const store={async getItem(key){return data.get(key)??null;},async setItem(key,value){if(fail)throw new Error('disk');writes.push(key);data.set(key,value);}};
   return{data,writes,store,service:createMockClubAdminService(store),join:createMockClubJoinService(store),reopen:()=>createMockClubAdminService(store),fail:value=>{fail=value;}};}
 test('Mock roles distinguish operators, ordinary memberships and newly created club owners',async()=>{
-  const f=mockFixture();assert.deepEqual(await f.service.getPermissions('mock-club-study'),['applications.decide','notices.write','noticeCategories.manage','club.update']);assert.deepEqual(await f.service.getPermissions('mock-club-pixel'),[]);await assert.rejects(f.service.getBoard('mock-club-pixel'),{reason:'forbidden'});
+  const f=mockFixture();assert.deepEqual(await f.service.getPermissions('mock-club-study'),['applications.decide','notices.write','noticeCategories.manage','club.update','parts.manage']);assert.deepEqual(await f.service.getPermissions('mock-club-pixel'),[]);await assert.rejects(f.service.getBoard('mock-club-pixel'),{reason:'forbidden'});
   await assert.rejects(f.service.getPermissions('unknown'),{reason:'not-found'});const created=await createMockClubCreateService(f.store).create({name:'새 모임',parts:[{name:'개발',color:'BLUE'}],myPartName:'개발'});
-  assert.deepEqual((await f.service.getBoard(created.id)).applications,[]);assert.deepEqual(await f.service.getPermissions(created.id),['applications.decide','notices.write','noticeCategories.manage','club.update']);
+  assert.deepEqual((await f.service.getBoard(created.id)).applications,[]);assert.deepEqual(await f.service.getPermissions(created.id),['applications.decide','notices.write','noticeCategories.manage','club.update','parts.manage']);
 });
 test('Mock decisions persist once, update joined member counts and preserve own applications and study data',async()=>{
   const f=mockFixture(),preview=await f.join.findClub('MORI2026');await f.join.apply(preview.id,preview.parts[0].id);f.data.set('@tamagochi/mock-study/v1','study-preserved');

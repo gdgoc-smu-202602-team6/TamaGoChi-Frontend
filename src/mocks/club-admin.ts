@@ -2,6 +2,7 @@ import { ClubAdminError, type ClubAdminService } from '../types/club-admin';
 import { joinedMockClubs, mockClubCatalog, type MockApplicationStore } from './clubs';
 import { readCreatedMockClubs } from './created-clubs';
 import { MOCK_CLUB_REVIEW_KEY, readMockClubReviews } from './club-review-data';
+import { getMockClubParts } from './club-parts-data';
 
 export function createMockClubAdminService(storage: MockApplicationStore, now = Date.now): ClubAdminService {
   let queue: Promise<unknown> = Promise.resolve();
@@ -10,7 +11,7 @@ export function createMockClubAdminService(storage: MockApplicationStore, now = 
     if (!(await joinedMockClubs(storage)).some(club => club.id === clubId)) throw new ClubAdminError('not-found');
     // Explicit preview roles: first club + clubs created by the preview user are managed;
     // the second club and joined-by-approval clubs remain ordinary memberships.
-    return clubId === 'mock-club-study' || (await readCreatedMockClubs(storage)).some(club => club.id === clubId) ? ['applications.decide' as const, 'notices.write' as const, 'noticeCategories.manage' as const, 'club.update' as const] : [];
+    return clubId === 'mock-club-study' || (await readCreatedMockClubs(storage)).some(club => club.id === clubId) ? ['applications.decide' as const, 'notices.write' as const, 'noticeCategories.manage' as const, 'club.update' as const, 'parts.manage' as const] : [];
   }
   async function requireReview(clubId: string) { if (!(await getPermissions(clubId)).includes('applications.decide')) throw new ClubAdminError('forbidden'); }
   return {
@@ -19,7 +20,7 @@ export function createMockClubAdminService(storage: MockApplicationStore, now = 
       await requireReview(clubId);
       const club = (await joinedMockClubs(storage)).find(club => club.id === clubId)!;
       const details = mockClubCatalog.find(club => club.id === clubId) ?? (await readCreatedMockClubs(storage)).find(club => club.id === clubId)!;
-      return { club, parts: details.parts, applications: (await readMockClubReviews(storage)).filter(one => one.clubId === clubId && one.state === 'PENDING') };
+      return { club, parts: await getMockClubParts(storage, clubId, details.parts), applications: (await readMockClubReviews(storage)).filter(one => one.clubId === clubId && one.state === 'PENDING') };
     }),
     decide: (clubId, id, decision) => serial(async () => {
       if (!['APPROVED', 'REJECTED'].includes(decision)) throw new ClubAdminError('invalid');
