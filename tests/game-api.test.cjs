@@ -26,16 +26,18 @@ const isList = path => path.includes('?state=RUNNING');
 
 test('Home uses server stats and room condition without locally settling the KST service day', async () => {
   const calls = [];
+  const house = { id, code: 'house', name: '서버 방', slot: 'ROOM', category: 'ROOM_SIZE', grade: 'BASIC', price: 0, minLevel: 1, defaultOwned: true, roomSize: 3 };
   const home = createApiHomeService({ async request(path) {
     calls.push(path);
-    return { data: path.endsWith('/stats') ? { volts: 987, level: 7, todaySeconds: 1810, todayAttended: true } : path.endsWith('/room') ? { condition: { hearts: 2, bugs: 3, bugProgressSeconds: 3590 } } : { nickname: '서버냥' }, headers: new Headers() };
+    return { data: path === '/items' ? { items: [house] } : path === '/users/me/items' ? { items: [{ itemId: id, pricePaid: 0 }] } : path.endsWith('/stats') ? { volts: 987, level: 7, todaySeconds: 1810, todayAttended: true } : path.endsWith('/room') ? { userId: 'user', equipped: [{ slot: 'ROOM', itemId: id }], placements: [], condition: { hearts: 2, bugs: 3, bugProgressSeconds: 3590 } } : { nickname: '서버냥' }, headers: new Headers() };
   } });
   const data = await home.getHome();
   assert.deepEqual(data.profile, { nickname: '서버냥', bolt: 987, level: 7, hearts: 2 });
   assert.equal(data.todayStudySeconds, 1810);
   assert.equal(data.attendance.achieved, true);
   assert.equal(data.bugs.progressSeconds, 3590);
-  assert.deepEqual(calls, ['/users/me', '/users/me/stats', '/users/me/room']);
+  assert.equal(data.room.appearance.items[0].name, '서버 방');
+  assert.deepEqual(calls, ['/users/me', '/users/me/stats', '/items', '/users/me/items', '/users/me/room']);
 });
 
 test('server elapsed anchor ignores a skewed device clock and caps at maxEndAt', async () => {

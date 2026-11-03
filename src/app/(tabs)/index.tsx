@@ -36,6 +36,7 @@ export default function HomeRoute() {
     : state.session ? '진행 중인 공부 보기' : state.completedSessionId ? '끝난 공부 결과 확인' : undefined;
 
   return <HomeScreen
+    onEditRoom={() => router.push('/room-edit')}
     onStartStudy={openStudy}
     refreshKey={revision}
     studyActionLabel={label}

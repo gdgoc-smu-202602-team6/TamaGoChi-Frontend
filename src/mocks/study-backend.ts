@@ -7,6 +7,8 @@ import { mockShopItems } from './shop';
 import { GoalError, type DailyGoal, type ProfileOverview } from '../types/profile';
 import { addCalendarDays, goalMinutesOn, isCalendarDay, mondayOf, validGoalMinutes } from '../utils/profile';
 import { mockLevelForXp, mockXpForLevel } from './profile';
+import { RoomEditError, type Placement, type RoomLayout, type RoomOverview } from '../types/room';
+import { changeRoomEquipment, roomAppearance, sameRoomLayout, validateRoomLayout } from '../utils/room-layout';
 
 export const MOCK_STUDY_STORAGE_KEY = '@tamagochi/mock-study/v1';
 
@@ -26,6 +28,7 @@ type Database = {
   results: StudyResult[];
   shop?: { ownedItemIds: string[]; equipped: Partial<Record<ItemSlot, string>> };
   goals?: DailyGoal[];
+  placements?: Placement[];
 };
 type MockBackendOptions = {
   storage: Storage;
@@ -98,6 +101,8 @@ export function createMockStudyBackend({ storage, initialHome, isOnline, now = D
         throw new StudyServiceError('invalid-record', '저장된 공부 기록을 읽지 못했어요. 기록을 유지한 채 다시 시도해 주세요.');
       }
       validateDatabase(value);
+      try { validateRoomLayout(roomState(value).layout, mockShopItems, shopState(value).ownedItemIds); }
+      catch { throw new StudyServiceError('invalid-record', '저장된 방 배치를 읽지 못했어요. 기록을 유지한 채 다시 시도해 주세요.'); }
       return value;
     }
     const state: Database = {
@@ -122,6 +127,13 @@ export function createMockStudyBackend({ storage, initialHome, isOnline, now = D
     if (state.shop) return state.shop;
     const defaults = mockShopItems.filter(item => item.defaultOwned);
     return { ownedItemIds: defaults.map(item => item.id), equipped: Object.fromEntries(defaults.map(item => [item.slot, item.id])) };
+  }
+
+  function roomState(state: Database): RoomOverview {
+    const shop = shopState(state);
+    return { items: mockShopItems, ownedItemIds: shop.ownedItemIds,
+      layout: { equipped: Object.entries(shop.equipped).map(([slot, itemId]) => ({ slot: slot as ItemSlot, itemId: itemId! })), placements: state.placements ?? [] },
+      condition: { hearts: state.base.profile.hearts, bugs: state.bugCount, bugProgressSeconds: Math.floor(state.bugProgressMs / 1000) } };
   }
 
   function levelState(state: Database) {
@@ -155,6 +167,18 @@ export function createMockStudyBackend({ storage, initialHome, isOnline, now = D
   }
 
   return {
+    getRoom: () => serial(async () => roomState(await load())),
+    saveRoom: (layout: RoomLayout, baseline: RoomLayout) => serial(async () => {
+      const state = await load(), current = roomState(state);
+      validateRoomLayout(layout, mockShopItems, current.ownedItemIds);
+      if (sameRoomLayout(layout, current.layout)) return current;
+      if (!sameRoomLayout(baseline, current.layout)) throw new RoomEditError('changed');
+      const shop = shopState(state);
+      state.shop = { ownedItemIds: shop.ownedItemIds, equipped: Object.fromEntries(layout.equipped.map(one => [one.slot, one.itemId])) };
+      state.placements = layout.placements.map(one => ({ ...one }));
+      try { await save(state); } catch { throw new RoomEditError('storage'); }
+      return roomState(state);
+    }),
     getProfile: () => serial(async () => profileState(await load())),
     createGoal: (minutes: number, startOn: string) => serial(async () => {
       if (!validGoalMinutes(minutes) || !isCalendarDay(startOn)) throw new GoalError('invalid');
@@ -178,7 +202,10 @@ export function createMockStudyBackend({ storage, initialHome, isOnline, now = D
       if (levelState(state).level < item.minLevel) throw new ShopError('level-locked', item.minLevel);
       if (state.bolt < item.price) throw new ShopError('insufficient-volts', item.price - state.bolt);
       state.bolt -= item.price;
-      state.shop = { ownedItemIds: [...shop.ownedItemIds, item.id], equipped: { ...shop.equipped, [item.slot]: item.id } };
+      const ownedItemIds = [...shop.ownedItemIds, item.id];
+      const layout = changeRoomEquipment(roomState(state).layout, item, mockShopItems, ownedItemIds);
+      state.shop = { ownedItemIds, equipped: Object.fromEntries(layout.equipped.map(one => [one.slot, one.itemId])) };
+      state.placements = [...layout.placements];
       try { await save(state); } catch { throw new ShopError('storage'); }
     }),
     getActiveSession: () => serial(async () => (await load()).active),
@@ -190,6 +217,7 @@ export function createMockStudyBackend({ storage, initialHome, isOnline, now = D
       return {
         ...state.base,
         profile: { ...state.base.profile, bolt: state.bolt, level: levelState(state).level },
+        room: { ...state.base.room, appearance: roomAppearance(roomState(state)) },
         todayStudySeconds: seconds,
         attendance: { studySeconds: seconds, requiredSeconds: StudyRules.attendanceSeconds, achieved: seconds >= StudyRules.attendanceSeconds },
         bugs: { count: state.bugCount, progressSeconds: Math.floor(state.bugProgressMs / 1000), requiredSeconds: StudyRules.bugClearSeconds },

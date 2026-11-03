@@ -64,7 +64,7 @@ export function StudyScreen() {
           <GameButton label="내 방으로" onPress={() => router.dismissTo('/')} />
         </GameCard>
       ) : <>
-        {home.status === 'ready' && <RoomPreview bugs={home.data.bugs.count} name={home.data.room.name} characterLabel={home.data.room.characterLabel} />}
+        {home.status === 'ready' && <RoomPreview bugs={home.data.bugs.count} name={home.data.room.name} characterLabel={home.data.room.characterLabel} appearance={home.data.room.appearance} />}
         <GameCard>
           <View style={styles.statusRow}>
             <View style={styles.statusLabel}><PixelIcon name="hourglass" size={23} /><Text style={styles.title}>공부한 시간</Text></View>

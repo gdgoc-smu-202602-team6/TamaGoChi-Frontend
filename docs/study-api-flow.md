@@ -22,7 +22,7 @@ RequireAuth → GameServicesProvider (계정·로그인 세션별)
 
 | 화면/동작 | API와 표시 기준 |
 | --- | --- |
-| Home | `/users/me`, `/users/me/stats`, `/users/me/room`을 조회해 닉네임·Bolt·Level·Heart·오늘 공부시간·출석·버그 상태를 표시한다. KST 04:00 날짜 분리·보상·상태 정산은 서버 값이다. |
+| Home | `/users/me`, `/users/me/stats`, `/users/me/room`을 조회해 닉네임·Bolt·Level·Heart·오늘 공부시간·출석·버그 상태를 표시한다. 방 꾸미기 연결 후 `/items`·`/users/me/items`도 읽어 실제 장착·배치를 표시한다. KST 04:00 날짜 분리·보상·상태 정산은 서버 값이다. |
 | 시작 | 활성 세션을 먼저 조회한다. 없으면 본문 없이 `POST /users/me/studySessions`. `409 session-running`은 활성 세션을 다시 조회한다. |
 | 복구 | `GET /users/me/studySessions?state=RUNNING&pageSize=1`. 마지막 활성 세션 ID를 기억해 목록에서 사라진 세션도 단건 조회한다. |
 | Study | 서버의 `studiedSeconds` 수신값과 monotonic 경과시간으로 표시한다. 기기의 UTC 시계가 서버와 달라도 표시를 시작 시각의 단순 차이로 계산하지 않는다. |
@@ -31,7 +31,7 @@ RequireAuth → GameServicesProvider (계정·로그인 세션별)
 | 결과 | DTO `xp`는 공부 XP이고 출석·목표 보너스를 더해 총 XP를 표시한다. Bolt·버그 퇴치·Heart 변화·레벨업도 서버 응답을 표시한다. |
 | 내 방 복귀 | 완료 안내 ID를 확인 처리한 뒤 `dismissTo('/')`로 돌아가 Home을 다시 조회한다. 결과 URL 새로고침은 결과 조회만 수행한다. |
 
-화면은 기존 Home·Study의 하늘색·네이비·크림 카드·노란 버튼을 유지했다. 방·캐릭터·가구는 여전히 교체 가능한 임시 SVG다. 이번 단계는 상태와 공부 서비스의 서버 전환이며, 카탈로그 에셋·장착 아이템·서버 배치 좌표를 실제 방 렌더링에 반영하는 작업은 꾸미기 단계에 남아 있다. 현재 방 그림을 서버의 실제 장착 상태로 해석하지 않는다.
+화면은 기존 Home·Study의 하늘색·네이비·크림 카드·노란 버튼을 유지했다. 후속 [방 꾸미기](room-edit-flow.md)에서 Home·Study·결과가 같은 렌더러로 현재 장착 아이템·배치 좌표를 표시하도록 연결했다. 그림은 여전히 교체 가능한 임시 SVG이며 최종 아트워크는 별도다.
 
 ## 연결 중단·다른 기기·12시간
 

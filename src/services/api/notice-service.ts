@@ -14,7 +14,7 @@ function page(value: unknown): { items: unknown[]; nextPageToken?: string } {
 function identifier(value: unknown): string { if (!isId(value)) throw new ApiError('response'); return value; }
 function text(value: unknown): string { if (typeof value !== 'string' || !value.trim()) throw new ApiError('response'); return value; }
 function clubPath(clubId: string) { return `/clubs/${identifier(clubId)}`; }
-function parseNotice(value: unknown): Notice {
+export function parseNotice(value: unknown): Notice {
   const data = object(value);
   identifier(data.id); identifier(data.categoryId);
   if (data.subcategoryId !== undefined) identifier(data.subcategoryId);
@@ -28,7 +28,7 @@ function noticePage(value: unknown): NoticePage {
   if (new Set(entries.map(one => one.id)).size !== entries.length) throw new ApiError('response');
   return { items: entries, nextPageToken: data.nextPageToken };
 }
-function categories(value: unknown): NoticeCategory[] {
+export function parseNoticeCategories(value: unknown): NoticeCategory[] {
   const entries = page(value).items.map(value => {
     const data = object(value); identifier(data.id); text(data.name);
     if (!paletteColors.includes(data.color as NoticeCategory['color']) || !Array.isArray(data.subcategories)) throw new ApiError('response');
@@ -89,7 +89,7 @@ export function createApiNoticeService(client: HttpClient): NoticeService {
       ]);
       const authors = Object.create(null) as Record<string, string>;
       for (const value of members) { const member = object(value); if (identifier(member.clubId) !== clubId) throw new ApiError('response'); authors[text(member.userId)] = text(member.nickname); }
-      return { categories: categories(categoryResponse.data), authors, unreadCount, page: firstPage };
+      return { categories: parseNoticeCategories(categoryResponse.data), authors, unreadCount, page: firstPage };
     },
     listNotices,
     async getNotice(clubId, noticeId) {

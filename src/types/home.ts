@@ -1,3 +1,5 @@
+import type { RoomAppearance } from './room';
+
 // UI model only. Backend DTOs are mapped to this shape in the service layer.
 export type HomeOverview = {
   readonly profile: {
@@ -9,6 +11,7 @@ export type HomeOverview = {
   readonly room: {
     readonly name: string;
     readonly characterLabel: string;
+    readonly appearance?: RoomAppearance;
   };
   // The service provides the total for the KST 04:00 service day.
   readonly todayStudySeconds: number;

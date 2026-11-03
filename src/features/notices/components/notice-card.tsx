@@ -8,7 +8,7 @@ import type { Notice, NoticeCategory } from '@/types/notice';
 import { noticeAuthor, noticeDate } from '@/utils/notice';
 import type { NoticeDetail } from '../hooks/use-notices';
 
-export function NoticeCard({ notice, categories, authors, detail, onToggle, onRetry }: { notice: Notice; categories: readonly NoticeCategory[]; authors: Readonly<Record<string, string>>; detail?: NoticeDetail; onToggle: () => void; onRetry: () => void }) {
+export function NoticeCard({ notice, categories, authors, detail, onToggle, onRetry, onManage }: { notice: Notice; categories: readonly NoticeCategory[]; authors: Readonly<Record<string, string>>; detail?: NoticeDetail; onToggle: () => void; onRetry: () => void; onManage?: () => void }) {
   const shown = detail?.notice ?? notice, category = categories.find(one => one.id === shown.categoryId), subcategory = category?.subcategories.find(one => one.id === shown.subcategoryId);
   const color = Palette[category?.color ?? 'GRAY'];
   return <GameCard contentStyle={styles.surface}>
@@ -28,6 +28,7 @@ export function NoticeCard({ notice, categories, authors, detail, onToggle, onRe
       {detail.notice && <Text selectable style={styles.body}>{detail.notice.body}</Text>}
       {detail.error && <><Text accessibilityRole="alert" style={styles.error}>{detail.error}</Text><GameButton compact label="내용 다시 불러오기" onPress={onRetry} /></>}
       {detail.readError && <><Text accessibilityRole="alert" style={styles.error}>읽음 상태를 저장하지 못했어요. {detail.readError}</Text><GameButton compact label="읽음 다시 확인" onPress={onRetry} /></>}
+      {onManage && detail.notice && !detail.loading && <GameButton compact variant="secondary" label="수정·삭제" accessibilityLabel={`${shown.title} 수정·삭제`} onPress={onManage} />}
     </View>}
   </GameCard>;
 }

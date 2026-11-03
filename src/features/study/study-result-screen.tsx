@@ -51,7 +51,7 @@ export function StudyResultScreen() {
 
   return (
     <GameScreen title="공부 완료!" subtitle="나를 위한 시간이 방의 보상이 되었어요.">
-      {home.status === 'ready' && <View style={styles.room}><RoomPreview bugs={home.data.bugs.count} name={home.data.room.name} characterLabel={home.data.room.characterLabel} /></View>}
+      {home.status === 'ready' && <View style={styles.room}><RoomPreview bugs={home.data.bugs.count} name={home.data.room.name} characterLabel={home.data.room.characterLabel} appearance={home.data.room.appearance} /></View>}
       <GameCard>
         <Text style={styles.heading}>인정된 공부 시간</Text>
         <Text accessibilityLabel={`인정된 공부시간 ${formatStudyClock(result.creditedSeconds)}`} adjustsFontSizeToFit numberOfLines={1} style={styles.clock}>{formatStudyClock(result.creditedSeconds)}</Text>

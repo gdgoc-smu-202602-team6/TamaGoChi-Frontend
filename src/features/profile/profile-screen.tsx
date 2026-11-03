@@ -12,9 +12,12 @@ import { DailyGoalEditor } from './components/daily-goal-editor';
 import { ProfileCard } from './components/profile-card';
 import { WeeklyChart } from './components/weekly-chart';
 import { useProfile } from './hooks/use-profile';
+import { useClubs } from '@/state/club-context';
+import { ApplicationReviewEntry } from '@/features/clubs/components/application-review-entry';
 
 export function ProfileScreen() {
   const profile = useProfile(), { state: auth } = useAuth();
+  const clubs = useClubs(), selectedClub = clubs.clubs.find(club => club.id === clubs.selectedId);
   const data = profile.data;
   const summaries = data ? [
     { title: '오늘', value: formatStudySummary(data.todaySeconds), color: GameColors.yellow },
@@ -37,9 +40,10 @@ export function ProfileScreen() {
         </>}
         <GameCard>
           <GameButton compact variant="secondary" label="동아리 가입·신청" onPress={() => router.push('/clubs/join')} />
+          {clubs.status === 'ready' && selectedClub && <ApplicationReviewEntry key={selectedClub.id} clubId={selectedClub.id} clubName={selectedClub.name} />}
           <GameButton compact variant="secondary" label={auth.user ? '내 계정' : '이메일로 로그인'} onPress={() => router.push(auth.user ? '/account' : '/login')} />
           <GameButton compact variant="secondary" label="잠금한 앱 관리 · 준비 중" disabled />
-          <GameButton compact variant="secondary" label="보유 아이템 · 준비 중" disabled />
+          <GameButton compact variant="secondary" label="보유 아이템 · 방 꾸미기" onPress={() => router.push('/room-edit')} />
           <GameButton compact variant="secondary" label="내 방명록 · 준비 중" disabled />
         </GameCard>
       </View>
