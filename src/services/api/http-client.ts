@@ -15,6 +15,7 @@ type RequestOptions = {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   body?: unknown;
   token?: string;
+  ifMatch?: string;
 };
 
 export type HttpClient = {
@@ -57,6 +58,7 @@ export function createHttpClient({ baseUrl, fetcher = fetch, timeoutMs = 15000 }
         const headers = new Headers({ Accept: 'application/json, application/problem+json' });
         if (options.body !== undefined) headers.set('Content-Type', 'application/json');
         if (options.token) headers.set('Authorization', `Bearer ${options.token}`);
+        if (options.ifMatch) headers.set('If-Match', options.ifMatch);
         const response = await fetcher(`${baseUrl.replace(/\/$/, '')}${path}`, {
           method: options.method ?? 'GET', headers,
           ...(options.body !== undefined ? { body: JSON.stringify(options.body) } : {}),

@@ -2,6 +2,7 @@ import type { ClubPreview } from '../types/club-join';
 import type { CreatedClub } from '../types/club-create';
 import { paletteColors } from '../types/notice';
 import { validInviteCode } from '../utils/club-join';
+import { readMockClubMetadata, withMockClubMetadata } from './club-settings-data';
 
 export const MOCK_CREATED_CLUBS_KEY = '@tamagochi/mock-created-clubs/v1';
 export type MockCreatedClub = ClubPreview & CreatedClub & { inviteCode: string; myPartName: string };
@@ -18,5 +19,6 @@ export async function readCreatedMockClubs(storage: { getItem: (key: string) => 
     && club.parts.some(part => part.name === club.myPartName))
     || new Set(data.clubs.map((club: MockCreatedClub) => club.id)).size !== data.clubs.length
     || new Set(data.clubs.map((club: MockCreatedClub) => club.inviteCode)).size !== data.clubs.length) throw new Error('Invalid mock created clubs');
-  return data.clubs;
+  const registry = await readMockClubMetadata(storage);
+  return data.clubs.map((club: MockCreatedClub) => withMockClubMetadata(club, registry));
 }

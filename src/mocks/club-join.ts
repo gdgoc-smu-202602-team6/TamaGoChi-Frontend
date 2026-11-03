@@ -2,24 +2,28 @@ import { ClubJoinError, type ClubApplication, type ClubJoinService } from '../ty
 import { normalizeInviteCode, validInviteCode } from '../utils/club-join';
 import { joinedMockClubs, MOCK_APPLICATION_STORAGE_KEY, mockClubCatalog, mockInviteCodes, readMockApplications, type MockApplicationStore } from './clubs';
 import { readCreatedMockClubs } from './created-clubs';
+import { readMockClubMetadata, withMockClubMetadata } from './club-settings-data';
 
 export function createMockClubJoinService(storage: MockApplicationStore, now = Date.now): ClubJoinService {
   let queue: Promise<unknown> = Promise.resolve(), sequence = 0;
   const serial = <T>(work: () => Promise<T>) => { const next = queue.then(work); queue = next.catch(() => undefined); return next; };
-  const decorate = (one: ClubApplication): ClubApplication => {
+  const decorate = async (one: ClubApplication): Promise<ClubApplication> => {
     const club = mockClubCatalog.find(club => club.id === one.clubId);
-    return { ...one, clubName: club?.name, partName: club?.parts.find(part => part.id === one.partId)?.name };
+    const registry = await readMockClubMetadata(storage);
+    return { ...one, clubName: club ? withMockClubMetadata(club, registry).name : undefined, partName: club?.parts.find(part => part.id === one.partId)?.name };
   };
   async function save(applications: ClubApplication[]) {
     try { await storage.setItem(MOCK_APPLICATION_STORAGE_KEY, JSON.stringify({ version: 1, applications })); }
     catch { throw new ClubJoinError('storage'); }
   }
   return {
-    getOverview: () => serial(async () => ({ clubs: await joinedMockClubs(storage), applications: (await readMockApplications(storage)).filter(one => one.state !== 'REJECTED' || Date.parse(one.decidedAt ?? one.createdAt) >= now() - 7 * 86400000).map(decorate) })),
+    getOverview: () => serial(async () => ({ clubs: await joinedMockClubs(storage), applications: await Promise.all((await readMockApplications(storage)).filter(one => one.state !== 'REJECTED' || Date.parse(one.decidedAt ?? one.createdAt) >= now() - 7 * 86400000).map(decorate)) })),
     findClub: code => serial(async () => {
       const normalized = normalizeInviteCode(code);
       if (!validInviteCode(normalized)) throw new ClubJoinError('invalid-code');
-      const club = mockClubCatalog.find(club => club.id === mockInviteCodes[normalized]) ?? (await readCreatedMockClubs(storage)).find(club => club.inviteCode === normalized);
+      const registry = await readMockClubMetadata(storage);
+      const club = mockClubCatalog.map(club => ({ ...withMockClubMetadata(club, registry), inviteCode: Object.hasOwn(registry, club.id) ? registry[club.id].inviteCode : Object.keys(mockInviteCodes).find(code => mockInviteCodes[code] === club.id) }))
+        .find(club => club.inviteCode === normalized) ?? (await readCreatedMockClubs(storage)).find(club => club.inviteCode === normalized);
       return club ? { id: club.id, name: club.name, memberCount: (await joinedMockClubs(storage)).find(one => one.id === club.id)?.memberCount ?? club.memberCount, parts: club.parts } : null;
     }),
     apply: (clubId, partId) => serial(async () => {

@@ -2,6 +2,7 @@ import type { ClubApplication, ClubPreview } from '../types/club-join';
 import type { JoinedClub } from '../types/notice';
 import { readCreatedMockClubs } from './created-clubs';
 import { mockApprovedMemberCount, readMockClubReviews } from './club-review-data';
+import { readMockClubMetadata, withMockClubMetadata } from './club-settings-data';
 
 export const MOCK_APPLICATION_STORAGE_KEY = '@tamagochi/mock-club-applications/v1';
 export const mockClubCatalog: readonly ClubPreview[] = [
@@ -25,6 +26,7 @@ export async function readMockApplications(storage: MockApplicationStore): Promi
 export async function joinedMockClubs(storage: MockApplicationStore): Promise<JoinedClub[]> {
   const [applications, created, reviews] = await Promise.all([readMockApplications(storage), readCreatedMockClubs(storage), readMockClubReviews(storage)]);
   const approved = applications.filter(one => one.state === 'APPROVED');
+  const registry = await readMockClubMetadata(storage);
   return [...mockClubCatalog.filter((club, index) => index < 2 || approved.some(one => one.clubId === club.id)).map(({ id, name, memberCount }, index) => ({ id, name, memberCount: memberCount + (index >= 2 ? 1 : 0) + mockApprovedMemberCount(reviews, id) })),
-    ...created.map(({ id, name, memberCount }) => ({ id, name, memberCount: memberCount + mockApprovedMemberCount(reviews, id) }))];
+    ...created.map(({ id, name, memberCount }) => ({ id, name, memberCount: memberCount + mockApprovedMemberCount(reviews, id) }))].map(club => withMockClubMetadata(club, registry));
 }

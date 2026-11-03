@@ -16,6 +16,7 @@ import { ApplicationReviewEntry } from '@/features/clubs/components/application-
 import { NoticeComposeEntry } from './components/notice-compose-entry';
 import { useNoticeWriteAccess } from './hooks/use-notice-write-access';
 import { CategoryManagementEntry } from './components/category-management-entry';
+import { ClubSettingsEntry } from '@/features/clubs/components/club-settings-entry';
 
 export function NoticeScreen() {
   const clubs = useClubs();
@@ -49,6 +50,7 @@ function ClubNotices({ club }: { club: JoinedClub }) {
         <ApplicationReviewEntry clubId={club.id} clubName={club.name} />
         <NoticeComposeEntry key={club.id} clubId={club.id} clubName={club.name} />
         <CategoryManagementEntry key={`categories:${club.id}`} clubId={club.id} clubName={club.name} />
+        <ClubSettingsEntry key={`settings:${club.id}`} clubId={club.id} clubName={club.name} />
         {clubs.error && <Text accessibilityRole="alert" style={styles.error}>{clubs.error}</Text>}
         {notices.board && <>
           <FilterChips label="공지 분류" value={notices.filter.categoryId ?? ''} options={[{ id: '', name: '모두' }, ...notices.board.categories]} onChange={id => notices.setFilter(id ? { categoryId: id } : {})} />
