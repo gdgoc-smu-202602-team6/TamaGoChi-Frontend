@@ -36,8 +36,11 @@ import { createMockNoticeComposeService } from '@/mocks/notice-compose';
 import type { NoticeManagementService } from '@/types/notice-management';
 import { createApiNoticeManagementService } from '@/services/api/notice-management-service';
 import { createMockNoticeManagementService } from '@/mocks/notice-management';
+import type { NoticeCategoryService } from '@/types/notice-categories';
+import { createApiNoticeCategoryService } from '@/services/api/notice-category-service';
+import { createMockNoticeCategoryService } from '@/mocks/notice-categories';
 
-type GameServices = { home: HomeService; study: StudyService; shop: ShopService; profile: ProfileService; notices: NoticeService; clubJoin: ClubJoinService; clubCreate: ClubCreateService; room: RoomService; clubAdmin: ClubAdminService; noticeCompose: NoticeComposeService; noticeManagement: NoticeManagementService };
+type GameServices = { home: HomeService; study: StudyService; shop: ShopService; profile: ProfileService; notices: NoticeService; clubJoin: ClubJoinService; clubCreate: ClubCreateService; room: RoomService; clubAdmin: ClubAdminService; noticeCompose: NoticeComposeService; noticeManagement: NoticeManagementService; noticeCategories: NoticeCategoryService };
 type GameContext = GameServices & { revision: number; invalidate: () => void };
 const GameServicesContext = createContext<GameContext | null>(null);
 
@@ -64,7 +67,7 @@ function GameScope({ children }: PropsWithChildren) {
       get: clubId => AsyncStorage.getItem(`${composePrefix}/${encodeURIComponent(clubId)}`),
       set: (clubId, value) => value === null ? AsyncStorage.removeItem(`${composePrefix}/${encodeURIComponent(clubId)}`) : AsyncStorage.setItem(`${composePrefix}/${encodeURIComponent(clubId)}`, value),
     };
-    if (isMockMode) return { home: mockBackend, study: mockBackend, shop: mockBackend, profile: mockBackend, room: mockBackend, notices: createMockNoticeService(AsyncStorage), clubJoin: createMockClubJoinService(AsyncStorage), clubCreate: createMockClubCreateService(AsyncStorage), clubAdmin: createMockClubAdminService(AsyncStorage), noticeCompose: createMockNoticeComposeService(AsyncStorage, composeStore), noticeManagement: createMockNoticeManagementService(AsyncStorage) };
+    if (isMockMode) return { home: mockBackend, study: mockBackend, shop: mockBackend, profile: mockBackend, room: mockBackend, notices: createMockNoticeService(AsyncStorage), clubJoin: createMockClubJoinService(AsyncStorage), clubCreate: createMockClubCreateService(AsyncStorage), clubAdmin: createMockClubAdminService(AsyncStorage), noticeCompose: createMockNoticeComposeService(AsyncStorage, composeStore), noticeManagement: createMockNoticeManagementService(AsyncStorage), noticeCategories: createMockNoticeCategoryService(AsyncStorage) };
     const token = state.token;
     const client = createAuthorizedClient(apiClient, { getToken: async () => token, isCurrent: lease.isCurrent, onUnauthorized: () => { void refresh(); } });
     const key = `@tamagochi/api-study/v1/${encodeURIComponent(apiBaseUrl)}/${encodeURIComponent(state.user?.id ?? 'anonymous')}`;
@@ -74,7 +77,7 @@ function GameScope({ children }: PropsWithChildren) {
     const createKey = `@tamagochi/club-create-intent/v1/${encodeURIComponent(apiBaseUrl)}/${encodeURIComponent(state.user?.id ?? 'anonymous')}`;
     const clubCreate = createApiClubCreateService(client, { get: () => AsyncStorage.getItem(createKey), set: value => value === null ? AsyncStorage.removeItem(createKey) : AsyncStorage.setItem(createKey, value) });
     const room = createApiRoomService(client, state.user?.id ?? 'anonymous');
-    return { home: createApiHomeService(client, room), room, shop: createApiShopService(client), profile: createApiProfileService(client), notices, clubJoin, clubCreate, clubAdmin: createApiClubAdminService(client), noticeCompose: createApiNoticeComposeService(client, composeStore), noticeManagement: createApiNoticeManagementService(client), study: createApiStudyService(client, {
+    return { home: createApiHomeService(client, room), room, shop: createApiShopService(client), profile: createApiProfileService(client), notices, clubJoin, clubCreate, clubAdmin: createApiClubAdminService(client), noticeCompose: createApiNoticeComposeService(client, composeStore), noticeManagement: createApiNoticeManagementService(client), noticeCategories: createApiNoticeCategoryService(client), study: createApiStudyService(client, {
       get: () => AsyncStorage.getItem(key), set: value => AsyncStorage.setItem(key, value),
     }) };
   }, [state.token, state.user?.id, refresh, lease]);

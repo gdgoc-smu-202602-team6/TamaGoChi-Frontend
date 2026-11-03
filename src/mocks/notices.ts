@@ -1,17 +1,14 @@
-import type { JoinedClub, Notice, NoticeCategory, NoticeFilter, NoticeService } from '../types/notice';
+import type { JoinedClub, Notice, NoticeFilter, NoticeService } from '../types/notice';
 import { joinedMockClubs } from './clubs';
 import { readCreatedMockClubs } from './created-clubs';
 import { readMockNoticeState } from './notice-content';
+import { getMockNoticeCategories } from './notice-categories-data';
 
 const clubs: readonly JoinedClub[] = [
   { id: 'mock-club-study', name: '함께 공부하는 모임', memberCount: 12 },
   { id: 'mock-club-pixel', name: '픽셀 메이커스', memberCount: 8 },
 ];
-export const mockNoticeCategories: readonly NoticeCategory[] = [
-  { id: 'mock-general', name: '전체공지', color: 'RED', subcategories: [] },
-  { id: 'mock-study', name: '스터디', color: 'GREEN', subcategories: [{ id: 'mock-reading', name: '함께 읽기' }, { id: 'mock-focus', name: '집중 공부' }] },
-  { id: 'mock-design', name: '디자인', color: 'PINK', subcategories: [] },
-];
+export { mockNoticeCategories } from './notice-categories-data';
 const demoNotices = (clubId: string): Notice[] => [
   { id: `${clubId}-welcome`, categoryId: 'mock-general', authorUserId: 'mock-admin', title: `${clubId === clubs[0].id ? '이번 달 스터디 모임 안내' : clubId === clubs[1].id ? '픽셀 모임에 오신 것을 환영해요' : '숲 모임에 오신 것을 환영해요'}`, body: '함께 공부하고 모리를 키워요.\n\n모임 공지와 준비 사항은 이곳에서 확인할 수 있어요.', pinned: true, read: false, createdAt: '2026-11-02T01:00:00Z' },
   { id: `${clubId}-reading`, categoryId: 'mock-study', subcategoryId: 'mock-reading', authorUserId: 'mock-lead', title: '이번 주 함께 읽을 책과 공부 목표', body: '각자의 속도로 공부한 내용을 나눠요.\n공부 시간은 타이머로 기록해 보세요.', pinned: true, read: false, createdAt: '2026-11-01T06:00:00Z' },
@@ -43,7 +40,7 @@ export function createMockNoticeService(storage: { getItem: (key: string) => Pro
     listMyClubs: () => joinedMockClubs(storage),
     getBoard: (clubId, filter) => serial(async () => {
       const items = await notices(clubId);
-      return { categories: await isCreated(clubId) ? mockNoticeCategories.slice(0, 1) : mockNoticeCategories, authors: { 'mock-admin': '운영진', 'mock-lead': '스터디장', 'mock-me': '나' }, unreadCount: items.filter(one => !one.read).length, page: { items: filtered(items, filter) } };
+      return { categories: await getMockNoticeCategories(storage, clubId), authors: { 'mock-admin': '운영진', 'mock-lead': '스터디장', 'mock-me': '나' }, unreadCount: items.filter(one => !one.read).length, page: { items: filtered(items, filter) } };
     }),
     listNotices: (clubId, filter) => serial(async () => ({ items: filtered(await notices(clubId), filter) })),
     getNotice: (clubId, noticeId) => serial(async () => { const one = (await notices(clubId)).find(one => one.id === noticeId); if (!one) throw new Error('Unknown mock notice'); return one; }),

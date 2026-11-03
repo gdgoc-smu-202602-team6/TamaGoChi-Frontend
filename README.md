@@ -43,6 +43,7 @@ src/
       [clubId]/applications.tsx # 권한별 가입 신청 승인·거절, 하단 탭 없음
       [clubId]/notices/compose.tsx # 운영진 공지 작성·등록 결과, 하단 탭 없음
       [clubId]/notices/[noticeId]/edit.tsx # 권한별 공지 수정·삭제, 하단 탭 없음
+      [clubId]/notice-categories.tsx # 권한별 분류·세부 분류 추가/삭제, 하단 탭 없음
   components/
     app-tabs.tsx         # Android/iOS 네이티브 탭
     app-tabs.web.tsx     # Web 하단 탭
@@ -55,7 +56,7 @@ src/
     shop/               # 카탈로그·구매·보유/장착 상태와 교체 가능한 미리보기
     room/               # 장착·배치 초안·완료 저장과 공통 방 렌더링
     profile/            # 마이 프로필·주간 통계·다음 날짜 목표 예약
-    notices/            # 가입 동아리·공지 조회·읽음·권한별 작성/수정/삭제
+    notices/            # 가입 동아리·공지 조회·읽음·권한별 작성/수정/삭제·분류 관리
     clubs/              # 초대 코드·가입 신청/취소·동아리 생성·운영진 승인/거절
   constants/            # 공통 테마
   hooks/                # 공통 훅
@@ -72,7 +73,7 @@ src/
 
 공부 시작 → Study → 공부 끝내기 → StudyResult → 내 방 흐름을 연결했습니다. Study·StudyResult·방 꾸미기는 루트 Stack에 있어 하단 탭을 표시하지 않습니다. 친구 방·방명록은 후속 화면 연결 전까지 비활성화되어 있습니다.
 
-`GameServicesProvider`가 계정별 Home·Study·Shop·Room·Profile·Notice·NoticeCompose·NoticeManagement·ClubJoin·ClubCreate·ClubAdmin 서비스를 제공합니다. `ClubProvider`는 가입한 동아리 목록과 계정별 선택을 관리하며, 동아리가 없어도 공부·상점·마이를 막지 않습니다. 서버 DTO·매핑·인증 요청은 `src/services/api/`에 분리했습니다. 새 로그인에는 고정된 토큰과 새 화면 상태를 사용하며 다른 계정의 늦은 응답을 버립니다. API 호출 실패 시 Mock으로 자동 전환하지 않습니다.
+`GameServicesProvider`가 계정별 Home·Study·Shop·Room·Profile·Notice·NoticeCompose·NoticeManagement·NoticeCategory·ClubJoin·ClubCreate·ClubAdmin 서비스를 제공합니다. `ClubProvider`는 가입한 동아리 목록과 계정별 선택을 관리하며, 동아리가 없어도 공부·상점·마이를 막지 않습니다. 서버 DTO·매핑·인증 요청은 `src/services/api/`에 분리했습니다. 새 로그인에는 고정된 토큰과 새 화면 상태를 사용하며 다른 계정의 늦은 응답을 버립니다. API 호출 실패 시 Mock으로 자동 전환하지 않습니다.
 
 상점에는 가구·벽지·캐릭터·방 확장 카테고리와 두 열 카드, 가격·등급·해금 레벨, 보유·장착 상태를 표시합니다. 새 구매는 서버에서 같은 부위의 아이템과 교체해 장착하며, 구매 후 잔액·보유 목록·장착 상태를 다시 조회합니다. Mock 상점도 공부 보상과 같은 Bolt 잔액을 사용합니다. 세부 계약과 검증 범위는 [상점 흐름](docs/shop-flow.md)을 참고합니다.
 
@@ -83,6 +84,8 @@ src/
 공지의 `+ 공지 쓰기`는 `notices.write` 권한이 있는 부원에게 표시합니다. 동적 분류·세부 분류, 제목·본문, 상단 고정과 알림 요청을 등록하고 현재 발송 상태를 확인할 수 있습니다. 응답 유실·재실행 시 등록 요청을 자동 반복하지 않습니다. 입력·중복 처리·Mock 공유와 검증 범위는 [공지 작성](docs/notice-compose-flow.md)에 정리했습니다.
 
 펼친 공지의 `수정·삭제`도 같은 권한으로 제공합니다. 수정은 변경한 필드만 저장하고 알림을 재발송하지 않으며, 삭제는 제목을 확인한 뒤 실행합니다. 처리 직전 내용이 바뀌었거나 결과가 불확실하면 재확인을 요구합니다. 목록·Mock 저장과 검증 범위는 [공지 관리](docs/notice-management-flow.md)를 참고합니다.
+
+`공지 분류 관리`는 별도의 `noticeCategories.manage` 권한으로 제공합니다. 분류 이름·색상과 세부 분류를 추가하고, 사용하지 않는 항목은 확인 후 삭제할 수 있습니다. 기본 전체공지와 공지에서 사용하는 항목은 삭제할 수 없습니다. 결과가 불확실하면 쓰기를 반복하지 않고 목록을 확인합니다. 동적 분류 공유·Mock 저장과 검증은 [공지 분류 관리](docs/notice-categories-flow.md)에 정리했습니다.
 
 공지와 마이의 `동아리 가입·신청`에서 초대 코드 조회 → 동아리 확인 → 파트 선택 → 신청·대기로 이어집니다. 승인 전에도 개인 기능을 이용할 수 있으며, 공지는 서버의 현재 부원 자격까지 확인한 뒤 엽니다. Mock 초대 코드 `MORI2026`으로 신청·취소를 확인할 수 있습니다. 데모 자동 승인은 제공하지 않습니다. 자세한 복구 동작과 검증 범위는 [동아리 가입 흐름](docs/club-join-flow.md)을 참고합니다.
 

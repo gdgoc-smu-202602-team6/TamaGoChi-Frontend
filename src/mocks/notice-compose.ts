@@ -3,9 +3,9 @@ import { createGuardedNoticeComposeService } from '../services/notice-compose-se
 import { NoticeComposeError, type NoticeComposeStore } from '../types/notice-compose';
 import { createMockClubAdminService } from './club-admin';
 import { joinedMockClubs, type MockApplicationStore } from './clubs';
-import { readCreatedMockClubs } from './created-clubs';
 import { MOCK_NOTICE_CONTENT_KEY, readMockNoticeContent, readMockNoticeState } from './notice-content';
-import { createMockNoticeService, mockNoticeCategories } from './notices';
+import { createMockNoticeService } from './notices';
+import { getMockNoticeCategories } from './notice-categories-data';
 
 export function createMockNoticeComposeService(storage: MockApplicationStore, store: NoticeComposeStore, now = Date.now) {
   const access = createMockClubAdminService(storage), notices = createMockNoticeService(storage);
@@ -13,7 +13,7 @@ export function createMockNoticeComposeService(storage: MockApplicationStore, st
     async context(clubId) {
       if (!(await access.getPermissions(clubId)).includes('notices.write')) throw new NoticeComposeError('forbidden');
       const club = (await joinedMockClubs(storage)).find(club => club.id === clubId)!;
-      return { club, categories: (await readCreatedMockClubs(storage)).some(club => club.id === clubId) ? mockNoticeCategories.slice(0, 1) : mockNoticeCategories };
+      return { club, categories: await getMockNoticeCategories(storage, clubId) };
     },
     async create(clubId, input) {
       const state = await readMockNoticeState(storage);

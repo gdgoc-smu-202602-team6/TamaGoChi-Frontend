@@ -2,12 +2,11 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { GameButton } from '@/components/ui/game-button';
 import { GameInput } from '@/components/ui/game-input';
-import { Palette } from '@/constants/palette';
+import { Palette, PaletteLabels as colorLabels } from '@/constants/palette';
 import { GameColors, GameUi } from '@/constants/theme';
 import { paletteColors, type PaletteColor } from '@/types/notice';
 
 export type DraftPart = { key: number; name: string; color: PaletteColor };
-const colorLabels: Record<PaletteColor, string> = { RED: '빨강', ORANGE: '주황', YELLOW: '노랑', GREEN: '초록', BLUE: '파랑', PURPLE: '보라', PINK: '분홍', GRAY: '회색' };
 export function PartEditor({ part, index, disabled, removable, onChange, onRemove }: {
   part: DraftPart; index: number; disabled: boolean; removable: boolean;
   onChange: (next: DraftPart) => void; onRemove: () => void;
