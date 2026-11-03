@@ -3,8 +3,6 @@ import { ClubPartsError } from '../types/club-parts';
 import { paletteColors } from '../types/notice';
 
 export const MOCK_CLUB_PARTS_KEY = '@tamagochi/mock-club-parts/v1';
-// Explicit existing member references for the preview. New created clubs use their creator's part.
-export const mockMemberPartIds: Readonly<Record<string, readonly string[]>> = { 'mock-club-study': ['mock-part-reading', 'mock-part-focus'], 'mock-club-pixel': ['mock-part-pixel'], 'mock-club-forest': ['mock-part-sprout'] };
 export async function readMockPartsRegistry(storage: { getItem: (key: string) => Promise<string | null> }): Promise<Record<string, ClubPart[]>> {
   try {
     const raw = await storage.getItem(MOCK_CLUB_PARTS_KEY);

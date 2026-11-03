@@ -4,7 +4,8 @@ import { ClubPartsError } from '../types/club-parts';
 import type { ClubPart } from '../types/club-join';
 import { createMockClubAdminService } from './club-admin';
 import { joinedMockClubs, mockClubCatalog, readMockApplications, type MockApplicationStore } from './clubs';
-import { getMockClubParts, MOCK_CLUB_PARTS_KEY, mockMemberPartIds, readMockPartsRegistry } from './club-parts-data';
+import { getMockClubParts, MOCK_CLUB_PARTS_KEY, readMockPartsRegistry } from './club-parts-data';
+import { getMockMembers } from './club-members-data';
 import { readMockClubReviews } from './club-review-data';
 import { readCreatedMockClubs } from './created-clubs';
 
@@ -28,9 +29,8 @@ export function createMockClubPartsService(storage: MockApplicationStore) {
         await save(id, [...current, { id: `mock-part-${Date.now()}-${Math.random().toString(36).slice(2)}`, name: action.name, color: action.color }]);
       } else {
         if (!current.some(one => one.id === action.part.id)) throw new ApiError('http', 404);
-        const created = (await readCreatedMockClubs(storage)).find(one => one.id === id), creatorPart = created?.parts.find(one => one.name === created.myPartName)?.id;
-        const [applications, reviews] = await Promise.all([readMockApplications(storage), readMockClubReviews(storage)]);
-        if (mockMemberPartIds[id]?.includes(action.part.id) || creatorPart === action.part.id || [...applications, ...reviews].some(one => one.clubId === id && one.partId === action.part.id && ['PENDING', 'APPROVED'].includes(one.state))) throw new ClubPartsError('in-use');
+        const [members, applications, reviews] = await Promise.all([getMockMembers(storage, id), readMockApplications(storage), readMockClubReviews(storage)]);
+        if (members.some(one => one.partId === action.part.id) || [...applications, ...reviews].some(one => one.clubId === id && one.partId === action.part.id && ['PENDING', 'APPROVED'].includes(one.state))) throw new ClubPartsError('in-use');
         await save(id, current.filter(one => one.id !== action.part.id));
       }
     },
