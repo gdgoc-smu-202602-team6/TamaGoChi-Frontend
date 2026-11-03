@@ -43,12 +43,12 @@ export function RoomScene({ appearance, bugs, label = '내 방', interaction }: 
   return <View style={styles.scene} onLayout={event => setWidth(event.nativeEvent.layout.width)} accessible={!interaction} accessibilityRole={!interaction ? 'image' : undefined}
     accessibilityLabel={!interaction ? `${label}, ${appearance.size}칸 방, ${appearance.items.map(item => item.name).join(', ')}, 버그 ${bugs}마리` : undefined} testID="room-scene">
     <Image source={shell} style={StyleSheet.absoluteFill} contentFit="contain" accessible={false} />
-    {(['WINDOW', 'CLOCK', 'LAMP'] as const).map(slot => item(slot) && <Image key={slot} source={itemSource(item(slot)!)} contentFit="contain" accessible={false} style={[styles.fixed, slot === 'WINDOW' ? styles.window : slot === 'CLOCK' ? styles.clock : styles.lamp]} />)}
+    {(['WINDOW', 'CLOCK', 'LAMP'] as const).map(slot => item(slot) && <Image key={slot} source={itemSource(item(slot)!, true)} contentFit="contain" accessible={false} style={[styles.fixed, slot === 'WINDOW' ? styles.window : slot === 'CLOCK' ? styles.clock : styles.lamp]} />)}
     {bugs > 0 && <><View style={styles.dustOne} /><View style={styles.dustTwo} /></>}
     {availableTargets(layout).map(target => <FloorObject key={target} point={effectivePlacement(layout, target, appearance.size)} size={appearance.size} viewportWidth={width} interaction={interaction}>
       {target === 'CHARACTER' ? <>
         <Image source={characterPlaceholder} contentFit="contain" style={StyleSheet.absoluteFill} accessible={false} />
-        {(['HEAD', 'FACE', 'NECK'] as const).map(slot => item(slot) && <Image key={slot} source={itemSource(item(slot)!)} contentFit="contain" style={[styles.accessory, slot === 'HEAD' ? styles.head : slot === 'FACE' ? styles.face : styles.neck]} accessible={false} />)}
+        {(['HEAD', 'FACE', 'NECK'] as const).map(slot => item(slot) && <Image key={slot} source={itemSource(item(slot)!, true)} contentFit="contain" style={[styles.accessory, slot === 'HEAD' ? styles.head : slot === 'FACE' ? styles.face : styles.neck]} accessible={false} />)}
       </> : <Image source={itemSource(item(target)!, true)} contentFit="contain" style={StyleSheet.absoluteFill} accessible={false} />}
     </FloorObject>)}
     {[{ left: '35%', top: '67%' }, { left: '73%', top: '72%' }, { left: '45%', top: '84%' }].slice(0, bugs).map((position, index) => <View key={index} pointerEvents="none" style={[styles.bug, { left: position.left as `${number}%`, top: position.top as `${number}%` }]}><PixelIcon name="bug" size={20} /></View>)}
