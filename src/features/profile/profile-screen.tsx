@@ -17,6 +17,7 @@ import { ApplicationReviewEntry } from '@/features/clubs/components/application-
 import { ClubSettingsEntry } from '@/features/clubs/components/club-settings-entry';
 import { ClubPartsEntry } from '@/features/clubs/components/club-parts-entry';
 import { ClubMembersEntry } from '@/features/clubs/components/club-members-entry';
+import { ClubLeaveEntry } from '@/features/clubs/components/club-leave-entry';
 
 export function ProfileScreen() {
   const profile = useProfile(), { state: auth } = useAuth();
@@ -47,6 +48,7 @@ export function ProfileScreen() {
           {clubs.status === 'ready' && selectedClub && <ClubSettingsEntry key={`settings:${selectedClub.id}`} clubId={selectedClub.id} clubName={selectedClub.name} />}
           {clubs.status === 'ready' && selectedClub && <ClubPartsEntry key={`parts:${selectedClub.id}`} clubId={selectedClub.id} clubName={selectedClub.name} />}
           {clubs.status === 'ready' && selectedClub && <ClubMembersEntry key={`members:${selectedClub.id}`} clubId={selectedClub.id} clubName={selectedClub.name} />}
+          {clubs.status === 'ready' && selectedClub && <ClubLeaveEntry clubId={selectedClub.id} clubName={selectedClub.name} />}
           <GameButton compact variant="secondary" label={auth.user ? '내 계정' : '이메일로 로그인'} onPress={() => router.push(auth.user ? '/account' : '/login')} />
           <GameButton compact variant="secondary" label="잠금한 앱 관리 · 준비 중" disabled />
           <GameButton compact variant="secondary" label="보유 아이템 · 방 꾸미기" onPress={() => router.push('/room-edit')} />

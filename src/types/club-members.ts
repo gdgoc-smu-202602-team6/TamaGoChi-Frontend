@@ -7,7 +7,7 @@ export type ClubMember = { id: string; clubId: string; userId: string; nickname:
 export type ClubMembersBoard = { club: JoinedClub; me: ClubMember; parts: readonly ClubPart[]; roles: readonly ClubRole[]; members: readonly ClubMember[] };
 export type MemberRoleChange = { member: ClubMember; role: ClubRole };
 export type MemberRoleOutcome = { kind: 'board'; board: ClubMembersBoard } | { kind: 'access-changed' };
-export type ClubMembersService = { getBoard: (id: string) => Promise<ClubMembersBoard>; changeRole: (id: string, action: MemberRoleChange) => Promise<MemberRoleOutcome> };
+export type ClubMembersService = { getBoard: (id: string) => Promise<ClubMembersBoard>; changeRole: (id: string, action: MemberRoleChange) => Promise<MemberRoleOutcome>; removeMember: (id: string, member: ClubMember) => Promise<MemberRoleOutcome> };
 export class ClubMembersError extends Error {
   constructor(readonly reason: 'invalid' | 'forbidden' | 'changed' | 'last-manager' | 'uncertain' | 'storage') { super(`Club members ${reason}`); this.name = 'ClubMembersError'; }
 }

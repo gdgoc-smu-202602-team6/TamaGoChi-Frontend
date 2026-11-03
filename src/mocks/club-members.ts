@@ -5,6 +5,8 @@ import { joinedMockClubs, mockClubCatalog, type MockApplicationStore } from './c
 import { getMockClubParts } from './club-parts-data';
 import { getMockMembers, MOCK_MEMBER_ROLES_KEY, mockRoles, readMockRoleRegistry } from './club-members-data';
 import { readCreatedMockClubs } from './created-clubs';
+import { withMockMemberMutation } from './member-removals-data';
+import { removeMockMember } from './remove-member';
 
 export function createMockClubMembersService(storage: MockApplicationStore) {
   const access = createMockClubAdminService(storage);
@@ -16,7 +18,7 @@ export function createMockClubMembersService(storage: MockApplicationStore) {
       const members = await getMockMembers(storage, id);
       return { club, members, me: members.find(one => one.userId === 'mock-me')!, parts: await getMockClubParts(storage, id, details.parts), roles: mockRoles.map(one => ({ ...one, permissions: [...one.permissions] })) };
     },
-    async patch(id, action) {
+    patch: (id, action) => withMockMemberMutation(storage, async () => {
       if (!(await access.getPermissions(id)).includes('members.manage')) throw new ClubMembersError('forbidden');
       const members = await getMockMembers(storage, id), current = members.find(one => one.id === action.member.id), role = mockRoles.find(one => one.id === action.role.id);
       if (!current || !role) throw new ClubMembersError('changed');
@@ -26,6 +28,7 @@ export function createMockClubMembersService(storage: MockApplicationStore) {
       try { await storage.setItem(MOCK_MEMBER_ROLES_KEY, JSON.stringify({ version: 1, clubs: { ...registry, [id]: { ...previous, [current.id]: role.id } } })); }
       catch { throw new ClubMembersError('storage'); }
       return { ...current, roleId: role.id };
-    },
+    }),
+    remove: (id, member) => removeMockMember(storage, id, member, async () => { if (!(await access.getPermissions(id)).includes('members.manage')) throw new ClubMembersError('forbidden'); }),
   });
 }

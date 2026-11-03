@@ -49,5 +49,6 @@ export function createApiClubMembersService(client: HttpClient) {
       return { club: { id, name: club.name, memberCount: club.memberCount as number }, me, members, parts, roles };
     },
     async patch(id, action) { return parseClubMember((await client.request(`${base(id)}/members/${identifier(action.member.id)}`, { method: 'PATCH', body: { roleId: identifier(action.role.id) } })).data, id); },
+    async remove(id, member) { await client.request(`${base(id)}/members/${identifier(member.id)}`, { method: 'DELETE' }); },
   });
 }

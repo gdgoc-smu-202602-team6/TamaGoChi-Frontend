@@ -19,6 +19,7 @@ import { CategoryManagementEntry } from './components/category-management-entry'
 import { ClubSettingsEntry } from '@/features/clubs/components/club-settings-entry';
 import { ClubPartsEntry } from '@/features/clubs/components/club-parts-entry';
 import { ClubMembersEntry } from '@/features/clubs/components/club-members-entry';
+import { ClubLeaveEntry } from '@/features/clubs/components/club-leave-entry';
 
 export function NoticeScreen() {
   const clubs = useClubs();
@@ -55,6 +56,7 @@ function ClubNotices({ club }: { club: JoinedClub }) {
         <ClubSettingsEntry key={`settings:${club.id}`} clubId={club.id} clubName={club.name} />
         <ClubPartsEntry key={`parts:${club.id}`} clubId={club.id} clubName={club.name} />
         <ClubMembersEntry key={`members:${club.id}`} clubId={club.id} clubName={club.name} />
+        <ClubLeaveEntry clubId={club.id} clubName={club.name} />
         {clubs.error && <Text accessibilityRole="alert" style={styles.error}>{clubs.error}</Text>}
         {notices.board && <>
           <FilterChips label="공지 분류" value={notices.filter.categoryId ?? ''} options={[{ id: '', name: '모두' }, ...notices.board.categories]} onChange={id => notices.setFilter(id ? { categoryId: id } : {})} />

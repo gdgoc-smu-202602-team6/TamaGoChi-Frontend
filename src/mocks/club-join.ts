@@ -4,12 +4,13 @@ import { joinedMockClubs, MOCK_APPLICATION_STORAGE_KEY, mockClubCatalog, mockInv
 import { readCreatedMockClubs } from './created-clubs';
 import { readMockClubMetadata, withMockClubMetadata } from './club-settings-data';
 import { getMockClubParts } from './club-parts-data';
+import { getMockMembers } from './club-members-data';
 
 export function createMockClubJoinService(storage: MockApplicationStore, now = Date.now): ClubJoinService {
   let queue: Promise<unknown> = Promise.resolve(), sequence = 0;
   const serial = <T>(work: () => Promise<T>) => { const next = queue.then(work); queue = next.catch(() => undefined); return next; };
   const decorate = async (one: ClubApplication): Promise<ClubApplication> => {
-    const club = mockClubCatalog.find(club => club.id === one.clubId);
+    const club = mockClubCatalog.find(club => club.id === one.clubId) ?? (await readCreatedMockClubs(storage)).find(club => club.id === one.clubId);
     const registry = await readMockClubMetadata(storage);
     const parts = club ? await getMockClubParts(storage, club.id, club.parts) : [];
     const part = parts.find(part => part.id === one.partId);
@@ -27,13 +28,13 @@ export function createMockClubJoinService(storage: MockApplicationStore, now = D
       const registry = await readMockClubMetadata(storage);
       const club = mockClubCatalog.map(club => ({ ...withMockClubMetadata(club, registry), inviteCode: Object.hasOwn(registry, club.id) ? registry[club.id].inviteCode : Object.keys(mockInviteCodes).find(code => mockInviteCodes[code] === club.id) }))
         .find(club => club.inviteCode === normalized) ?? (await readCreatedMockClubs(storage)).find(club => club.inviteCode === normalized);
-      return club ? { id: club.id, name: club.name, memberCount: (await joinedMockClubs(storage)).find(one => one.id === club.id)?.memberCount ?? club.memberCount, parts: await getMockClubParts(storage, club.id, club.parts) } : null;
+      return club ? { id: club.id, name: club.name, memberCount: (await getMockMembers(storage, club.id)).length, parts: await getMockClubParts(storage, club.id, club.parts) } : null;
     }),
     apply: (clubId, partId) => serial(async () => {
       const current = await readMockApplications(storage), pending = current.find(one => one.clubId === clubId && one.state === 'PENDING');
       if (pending) return decorate(pending);
       if ((await joinedMockClubs(storage)).some(club => club.id === clubId)) throw new ClubJoinError('already-member');
-      const club = mockClubCatalog.find(club => club.id === clubId);
+      const club = mockClubCatalog.find(club => club.id === clubId) ?? (await readCreatedMockClubs(storage)).find(club => club.id === clubId);
       if (!club) throw new ClubJoinError('not-found');
       if (!(await getMockClubParts(storage, clubId, club.parts)).some(part => part.id === partId)) throw new ClubJoinError('part-missing');
       const one: ClubApplication = { id: `mock-application-${now()}-${++sequence}-${Math.random().toString(36).slice(2, 8)}`, clubId, partId, state: 'PENDING', createdAt: new Date(now()).toISOString() };

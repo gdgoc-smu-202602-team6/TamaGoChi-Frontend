@@ -30,7 +30,7 @@ export function createMockClubPartsService(storage: MockApplicationStore) {
       } else {
         if (!current.some(one => one.id === action.part.id)) throw new ApiError('http', 404);
         const [members, applications, reviews] = await Promise.all([getMockMembers(storage, id), readMockApplications(storage), readMockClubReviews(storage)]);
-        if (members.some(one => one.partId === action.part.id) || [...applications, ...reviews].some(one => one.clubId === id && one.partId === action.part.id && ['PENDING', 'APPROVED'].includes(one.state))) throw new ClubPartsError('in-use');
+        if (members.some(one => one.partId === action.part.id) || [...applications, ...reviews].some(one => one.clubId === id && one.partId === action.part.id && one.state === 'PENDING')) throw new ClubPartsError('in-use');
         await save(id, current.filter(one => one.id !== action.part.id));
       }
     },
