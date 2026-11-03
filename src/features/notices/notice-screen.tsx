@@ -12,6 +12,7 @@ import type { JoinedClub } from '@/types/notice';
 import { FilterChips } from './components/filter-chips';
 import { NoticeCard } from './components/notice-card';
 import { useNotices } from './hooks/use-notices';
+import { ApplicationReviewEntry } from '@/features/clubs/components/application-review-entry';
 
 export function NoticeScreen() {
   const clubs = useClubs();
@@ -41,6 +42,7 @@ function ClubNotices({ club }: { club: JoinedClub }) {
         <Text style={styles.body}>{club.name}</Text>
         <Text accessibilityLiveRegion="polite" style={styles.caption}>{notices.counterError ? '읽지 않은 수를 확인하지 못했어요. 새로고침해 주세요.' : notices.board ? `안 읽은 공지 ${notices.board.unreadCount}개` : '공지를 확인하고 있어요.'}</Text>
         <FilterChips label="동아리" value={club.id} options={clubs.clubs} onChange={id => { void clubs.selectClub(id); }} />
+        <ApplicationReviewEntry clubId={club.id} clubName={club.name} />
         {clubs.error && <Text accessibilityRole="alert" style={styles.error}>{clubs.error}</Text>}
         {notices.board && <>
           <FilterChips label="공지 분류" value={notices.filter.categoryId ?? ''} options={[{ id: '', name: '모두' }, ...notices.board.categories]} onChange={id => notices.setFilter(id ? { categoryId: id } : {})} />

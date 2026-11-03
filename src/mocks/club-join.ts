@@ -20,7 +20,7 @@ export function createMockClubJoinService(storage: MockApplicationStore, now = D
       const normalized = normalizeInviteCode(code);
       if (!validInviteCode(normalized)) throw new ClubJoinError('invalid-code');
       const club = mockClubCatalog.find(club => club.id === mockInviteCodes[normalized]) ?? (await readCreatedMockClubs(storage)).find(club => club.inviteCode === normalized);
-      return club ? { id: club.id, name: club.name, memberCount: club.memberCount, parts: club.parts } : null;
+      return club ? { id: club.id, name: club.name, memberCount: (await joinedMockClubs(storage)).find(one => one.id === club.id)?.memberCount ?? club.memberCount, parts: club.parts } : null;
     }),
     apply: (clubId, partId) => serial(async () => {
       const current = await readMockApplications(storage), pending = current.find(one => one.clubId === clubId && one.state === 'PENDING');
