@@ -50,4 +50,4 @@ npx.cmd expo serve .expo/preview --port 8082
 
 Mock에서는 승인·거절 저장과 새로고침 후 복구, 가입 목록·초대 코드 조회의 부원 수 공유, 저장 실패 후 조회 복구, 일반 부원과 새 동아리 생성자의 권한, 기존 공부·내 가입 신청 기록 보존을 확인했다. API 모드 검증에는 가짜 응답만 사용하고 브라우저에서도 운영 API 네트워크를 차단했다. Mock의 운영 API 호출도 0회였다. 실제 운영 신청 승인·거절, 푸시 수신, 실기기 화면 읽기·뒤로가기 검증은 수행하지 않았다.
 
-후속 작업에서 [공지 작성](notice-compose-flow.md)·[수정·삭제](notice-management-flow.md), [분류 관리](notice-categories-flow.md), 이름·초대 코드의 [동아리 기본 설정](club-settings-flow.md)을 연결했다. 운영진 권한 지정·파트 관리·탈퇴·강퇴는 남아 있다. 시계·창문의 드래그는 [벽 배치 계약 제안](room-wall-placement-contract.md)을 백엔드와 합의한 뒤 연결한다.
+후속 작업에서 [공지 작성](notice-compose-flow.md)·[수정·삭제](notice-management-flow.md), [분류 관리](notice-categories-flow.md), 이름·초대 코드의 [동아리 기본 설정](club-settings-flow.md), [파트 추가·삭제](club-parts-flow.md), [부원 목록·역할 지정/해제](club-member-roles-flow.md)를 연결했다. 탈퇴·강퇴는 남아 있다. 시계·창문의 드래그는 [벽 배치 계약 제안](room-wall-placement-contract.md)을 백엔드와 합의한 뒤 연결한다. 전체 남은 범위는 [개발 현황](development-status.md)에 정리했다.

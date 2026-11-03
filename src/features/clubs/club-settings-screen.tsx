@@ -9,6 +9,8 @@ import { GameColors, GameUi, Spacing } from '@/constants/theme';
 import type { ClubSettings } from '@/types/club-settings';
 import { noticeCharacterCount } from '@/utils/notice-compose';
 import { useClubSettings } from './hooks/use-club-settings';
+import { ClubPartsEntry } from './components/club-parts-entry';
+import { ClubMembersEntry } from './components/club-members-entry';
 
 export function ClubSettingsScreen({ clubId }: { clubId: string }) {
   const settings = useClubSettings(clubId);
@@ -26,6 +28,8 @@ function SettingsContent({ settings }: { settings: ReturnType<typeof useClubSett
         {settings.notice && <Text accessibilityLiveRegion="polite" style={styles.notice}>{settings.notice}</Text>}
         <GameButton compact variant="secondary" label="설정 다시 확인" disabled={!!settings.operation || !!target} onPress={() => { void settings.refresh(); }} />
         {club && <>
+          <ClubPartsEntry key={club.id} clubId={club.id} clubName={club.name} />
+          <ClubMembersEntry key={`members:${club.id}`} clubId={club.id} clubName={club.name} />
           <GameCard><Text accessibilityRole="header" style={styles.title}>{club.name}</Text><Text style={styles.caption}>부원 {club.memberCount}명</Text>
             <View style={styles.codePanel}><Text style={styles.label}>초대 코드</Text><Text selectable accessibilityLabel={`초대 코드 ${club.inviteCode}`} style={styles.code}>{club.inviteCode}</Text>
               <View style={styles.buttons}><GameButton compact label="초대 코드 복사" disabled={disabled} onPress={() => { void settings.copy(); }} /><GameButton compact variant="secondary" label="초대 코드 재발급" disabled={disabled} onPress={() => setTarget(club)} /></View>

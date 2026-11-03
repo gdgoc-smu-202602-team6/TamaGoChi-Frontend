@@ -3,6 +3,7 @@ import { joinedMockClubs } from './clubs';
 import { readCreatedMockClubs } from './created-clubs';
 import { readMockNoticeState } from './notice-content';
 import { getMockNoticeCategories } from './notice-categories-data';
+import { getMockMembers } from './club-members-data';
 
 const clubs: readonly JoinedClub[] = [
   { id: 'mock-club-study', name: '함께 공부하는 모임', memberCount: 12 },
@@ -20,19 +21,22 @@ export function createMockNoticeService(storage: { getItem: (key: string) => Pro
   let queue: Promise<unknown> = Promise.resolve();
   const serial = <T>(work: () => Promise<T>) => { const next = queue.then(work); queue = next.catch(() => undefined); return next; };
   const ensureClub = async (id: string) => { if (!(await joinedMockClubs(storage)).some(club => club.id === id)) throw new Error('Unknown mock club'); };
-  async function reads(): Promise<string[]> {
-    const raw = await storage.getItem(MOCK_NOTICE_STORAGE_KEY);
-    if (raw === null) return [];
+  async function reads(clubId: string) {
+    const me = (await getMockMembers(storage, clubId)).find(one => one.userId === 'mock-me');
+    if (!me) throw new Error('Unknown mock membership');
+    const legacy = me.id === 'mock-member-me', key = legacy ? MOCK_NOTICE_STORAGE_KEY : `@tamagochi/mock-notice-reads/v2/${encodeURIComponent(clubId)}/${encodeURIComponent(me.id)}`;
+    const raw = await storage.getItem(key);
+    if (raw === null) return { key, legacy, items: [] as string[] };
     const value: unknown = JSON.parse(raw);
     if (!Array.isArray(value) || !value.every(id => typeof id === 'string')) throw new Error('Invalid mock notice reads');
-    return value;
+    return { key, legacy, items: value as string[] };
   }
   const isCreated = async (id: string) => (await readCreatedMockClubs(storage)).some(club => club.id === id);
   async function notices(clubId: string) {
     await ensureClub(clubId);
-    const read = await reads(), state = await readMockNoticeState(storage), custom = state.notices.filter(one => one.clubId === clubId).map(one => one.notice);
+    const read = await reads(clubId), state = await readMockNoticeState(storage), custom = state.notices.filter(one => one.clubId === clubId).map(one => one.notice);
     const entries = new Map([...(await isCreated(clubId) ? [] : demoNotices(clubId)).map(one => ({ ...one, notificationState: 'NONE' as const })), ...custom].map(one => [one.id, one]));
-    return [...entries.values()].filter(one => !state.deleted.some(deleted => deleted.clubId === clubId && deleted.noticeId === one.id)).map(one => ({ ...one, read: one.read || read.includes(one.id) }))
+    return [...entries.values()].filter(one => !state.deleted.some(deleted => deleted.clubId === clubId && deleted.noticeId === one.id)).map(one => ({ ...one, read: read.legacy && one.read || read.items.includes(one.id) }))
       .sort((a, b) => Number(b.pinned) - Number(a.pinned) || Date.parse(b.createdAt) - Date.parse(a.createdAt));
   }
   const filtered = (items: Notice[], filter: NoticeFilter) => items.filter(one => (!filter.categoryId || one.categoryId === filter.categoryId) && (!filter.subcategoryId || one.subcategoryId === filter.subcategoryId));
@@ -46,8 +50,8 @@ export function createMockNoticeService(storage: { getItem: (key: string) => Pro
     getNotice: (clubId, noticeId) => serial(async () => { const one = (await notices(clubId)).find(one => one.id === noticeId); if (!one) throw new Error('Unknown mock notice'); return one; }),
     markRead: (clubId, noticeId) => serial(async () => {
       if (!(await notices(clubId)).some(one => one.id === noticeId)) throw new Error('Unknown mock notice');
-      const current = await reads();
-      if (!current.includes(noticeId)) await storage.setItem(MOCK_NOTICE_STORAGE_KEY, JSON.stringify([...current, noticeId]));
+      const current = await reads(clubId);
+      if (!current.items.includes(noticeId)) await storage.setItem(current.key, JSON.stringify([...current.items, noticeId]));
     }),
     getUnreadCount: clubId => serial(async () => (await notices(clubId)).filter(one => !one.read).length),
   };

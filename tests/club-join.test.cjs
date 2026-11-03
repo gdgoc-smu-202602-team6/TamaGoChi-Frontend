@@ -110,7 +110,7 @@ test('mock repeated applications persist once and cannot access notices until an
   assert.equal(applications[0].id, applications[1].id); assert.equal((await f.reopen().getOverview()).applications.length, 1);
   await assert.rejects(f.notices.getBoard(found.id, {}));
   const record = JSON.parse(f.data.get(MOCK_APPLICATION_STORAGE_KEY)); record.applications[0].state = 'APPROVED'; record.applications[0].decidedAt = '2026-11-02T03:01:00Z'; f.data.set(MOCK_APPLICATION_STORAGE_KEY, JSON.stringify(record));
-  assert.ok((await f.notices.listMyClubs()).some(club => club.id === found.id)); assert.equal((await f.notices.getBoard(found.id, {})).unreadCount, 3);
+  assert.ok((await f.notices.listMyClubs()).some(club => club.id === found.id)); assert.equal((await f.notices.getBoard(found.id, {})).unreadCount, 4); // New membership has no prior notice reads.
   await assert.rejects(f.service.cancel(found.id, applications[0].id), { reason: 'not-pending' });
 });
 test('mock cancellation and rejection history preserve other data and expired rejections are hidden without deletion', async () => {

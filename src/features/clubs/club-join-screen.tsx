@@ -14,6 +14,7 @@ import { validInviteCode } from '@/utils/club-join';
 import { ApplicationCard } from './components/application-card';
 import { useClubJoin } from './hooks/use-club-join';
 import { ApplicationReviewEntry } from './components/application-review-entry';
+import { ClubLeaveEntry } from './components/club-leave-entry';
 
 type Row = { kind: 'club'; club: JoinedClub } | { kind: 'application'; application: ClubApplication };
 export function ClubJoinScreen() {
@@ -59,7 +60,7 @@ export function ClubJoinScreen() {
         renderItem={({ item, index }) => <View style={styles.item}>
           {item.kind === 'club' && (index === 0 || rows[index - 1].kind !== 'club') && <Text accessibilityRole="header" style={styles.sectionTitle}>가입한 동아리</Text>}
           {item.kind === 'application' && (index === 0 || rows[index - 1].kind !== 'application') && <Text accessibilityRole="header" style={styles.sectionTitle}>내 신청 내역</Text>}
-          {item.kind === 'club' ? <GameCard contentStyle={styles.preview}><Text style={styles.cardTitle}>{item.club.name}</Text><Text style={styles.caption}>부원 {item.club.memberCount}명</Text><GameButton compact label="공지 보기" accessibilityLabel={`${item.club.name} 공지 보기`} disabled={disabled} onPress={() => { void join.openClub(item.club.id); }} /><ApplicationReviewEntry clubId={item.club.id} clubName={item.club.name} /></GameCard>
+          {item.kind === 'club' ? <GameCard contentStyle={styles.preview}><Text style={styles.cardTitle}>{item.club.name}</Text><Text style={styles.caption}>부원 {item.club.memberCount}명</Text><GameButton compact label="공지 보기" accessibilityLabel={`${item.club.name} 공지 보기`} disabled={disabled} onPress={() => { void join.openClub(item.club.id); }} /><ApplicationReviewEntry clubId={item.club.id} clubName={item.club.name} /><ClubLeaveEntry clubId={item.club.id} clubName={item.club.name} disabled={disabled} /></GameCard>
             : <ApplicationCard application={item.application} disabled={disabled} onCancel={() => { void join.cancel(item.application); }} onOpen={join.data?.clubs.some(club => club.id === item.application.clubId) ? () => { void join.openClub(item.application.clubId); } : undefined} />}
         </View>}
         ListEmptyComponent={!join.refreshing && !join.loadError ? <GameCard><Text style={styles.body}>아직 가입한 동아리나 신청 내역이 없어요. 초대 코드로 동아리를 찾아보세요.</Text></GameCard> : undefined}
