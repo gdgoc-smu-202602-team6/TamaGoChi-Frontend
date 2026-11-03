@@ -3,6 +3,8 @@ import { StyleSheet, View } from 'react-native';
 
 import { PixelIcon } from '@/components/ui/pixel-icon';
 import { characterPlaceholder, deskPlaceholder, plantPlaceholder, roomPlaceholder } from '@/features/home/assets/room-placeholder';
+import { RoomScene } from '@/features/room/components/room-scene';
+import type { RoomAppearance } from '@/types/room';
 
 type RoomAssets = Record<'room' | 'character' | 'plant' | 'desk', ImageProps['source']>;
 type RoomPreviewProps = {
@@ -10,6 +12,7 @@ type RoomPreviewProps = {
   name: string;
   characterLabel: string;
   assets?: Partial<RoomAssets>;
+  appearance?: RoomAppearance;
 };
 
 const defaults: RoomAssets = {
@@ -20,7 +23,8 @@ const defaults: RoomAssets = {
 };
 const bugPositions = [{ left: '35%', top: '65%' }, { left: '70%', top: '72%' }, { left: '46%', top: '83%' }] as const;
 
-export function RoomPreview({ bugs, name, characterLabel, assets }: RoomPreviewProps) {
+export function RoomPreview({ bugs, name, characterLabel, assets, appearance }: RoomPreviewProps) {
+  if (appearance) return <RoomScene appearance={appearance} bugs={bugs} label={`${name}, ${characterLabel}`} />;
   const sources = { ...defaults, ...assets };
   return (
     <View

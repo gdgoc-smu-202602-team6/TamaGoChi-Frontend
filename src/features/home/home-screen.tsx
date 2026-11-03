@@ -39,7 +39,7 @@ export function HomeScreen({ service, onStartStudy, onEditRoom, onVisitFriends, 
                   </View>
                   <PixelIcon name="cloud" size={58} />
                 </View>
-                <RoomPreview bugs={state.data.bugs.count} name={state.data.room.name} characterLabel={state.data.room.characterLabel} />
+                <RoomPreview bugs={state.data.bugs.count} name={state.data.room.name} characterLabel={state.data.room.characterLabel} appearance={state.data.room.appearance} />
                 <GameButton label="방 꾸미기" compact variant="secondary" onPress={onEditRoom} style={styles.editButton} />
               </View>
               <StudySummary home={state.data} onStartStudy={onStartStudy} actionLabel={studyActionLabel} actionDisabled={studyActionDisabled} actionError={studyActionError} />

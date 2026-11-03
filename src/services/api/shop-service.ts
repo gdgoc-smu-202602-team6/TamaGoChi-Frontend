@@ -28,6 +28,16 @@ function ownedItem(value: unknown): string {
   if (!isId(data.itemId) || !integer(data.pricePaid) || (data.purchasedAt !== undefined && !isDateTime(data.purchasedAt))) throw new ApiError('response');
   return data.itemId;
 }
+export function parseShopCatalog(value: unknown): ShopItem[] {
+  const catalog = items(value).map(catalogItem);
+  if (new Set(catalog.map(item => item.id)).size !== catalog.length) throw new ApiError('response');
+  return catalog;
+}
+export function parseOwnedItemIds(value: unknown): string[] {
+  const owned = items(value).map(ownedItem);
+  if (new Set(owned).size !== owned.length) throw new ApiError('response');
+  return owned;
+}
 function equippedItems(value: unknown): string[] {
   const data = record(value);
   if (!Array.isArray(data.equipped)) throw new ApiError('response');
@@ -46,10 +56,9 @@ export function createApiShopService(client: HttpClient): ShopService {
       const [catalog, owned, room, account] = await Promise.all([
         client.request('/items'), client.request('/users/me/items'), client.request('/users/me/room'), client.request('/users/me/stats'),
       ]);
-      const entries = items(catalog.data).map(catalogItem);
-      if (new Set(entries.map(item => item.id)).size !== entries.length) throw new ApiError('response');
+      const entries = parseShopCatalog(catalog.data);
       const stats = parseStats(account.data);
-      return { items: entries, balance: stats.volts, level: stats.level, ownedItemIds: items(owned.data).map(ownedItem), equippedItemIds: equippedItems(room.data) };
+      return { items: entries, balance: stats.volts, level: stats.level, ownedItemIds: parseOwnedItemIds(owned.data), equippedItemIds: equippedItems(room.data) };
     },
     async purchase(itemId) {
       if (!isId(itemId)) throw new ShopError('not-found');

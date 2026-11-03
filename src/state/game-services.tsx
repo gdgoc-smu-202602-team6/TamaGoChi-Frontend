@@ -25,8 +25,10 @@ import type { NoticeService } from '@/types/notice';
 import type { ClubJoinService } from '@/types/club-join';
 import type { ClubCreateService } from '@/types/club-create';
 import { ClubProvider } from '@/state/club-context';
+import { createApiRoomService } from '@/services/api/room-service';
+import type { RoomService } from '@/types/room';
 
-type GameServices = { home: HomeService; study: StudyService; shop: ShopService; profile: ProfileService; notices: NoticeService; clubJoin: ClubJoinService; clubCreate: ClubCreateService };
+type GameServices = { home: HomeService; study: StudyService; shop: ShopService; profile: ProfileService; notices: NoticeService; clubJoin: ClubJoinService; clubCreate: ClubCreateService; room: RoomService };
 type GameContext = GameServices & { revision: number; invalidate: () => void };
 const GameServicesContext = createContext<GameContext | null>(null);
 
@@ -48,7 +50,7 @@ function GameScope({ children }: PropsWithChildren) {
   useEffect(() => { lease.open(); return () => { lease.close(); }; }, [lease]);
   // A scope owns a fixed token. Old async work can never acquire another account's token.
   const services = useMemo<GameServices>(() => {
-    if (isMockMode) return { home: mockBackend, study: mockBackend, shop: mockBackend, profile: mockBackend, notices: createMockNoticeService(AsyncStorage), clubJoin: createMockClubJoinService(AsyncStorage), clubCreate: createMockClubCreateService(AsyncStorage) };
+    if (isMockMode) return { home: mockBackend, study: mockBackend, shop: mockBackend, profile: mockBackend, room: mockBackend, notices: createMockNoticeService(AsyncStorage), clubJoin: createMockClubJoinService(AsyncStorage), clubCreate: createMockClubCreateService(AsyncStorage) };
     const token = state.token;
     const client = createAuthorizedClient(apiClient, { getToken: async () => token, isCurrent: lease.isCurrent, onUnauthorized: () => { void refresh(); } });
     const key = `@tamagochi/api-study/v1/${encodeURIComponent(apiBaseUrl)}/${encodeURIComponent(state.user?.id ?? 'anonymous')}`;
@@ -57,7 +59,8 @@ function GameScope({ children }: PropsWithChildren) {
     const clubJoin = createApiClubJoinService(client, notices, state.user?.id ?? 'anonymous', { get: () => AsyncStorage.getItem(namesKey), set: value => AsyncStorage.setItem(namesKey, value) });
     const createKey = `@tamagochi/club-create-intent/v1/${encodeURIComponent(apiBaseUrl)}/${encodeURIComponent(state.user?.id ?? 'anonymous')}`;
     const clubCreate = createApiClubCreateService(client, { get: () => AsyncStorage.getItem(createKey), set: value => value === null ? AsyncStorage.removeItem(createKey) : AsyncStorage.setItem(createKey, value) });
-    return { home: createApiHomeService(client), shop: createApiShopService(client), profile: createApiProfileService(client), notices, clubJoin, clubCreate, study: createApiStudyService(client, {
+    const room = createApiRoomService(client, state.user?.id ?? 'anonymous');
+    return { home: createApiHomeService(client, room), room, shop: createApiShopService(client), profile: createApiProfileService(client), notices, clubJoin, clubCreate, study: createApiStudyService(client, {
       get: () => AsyncStorage.getItem(key), set: value => AsyncStorage.setItem(key, value),
     }) };
   }, [state.token, state.user?.id, refresh, lease]);

@@ -39,7 +39,7 @@ export function ProfileScreen() {
           <GameButton compact variant="secondary" label="동아리 가입·신청" onPress={() => router.push('/clubs/join')} />
           <GameButton compact variant="secondary" label={auth.user ? '내 계정' : '이메일로 로그인'} onPress={() => router.push(auth.user ? '/account' : '/login')} />
           <GameButton compact variant="secondary" label="잠금한 앱 관리 · 준비 중" disabled />
-          <GameButton compact variant="secondary" label="보유 아이템 · 준비 중" disabled />
+          <GameButton compact variant="secondary" label="보유 아이템 · 방 꾸미기" onPress={() => router.push('/room-edit')} />
           <GameButton compact variant="secondary" label="내 방명록 · 준비 중" disabled />
         </GameCard>
       </View>
