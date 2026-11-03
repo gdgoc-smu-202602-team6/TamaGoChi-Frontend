@@ -10,7 +10,7 @@ export function createMockClubAdminService(storage: MockApplicationStore, now = 
     if (!(await joinedMockClubs(storage)).some(club => club.id === clubId)) throw new ClubAdminError('not-found');
     // Explicit preview roles: first club + clubs created by the preview user are managed;
     // the second club and joined-by-approval clubs remain ordinary memberships.
-    return clubId === 'mock-club-study' || (await readCreatedMockClubs(storage)).some(club => club.id === clubId) ? ['applications.decide' as const] : [];
+    return clubId === 'mock-club-study' || (await readCreatedMockClubs(storage)).some(club => club.id === clubId) ? ['applications.decide' as const, 'notices.write' as const] : [];
   }
   async function requireReview(clubId: string) { if (!(await getPermissions(clubId)).includes('applications.decide')) throw new ClubAdminError('forbidden'); }
   return {

@@ -1,12 +1,13 @@
 import type { JoinedClub, Notice, NoticeCategory, NoticeFilter, NoticeService } from '../types/notice';
 import { joinedMockClubs } from './clubs';
 import { readCreatedMockClubs } from './created-clubs';
+import { readMockNoticeContent } from './notice-content';
 
 const clubs: readonly JoinedClub[] = [
   { id: 'mock-club-study', name: '함께 공부하는 모임', memberCount: 12 },
   { id: 'mock-club-pixel', name: '픽셀 메이커스', memberCount: 8 },
 ];
-const categories: readonly NoticeCategory[] = [
+export const mockNoticeCategories: readonly NoticeCategory[] = [
   { id: 'mock-general', name: '전체공지', color: 'RED', subcategories: [] },
   { id: 'mock-study', name: '스터디', color: 'GREEN', subcategories: [{ id: 'mock-reading', name: '함께 읽기' }, { id: 'mock-focus', name: '집중 공부' }] },
   { id: 'mock-design', name: '디자인', color: 'PINK', subcategories: [] },
@@ -30,13 +31,18 @@ export function createMockNoticeService(storage: { getItem: (key: string) => Pro
     return value;
   }
   const isCreated = async (id: string) => (await readCreatedMockClubs(storage)).some(club => club.id === id);
-  async function notices(clubId: string) { await ensureClub(clubId); if (await isCreated(clubId)) return []; const read = await reads(); return demoNotices(clubId).map(one => ({ ...one, read: one.read || read.includes(one.id) })); }
+  async function notices(clubId: string) {
+    await ensureClub(clubId);
+    const read = await reads(), custom = (await readMockNoticeContent(storage)).filter(one => one.clubId === clubId).map(one => one.notice);
+    return [...(await isCreated(clubId) ? [] : demoNotices(clubId)), ...custom].map(one => ({ ...one, read: one.read || read.includes(one.id) }))
+      .sort((a, b) => Number(b.pinned) - Number(a.pinned) || Date.parse(b.createdAt) - Date.parse(a.createdAt));
+  }
   const filtered = (items: Notice[], filter: NoticeFilter) => items.filter(one => (!filter.categoryId || one.categoryId === filter.categoryId) && (!filter.subcategoryId || one.subcategoryId === filter.subcategoryId));
   return {
     listMyClubs: () => joinedMockClubs(storage),
     getBoard: (clubId, filter) => serial(async () => {
       const items = await notices(clubId);
-      return { categories: await isCreated(clubId) ? categories.slice(0, 1) : categories, authors: { 'mock-admin': '운영진', 'mock-lead': '스터디장' }, unreadCount: items.filter(one => !one.read).length, page: { items: filtered(items, filter) } };
+      return { categories: await isCreated(clubId) ? mockNoticeCategories.slice(0, 1) : mockNoticeCategories, authors: { 'mock-admin': '운영진', 'mock-lead': '스터디장', 'mock-me': '나' }, unreadCount: items.filter(one => !one.read).length, page: { items: filtered(items, filter) } };
     }),
     listNotices: (clubId, filter) => serial(async () => ({ items: filtered(await notices(clubId), filter) })),
     getNotice: (clubId, noticeId) => serial(async () => { const one = (await notices(clubId)).find(one => one.id === noticeId); if (!one) throw new Error('Unknown mock notice'); return one; }),
