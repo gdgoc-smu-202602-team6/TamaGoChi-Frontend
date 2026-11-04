@@ -69,4 +69,4 @@ Node 기본 테스트 러너를 사용하며 별도 테스트 패키지는 추�
 
 수동 검증은 내 방 → 시작 → Study 새로고침/앱 재실행 → 종료 → 결과 새로고침 → 내 방 순서로 진행한다. 오프라인 신규 시작 차단, Study·결과 화면의 탭 숨김, 0초 세션 종료, 잘못된 결과 URL에서 보상 불변도 확인한다.
 
-Metro 개발 SSR의 `Requiring unknown module` 오류는 캐시 초기화만으로 안정적으로 해결되지 않았다. 현재 Web 검증·미리보기는 프로덕션 내보내기와 `expo serve`를 사용한다. [서버 Study 흐름의 개발 서버 기록](study-api-flow.md)을 참고한다.
+초기 Metro 개발 SSR의 `Requiring unknown module` 오류는 캐시 초기화만으로 해결되지 않아 당시 검증에 export/serve를 사용했다. 2026-11-04에 검증 산출물 감시를 원인으로 재현하고 수정했으며, 현재 개발 실행·SSR·공부 기록 보존/Fast Refresh 결과는 [Metro 안정화](metro-dev-stability.md)를 참고한다.

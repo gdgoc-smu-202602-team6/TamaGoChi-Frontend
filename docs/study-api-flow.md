@@ -64,7 +64,7 @@ npm test
 
 ## Web 개발 서버
 
-기존 Metro SSR `unknown module` 오류는 남아 있다. SDK 58의 공식 `asyncRoutes.web: production` 설정으로 개발 분할을 꺼 보는 확인도 수행했지만 직접 접속에서 500이 계속 발생해 설정을 원복했다. 앱 설정·의존성 소스를 우회 수정하지 않았다. 위 브라우저 검증은 프로덕션 SSR 내보내기와 공식 `expo serve`로 수행했다.
+초기 검증의 Metro SSR `unknown module` 오류는 2026-11-04에 검증 산출물 감시와 겹치는 모듈 초기화로 재현하고 수정했다. [Metro 개발 서버 안정화](metro-dev-stability.md)의 실행 명령·비교 실험·Fast Refresh 검증을 참고한다. `asyncRoutes.web: production` 실험은 초기 오류를 해결하지 못해 원복한 상태이며, 현재도 SSR·라우트 분할·의존성 소스는 유지한다. 위 초기 브라우저 검증은 프로덕션 SSR 내보내기와 공식 `expo serve` 결과이며 아래 명령은 배포 번들 확인에도 사용한다.
 
 ```powershell
 npx.cmd expo export --platform web --output-dir .expo/validation/study-api-preview

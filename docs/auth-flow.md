@@ -84,9 +84,9 @@ npm test
 
 Expo Router의 자동 생성 타입이 예전 라우트만 포함하면 `npm start`를 실행해 갱신한 후 타입 검사를 실행한다. 라우트 문자열을 강제 캐스팅하거나 생성 파일을 직접 편집하지 않는다.
 
-개발 서버에서 라우트를 새로고침할 때 `Requiring unknown module "59"`가 재현됐다. [기존 캐시 재생성](study-flow.md) 후에도 이번 실행에서는 다시 발생했다. 앱의 SSR 설정·라이브러리 소스는 바꾸지 않았으며, 위의 전체 브라우저 검증은 공식 `expo serve`로 프로덕션 내보내기를 실행한 결과다. 개발 서버 문제를 해결한 것으로 보고하지 않는다. 로컬에서 같은 문제가 있으면 다음 명령으로 검증한 방식의 미리보기를 열 수 있다.
+초기 인증 구현 검증에서는 개발 서버 새로고침 시 `Requiring unknown module "59"`가 캐시 재생성 뒤에도 발생했다. 당시 위 브라우저 검증은 공식 `expo serve`로 프로덕션 내보내기를 실행한 결과다. **2026-11-04 후속 작업에서 검증 산출물 감시와 겹치는 SSR 초기화 오류를 재현하고 수정했다.** 현재 개발 서버 실행과 검증은 [Metro 안정화](metro-dev-stability.md)를 참고한다. 아래 export/serve는 배포 번들 확인에도 사용할 수 있다.
 
-Backend CORS 수정 후 별도 Metro(`--clear`, localhost:8083)에서도 `/login` → `/signup` → `/account` 직접 요청 중 동일 오류와 500이 발생했고 뒤이은 요청은 200이었다. 이 개발용 SSR 모듈 오류는 Backend CORS 수정과 별개로 남아 있다.
+Backend CORS 수정 당시 별도 Metro(`--clear`, localhost:8083)에서도 `/login` → `/signup` → `/account` 직접 요청 중 같은 500이 발생했다. CORS와 개발용 SSR 모듈 오류는 별개 원인이었으며, 후자의 현재 수정/검증 결과는 위 후속 문서에 정리했다.
 
 ```powershell
 npx.cmd expo export --platform web --output-dir .expo/validation/auth-export

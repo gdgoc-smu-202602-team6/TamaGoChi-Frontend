@@ -80,4 +80,4 @@ npx.cmd expo export --platform web --output-dir .expo/preview
 npx.cmd expo serve .expo/preview --port 8082
 ```
 
-`http://localhost:8082/room-edit`에서 로그인 없이 확인한다. API 모드는 환경 변수를 api로 바꿔 다시 내보내고 로그인한다. 운영 계정의 방은 이번 검증에서 수정하지 않았다. 실제 Android/iOS 터치·뒤로가기/스와이프·접근성·네트워크 전환·동시 기기 저장과 최종 에셋 검증은 남아 있다. 기존 Metro 개발 SSR 오류도 별도다.
+`http://localhost:8082/room-edit`에서 로그인 없이 확인한다. API 모드는 환경 변수를 api로 바꿔 다시 내보내고 로그인한다. 운영 계정의 방은 이번 검증에서 수정하지 않았다. 실제 Android/iOS 터치·뒤로가기/스와이프·접근성·네트워크 전환·동시 기기 저장과 최종 에셋 검증은 남아 있다. 초기 Metro 개발 SSR 오류의 2026-11-04 수정과 개발 서버 실행은 [Metro 안정화](metro-dev-stability.md)를 참고한다.
