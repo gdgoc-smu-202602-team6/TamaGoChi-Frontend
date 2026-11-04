@@ -4,6 +4,7 @@ import { AppState } from 'react-native';
 import { ApiError, apiErrorMessage } from '@/services/api/http-client';
 import { useClubs } from '@/state/club-context';
 import { useGameServices } from '@/state/game-services';
+import { useNoticeUnread } from '@/state/notice-unread-context';
 import { ClubAdminError } from '@/types/club-admin';
 import { NoticeComposeError } from '@/types/notice-compose';
 import type { PublishedNotice } from '@/types/notice-compose';
@@ -27,7 +28,7 @@ function message(error: unknown) {
   return apiErrorMessage(error);
 }
 export function useNoticeEditor(clubId: string, noticeId: string) {
-  const { noticeManagement: service } = useGameServices(), clubs = useClubs();
+  const { noticeManagement: service } = useGameServices(), clubs = useClubs(), { invalidateClub, refreshClub } = useNoticeUnread();
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null), current = useRef<Snapshot | null>(null);
   const [operation, setOperation] = useState<'check' | 'save' | 'delete' | 'reload' | 'open' | null>('check');
   const [blocked, setBlocked] = useState<'changed' | 'uncertain' | null>(null), [verified, setVerified] = useState(false);
@@ -57,8 +58,8 @@ export function useNoticeEditor(clubId: string, noticeId: string) {
         if (reason instanceof NoticeManagementError && reason.reason === 'missing' && intent.current?.kind === 'delete') { clear(); setRemoved('absent'); }
         else { if (accessLost(reason) || reason instanceof NoticeManagementError && reason.reason === 'missing') clear(); setError(message(reason)); }
       }
-    } finally { busy.current = false; if (alive.current) setOperation(null); }
-  }, [service, clubId, noticeId, reconcile, clear, removed]);
+    } finally { invalidateClub(clubId); void refreshClub(clubId); busy.current = false; if (alive.current) setOperation(null); }
+  }, [service, clubId, noticeId, reconcile, clear, removed, refreshClub, invalidateClub]);
   useFocusEffect(useCallback(() => {
     void refresh();
     const subscription = AppState.addEventListener('change', state => { if (state === 'active') void refresh(); });
@@ -70,6 +71,7 @@ export function useNoticeEditor(clubId: string, noticeId: string) {
     if (!one || busy.current || !canWrite.current) return;
     if (kind === 'save') { const invalid = validateNoticeCreate({ ...one.draft, notify: false }); if (invalid) { setError(invalid); return; } }
     busy.current = true; canWrite.current = false; setOperation(kind); setError(null); setNotice(null);
+    invalidateClub(clubId);
     intent.current = kind === 'save' ? { kind, draft: normalizeNoticeEdit(one.draft) } : { kind };
     try {
       if (kind === 'save') { const receipt = await service.save(clubId, noticeId, one.board.notice, one.draft); if (alive.current) { apply({ ...one.board, notice: receipt }); setNotice('수정 내용이 서버에서 확인됐어요. 알림은 다시 보내지 않아요.'); } }
@@ -86,7 +88,7 @@ export function useNoticeEditor(clubId: string, noticeId: string) {
         else setVerified(false);
       }
       if (alive.current) setError(message(reason));
-    } finally { busy.current = false; if (alive.current) setOperation(null); }
+    } finally { invalidateClub(clubId); void refreshClub(clubId); busy.current = false; if (alive.current) setOperation(null); }
   }
   async function openList() {
     if (busy.current) return;

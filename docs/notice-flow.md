@@ -6,7 +6,7 @@
 
 `src/app/(tabs)/notice.tsx`는 기능 화면만 내보낸다. `features/notices/`에 화면·카드·필터·조회 훅을, 서비스·Mock·타입은 각각 해당 폴더에 둔다. API의 색상 이름은 공통 `constants/palette.ts`에서 매핑한다. 기존 카드·버튼·헤더·테마를 재사용하며 내비게이션 컴포넌트와 패키지는 변경하지 않았다.
 
-이번 범위는 가입한 동아리 선택, 부원용 공지 목록·필터·본문·읽음·페이지 조회다. 후속 [동아리 가입 흐름](club-join-flow.md)에서 초대 코드 신청·취소와 승인 후 진입을 연결했다. [동아리 생성](club-create-flow.md)과 [가입 신청 관리](club-applications-flow.md)도 연결했으며, 현재 선택 동아리의 관리 버튼은 `applications.decide` 권한이 있을 때만 표시한다. [공지 작성](notice-compose-flow.md)과 [수정·삭제](notice-management-flow.md)는 `notices.write` 권한으로 연결했다. [분류·세부 분류 관리](notice-categories-flow.md)는 `noticeCategories.manage` 권한으로 연결했으며 Mock도 같은 동적 분류를 공유한다. 권한 관리, 기기 푸시 수신과 하단 탭의 읽지 않은 수 배지는 후속 작업이다. 가입하지 않았거나 신청만 대기 중인 동아리의 공지를 임의로 보여주지 않는다.
+이번 범위는 가입한 동아리 선택, 부원용 공지 목록·필터·본문·읽음·페이지 조회다. 후속 [동아리 가입 흐름](club-join-flow.md)에서 초대 코드 신청·취소와 승인 후 진입을 연결했다. [동아리 생성](club-create-flow.md)과 [가입 신청 관리](club-applications-flow.md)도 연결했으며, 현재 선택 동아리의 관리 버튼은 `applications.decide` 권한이 있을 때만 표시한다. [공지 작성](notice-compose-flow.md)과 [수정·삭제](notice-management-flow.md)는 `notices.write` 권한으로 연결했다. [분류·세부 분류 관리](notice-categories-flow.md)는 `noticeCategories.manage` 권한으로 연결했으며 Mock도 같은 동적 분류를 공유한다. 후속 [읽지 않은 수 배지](notice-unread-flow.md)를 하단 탭·동아리 칩에 연결했다. 기기 푸시 수신은 별도 준비가 필요하다. 가입하지 않았거나 신청만 대기 중인 동아리의 공지를 임의로 보여주지 않는다.
 
 ## 동아리 선택
 
