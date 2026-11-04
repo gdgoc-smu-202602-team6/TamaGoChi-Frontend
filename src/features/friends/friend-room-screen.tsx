@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useMemo } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GameButton } from '@/components/ui/game-button';
 import { GameCard } from '@/components/ui/game-card';
@@ -8,10 +9,12 @@ import { Palette } from '@/constants/palette';
 import { RoomScene } from '@/features/room/components/room-scene';
 import { useFriendVisit } from './hooks/use-friends';
 import { studyDuration } from './study-duration';
+import { GuestbookList } from '@/features/guestbook/guestbook-list';
 
 export function FriendRoomScreen({ clubId, memberId }: { clubId: string; memberId: string }) {
   const state = useFriendVisit(clubId, memberId), friend = state.data?.friend;
-  return <SafeAreaView style={styles.screen}><ScrollView contentContainerStyle={styles.content}>
+  const target = useMemo(() => ({ kind: 'member' as const, clubId, memberId }), [clubId, memberId]);
+  return <SafeAreaView style={styles.screen}><GuestbookList target={target} header={<View style={styles.content}>
     <GameButton compact variant="secondary" label="◀ 친구 방 목록" disabled={state.operation === 'like'} onPress={() => router.dismissTo('/friends')} />
     <Text accessibilityRole="header" style={styles.title}>{friend ? `${friend.member.nickname || '닉네임 정보 없음'}의 방` : '친구의 방'}</Text>
     {state.operation && <ActivityIndicator accessibilityLabel="방 상태 확인 중" color={GameColors.ink} />}{state.error && <Text accessibilityRole="alert" style={styles.error}>{state.error}</Text>}
@@ -24,6 +27,6 @@ export function FriendRoomScreen({ clubId, memberId }: { clubId: string; memberI
       <GameCard contentStyle={styles.like}><Text accessibilityLiveRegion="polite" style={styles.number}>♥ {friend.likeCount}</Text><GameButton label={friend.likedByMe ? '♥ 좋아요 취소' : '♡ 좋아요'} accessibilityLabel={friend.likedByMe ? '좋아요 취소' : '좋아요'} variant={friend.likedByMe ? 'secondary' : 'primary'} disabled={!!state.operation || !state.verified} onPress={() => { void state.setLike(); }} /></GameCard>
     </>}
     <GameButton variant="secondary" label="동아리 가입·신청" disabled={state.operation === 'like'} onPress={() => router.push('/clubs/join')} />
-  </ScrollView></SafeAreaView>;
+  </View>} /></SafeAreaView>;
 }
-const styles = StyleSheet.create({ screen: { flex: 1, backgroundColor: GameColors.sky }, content: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center', flexGrow: 1, padding: 18, paddingBottom: Spacing.four, gap: 12 }, title: { ...GameUi.typography.title, color: GameColors.ink }, heading: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 }, body: { ...GameUi.typography.body, color: GameColors.ink }, caption: { ...GameUi.typography.caption, color: GameColors.inkMuted }, part: { ...GameUi.typography.caption, borderWidth: 2, borderColor: GameColors.ink, borderRadius: 10, padding: 6 }, stats: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 }, stat: { flex: 1, minWidth: 120 }, number: { ...GameUi.typography.title, color: GameColors.ink }, like: { backgroundColor: GameColors.cream }, error: { ...GameUi.typography.body, color: GameColors.coral } });
+const styles = StyleSheet.create({ screen: { flex: 1, backgroundColor: GameColors.sky }, content: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center', gap: Spacing.three }, title: { ...GameUi.typography.title, color: GameColors.ink }, heading: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 }, body: { ...GameUi.typography.body, color: GameColors.ink }, caption: { ...GameUi.typography.caption, color: GameColors.inkMuted }, part: { ...GameUi.typography.caption, borderWidth: 2, borderColor: GameColors.ink, borderRadius: 10, padding: 6 }, stats: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 }, stat: { flex: 1, minWidth: 120 }, number: { ...GameUi.typography.title, color: GameColors.ink }, like: { backgroundColor: GameColors.cream }, error: { ...GameUi.typography.body, color: GameColors.coral } });

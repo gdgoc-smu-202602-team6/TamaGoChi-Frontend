@@ -11,5 +11,5 @@
     "outDir": ".expo/tests",
     "noEmitOnError": true
   },
-  "include": ["src/mocks/study-backend.ts", "src/mocks/notices.ts", "src/mocks/club-join.ts", "src/mocks/club-create.ts", "src/mocks/club-admin.ts", "src/mocks/notice-compose.ts", "src/mocks/notice-management.ts", "src/mocks/notice-categories.ts", "src/mocks/club-settings.ts", "src/mocks/club-parts.ts", "src/mocks/club-members.ts", "src/mocks/club-membership.ts", "src/mocks/friends.ts", "src/utils/study-time.ts", "src/utils/notice.ts", "src/services/api/*.ts", "src/utils/auth-validation.ts", "src/utils/session-clock.ts"]
+  "include": ["src/mocks/study-backend.ts", "src/mocks/notices.ts", "src/mocks/club-join.ts", "src/mocks/club-create.ts", "src/mocks/club-admin.ts", "src/mocks/notice-compose.ts", "src/mocks/notice-management.ts", "src/mocks/notice-categories.ts", "src/mocks/club-settings.ts", "src/mocks/club-parts.ts", "src/mocks/club-members.ts", "src/mocks/club-membership.ts", "src/mocks/friends.ts", "src/mocks/guestbook.ts", "src/utils/study-time.ts", "src/utils/notice.ts", "src/services/api/*.ts", "src/utils/auth-validation.ts", "src/utils/session-clock.ts"]
 }
