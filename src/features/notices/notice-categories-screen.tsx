@@ -22,11 +22,10 @@ function CategoryContent({ manager }: { manager: ReturnType<typeof useCategoryMa
   const [target, setTarget] = useState<Extract<CategoryAction, { kind: 'delete-category' | 'delete-subcategory' }> | null>(null);
   const board = manager.board, disabled = !!manager.operation || !manager.verified || !!target;
   const targetName = target?.kind === 'delete-category' ? target.category.name : target?.subcategory.name;
-  return <SafeAreaView style={styles.screen}>
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="공지 분류 관리" onBack={() => router.dismissTo('/notice')} backLabel="공지로 돌아가기" backDisabled={!!manager.operation || !!target} />
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <FlatList style={styles.list} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" data={board ? board.categories : []} keyExtractor={item => item.id}
         ListHeaderComponent={<View style={styles.header}>
-          <ScreenHeader title="공지 분류 관리" onBack={() => router.dismissTo('/notice')} backLabel="공지로 돌아가기" backDisabled={!!manager.operation || !!target} />
           {board && <Text style={styles.body}>{board.club.name}</Text>}
           {manager.operation && <ActivityIndicator color={GameColors.ink} accessibilityLabel="공지 분류 확인 중" />}
           {manager.error && <Text accessibilityRole="alert" style={styles.error}>{manager.error}</Text>}

@@ -35,10 +35,9 @@ export function RoomEditScreen() {
   async function save() { if (await editor.save()) { setAllowLeave(true); disablePrevention(); router.dismissTo('/'); } }
   const targets = snapshot ? availableTargets(snapshot.draft, snapshot.data.items) : [];
   const activeTarget = selected && targets.includes(selected) ? selected : null;
-  return <SafeAreaView style={styles.screen}>
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="방 꾸미기" onBack={() => leave('/')} backDisabled={!!editor.operation || dragging} backLabel="내 방으로 돌아가기" actions={<IconButton icon="refresh" label="위치 초기화" disabled={disabled} onPress={editor.resetPositions} />} />
     <ScrollView scrollEnabled={!dragging} contentContainerStyle={styles.scroll}>
       <View style={styles.content}>
-        <ScreenHeader title="방 꾸미기" onBack={() => leave('/')} backDisabled={!!editor.operation || dragging} backLabel="내 방으로 돌아가기" actions={<IconButton icon="refresh" label="위치 초기화" disabled={disabled} onPress={editor.resetPositions} />} />
         {editor.operation && <ActivityIndicator accessibilityLabel={saving ? '방 배치 저장 중' : '방 정보 확인 중'} color={GameColors.ink} />}
         {editor.error && !snapshot && <Text accessibilityRole="alert" style={styles.error}>{editor.error}</Text>}
         {editor.notice && <Text accessibilityLiveRegion="polite" style={styles.notice}>{editor.notice}</Text>}

@@ -25,13 +25,12 @@ export function ClubJoinScreen() {
   const joinedPreview = join.data?.clubs.some(club => club.id === join.preview?.id);
   const pendingPreview = join.data?.applications.some(one => one.clubId === join.preview?.id && one.state === 'PENDING');
   const rows: Row[] = [...(join.data?.applications.map(application => ({ kind: 'application' as const, application })) ?? []), ...(join.data?.clubs.map(club => ({ kind: 'club' as const, club })) ?? [])];
-  return <SafeAreaView style={styles.screen}>
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="동아리 가입" onBack={() => router.dismissTo('/')} backLabel="내 방으로 돌아가기" />
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <FlatList<Row> style={styles.list} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled"
         data={rows} keyExtractor={row => row.kind === 'club' ? `club:${row.club.id}` : `application:${row.application.id}`}
         refreshing={join.refreshing} onRefresh={() => { void join.refresh(); }}
         ListHeaderComponent={<View style={styles.header}>
-          <ScreenHeader title="동아리 가입" onBack={() => router.dismissTo('/')} backLabel="내 방으로 돌아가기" />
           <GameButton compact variant="secondary" label="새 동아리 만들기" onPress={() => router.push('/clubs/create')} />
           <GameCard>
             <Text accessibilityRole="header" style={styles.cardTitle}>초대 코드 입력</Text>

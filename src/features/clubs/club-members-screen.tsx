@@ -21,10 +21,9 @@ export function ClubMembersScreen({ clubId }: { clubId: string }) {
 }
 function MembersContent({ manager }: { manager: ReturnType<typeof useClubMembers> }) {
   const [target, setTarget] = useState<ClubMember | null>(null), [removeTarget, setRemoveTarget] = useState<ClubMember | null>(null), board = manager.board, disabled = !!manager.operation || !manager.verified || !!target || !!removeTarget;
-  return <SafeAreaView style={styles.screen}>
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="부원·역할 관리" onBack={() => { void manager.openList(); }} backLabel="공지로 돌아가기" backDisabled={!!manager.operation || !!target || !!removeTarget} />
     <FlatList style={styles.list} contentContainerStyle={styles.content} data={board ? board.members : []} keyExtractor={item => item.id}
       ListHeaderComponent={<View style={styles.header}>
-        <ScreenHeader title="부원·역할 관리" onBack={() => { void manager.openList(); }} backLabel="공지로 돌아가기" backDisabled={!!manager.operation || !!target || !!removeTarget} />
         {board && <Text style={styles.body}>{board.club.name} · 조회한 부원 {board.members.length}명</Text>}
         {manager.operation && <ActivityIndicator accessibilityLabel="부원 확인 중" color={GameColors.ink} />}
         {manager.error && <Text accessibilityRole="alert" style={styles.error}>{manager.error}</Text>}

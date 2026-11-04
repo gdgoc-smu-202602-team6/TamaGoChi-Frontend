@@ -26,11 +26,8 @@ function NoticeEditContent({ editor }: { editor: ReturnType<typeof useNoticeEdit
   const disabled = !!editor.operation || !editor.verified || !!editor.blocked || modal;
   function leave(action: () => void) { if (editor.operation) return; if (prevent) { leaveAction.current = action; setLeavePrompt(true); } else action(); }
   function confirmLeave() { setAllowLeave(true); disablePrevention(); setLeavePrompt(false); leaveAction.current?.(); }
-  return <SafeAreaView style={styles.screen}>
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="공지 수정" onBack={() => leave(() => router.dismissTo('/notice'))} backDisabled={!!editor.operation || modal} backLabel="공지로 돌아가기" actions={snapshot && <GameButton compact label={editor.operation === 'save' ? '저장 중…' : '저장'} accessibilityLabel="공지 수정 저장" disabled={disabled || !editor.dirty} onPress={() => { void editor.save(); }} />} />
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <View style={[styles.content, styles.topbar]}><View style={styles.heading}>
-        <ScreenHeader title="공지 수정" onBack={() => leave(() => router.dismissTo('/notice'))} backDisabled={!!editor.operation || modal} backLabel="공지로 돌아가기" actions={snapshot && <GameButton compact label={editor.operation === 'save' ? '저장 중…' : '저장'} accessibilityLabel="공지 수정 저장" disabled={disabled || !editor.dirty} onPress={() => { void editor.save(); }} />} />
-      </View></View>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}><View style={styles.content}>
         {snapshot && <Text style={styles.body}>{snapshot.board.club.name}</Text>}
         {editor.operation && <ActivityIndicator color={GameColors.ink} accessibilityLabel="공지 관리 처리 중" />}

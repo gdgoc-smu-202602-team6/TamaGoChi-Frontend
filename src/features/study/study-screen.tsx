@@ -57,13 +57,12 @@ export function StudyScreen() {
   const clock = formatStudyClock(elapsed);
   const accessories = home.status === 'ready' ? home.data.room.appearance?.items : undefined;
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView style={styles.screen}><ScreenHeader title="공부 중" tone="dark" actions={state.session ? <Text style={styles.status}>진행 중</Text> : undefined} />
       <View pointerEvents="none" style={StyleSheet.absoluteFill}>
         {stars.map(([left, top], index) => <View key={index} style={[styles.star, { left: `${left}%`, top: `${top}%`, opacity: index % 3 ? .45 : .8 }]} />)}
       </View>
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.content}>
-          <ScreenHeader title="공부 중" tone="dark" actions={state.session ? <Text style={styles.status}>진행 중</Text> : undefined} />
           {state.status === 'loading' ? (
             <GameCard><ActivityIndicator color={GameColors.ink} /><Text style={styles.cardBody}>진행 중인 공부를 확인하고 있어요.</Text></GameCard>
           ) : state.status === 'error' ? (

@@ -19,11 +19,10 @@ export function ClubPartsScreen({ clubId }: { clubId: string }) {
 }
 function PartsContent({ manager }: { manager: ReturnType<typeof useClubParts> }) {
   const [target, setTarget] = useState<ClubPart | null>(null), board = manager.board, disabled = !!manager.operation || !manager.verified || !!target;
-  return <SafeAreaView style={styles.screen}>
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="파트 관리" onBack={() => { void manager.openList(); }} backLabel="공지로 돌아가기" backDisabled={!!manager.operation || !!target} />
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <FlatList style={styles.list} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" data={board ? board.parts : []} keyExtractor={item => item.id}
         ListHeaderComponent={<View style={styles.header}>
-          <ScreenHeader title="파트 관리" onBack={() => { void manager.openList(); }} backLabel="공지로 돌아가기" backDisabled={!!manager.operation || !!target} />
           {board && <Text style={styles.body}>{board.club.name} · 파트 {board.parts.length}개</Text>}
           {manager.operation && <ActivityIndicator accessibilityLabel="파트 확인 중" color={GameColors.ink} />}
           {manager.error && <Text accessibilityRole="alert" style={styles.error}>{manager.error}</Text>}

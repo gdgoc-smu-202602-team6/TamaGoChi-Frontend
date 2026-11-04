@@ -9,8 +9,7 @@ import { useAuth } from '@/state/auth-context';
 
 export function SettingsScreen() {
   const clubs = useClubs(), { state } = useAuth();
-  return <SafeAreaView style={styles.screen}><ScrollView contentContainerStyle={styles.content}>
-    <ScreenHeader title="설정" onBack={() => router.dismissTo('/mypage')} backLabel="마이로 돌아가기" />
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="설정" onBack={() => router.dismissTo('/mypage')} backLabel="마이로 돌아가기" /><ScrollView contentContainerStyle={styles.content}>
     <SettingsSection title="내 계정">
       <SettingsRow title="닉네임" value={state.user?.nickname} icon="person" onPress={() => router.push('/settings/profile')} />
       <SettingsRow title="계정 관리" icon="lock" onPress={() => router.push('/account')} />

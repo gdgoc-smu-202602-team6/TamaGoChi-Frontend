@@ -7,9 +7,8 @@ import { AppBlockingNotice } from './components/app-blocking-notice';
 
 export function AppBlockingScreen() {
   const { state, operation } = useStudy();
-  return <GameScreen title="앱 차단 안내" subtitle="현재 사용할 수 있는 기능을 확인해요.">
+  return <GameScreen title="앱 차단 안내" subtitle="현재 사용할 수 있는 기능을 확인해요." onBack={() => router.dismissTo('/mypage')} backLabel="마이로 돌아가기" backDisabled={!!operation}>
     <GameCard><AppBlockingNotice /></GameCard>
     {state.status === 'ready' && state.session && <GameButton label="진행 중인 공부로" disabled={!!operation} onPress={() => router.dismissTo('/study')} />}
-    <GameButton variant="secondary" label="마이로 돌아가기" disabled={!!operation} onPress={() => router.dismissTo('/mypage')} />
   </GameScreen>;
 }

@@ -17,6 +17,9 @@ export function ShopScreen() {
   const shop = useShop();
   const entries = shop.data?.items.filter(item => item.category === category) ?? [];
   return <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
+    <ScreenHeader title="상점">
+      <View style={styles.tabs}><SegmentedTabs label="상점 분류" value={category} onChange={setCategory} options={shopCategories.map(id => ({ id, name: categoryLabels[id] }))} /></View>
+    </ScreenHeader>
     <FlatList
       style={styles.list}
       contentContainerStyle={styles.content}
@@ -27,8 +30,6 @@ export function ShopScreen() {
       refreshing={shop.refreshing}
       onRefresh={() => { void shop.refresh(); }}
       ListHeaderComponent={<View style={styles.heading}>
-        <ScreenHeader title="상점" />
-        <SegmentedTabs label="상점 분류" value={category} onChange={setCategory} options={shopCategories.map(id => ({ id, name: categoryLabels[id] }))} />
         {shop.error && <GameCard><Text accessibilityRole="alert" style={styles.message}>{shop.error}</Text><GameButton compact label="다시 불러오기" disabled={shop.refreshing || !!shop.purchasing} onPress={() => { void shop.refresh(); }} /></GameCard>}
         {shop.notice && <Text accessibilityLiveRegion="polite" style={styles.notice}>{shop.notice}</Text>}
         {shop.refreshing && <ActivityIndicator accessibilityLabel="상점 불러오는 중" color={GameColors.ink} />}
@@ -41,8 +42,9 @@ export function ShopScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: GameColors.sky },
   list: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center' },
-  content: { flexGrow: 1, paddingHorizontal: 18, paddingTop: Spacing.four, paddingBottom: Spacing.four },
-  heading: { gap: 12, marginBottom: Spacing.three },
+  content: { flexGrow: 1, paddingHorizontal: 18, paddingTop: 14, paddingBottom: Spacing.four },
+  heading: { gap: 12 },
+  tabs: { paddingHorizontal: 10, paddingBottom: 10 },
   row: { justifyContent: 'space-between', marginBottom: Spacing.three },
   message: { ...GameUi.typography.body, color: GameColors.ink },
   notice: { ...GameUi.typography.body, fontWeight: '700', color: GameColors.ink, padding: 12, backgroundColor: GameColors.cream, borderWidth: GameUi.borderWidth, borderColor: GameColors.border, borderRadius: 12, overflow: 'hidden' },

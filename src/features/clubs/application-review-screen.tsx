@@ -13,11 +13,10 @@ import { useApplicationReview } from './hooks/use-application-review';
 export function ApplicationReviewScreen({ clubId }: { clubId: string }) {
   const review = useApplicationReview(clubId), disabled = review.refreshing || !!review.processing || review.unverified;
   const board = review.board;
-  return <SafeAreaView style={styles.screen}>
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="가입 신청 관리" onBack={() => router.dismissTo('/clubs/join')} backLabel="가입·신청으로 돌아가기" backDisabled={!!review.processing} />
     <FlatList style={styles.list} contentContainerStyle={styles.content} data={board ? board.applications : []} keyExtractor={item => item.id}
       refreshing={review.refreshing} onRefresh={() => { void review.refresh(); }} ItemSeparatorComponent={() => <View style={styles.separator} />}
       ListHeaderComponent={<View style={styles.header}>
-        <ScreenHeader title="가입 신청 관리" onBack={() => router.dismissTo('/clubs/join')} backLabel="가입·신청으로 돌아가기" backDisabled={!!review.processing} />
         {board && <GameCard contentStyle={styles.summary}>
           <Text accessibilityRole="header" style={styles.title}>{board.club.name}</Text>
           <Text style={styles.body}>부원 {board.club.memberCount}명 · 파트 {board.parts.length}개</Text>

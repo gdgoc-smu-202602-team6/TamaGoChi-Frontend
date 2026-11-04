@@ -20,11 +20,10 @@ export function ClubCreateScreen() {
   async function reset() {
     if (await create.reset()) { setName(''); setParts([{ key: ++sequence.current, name: '', color: 'GREEN' }]); setMyPart(null); setConfirmReset(false); }
   }
-  return <SafeAreaView style={styles.screen}>
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="동아리 만들기" onBack={() => router.dismissTo('/clubs/join')} backLabel="가입·신청으로 돌아가기" />
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
         <View style={styles.content}>
-          <ScreenHeader title="동아리 만들기" onBack={() => router.dismissTo('/clubs/join')} backLabel="가입·신청으로 돌아가기" />
           {create.operation && <ActivityIndicator accessibilityLabel={create.operation === 'create' ? '동아리 생성 결과 확인 중' : '동아리 정보 확인 중'} color={GameColors.ink} />}
           {create.error && <Text accessibilityRole="alert" style={styles.error}>{create.error}</Text>}
           {create.status?.kind === 'ready' && <GameCard>

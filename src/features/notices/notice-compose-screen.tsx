@@ -26,13 +26,8 @@ export function NoticeComposeScreen({ clubId }: { clubId: string }) {
     else action();
   }
   function confirmLeave() { setAllowLeave(true); disablePrevention(); setLeavePrompt(false); leaveAction.current?.(); }
-  return <SafeAreaView style={styles.screen}>
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="공지 쓰기" onBack={() => leave(() => router.dismissTo('/notice'))} backDisabled={!!editor.operation} backLabel="공지로 돌아가기" actions={board && board.status.kind === 'ready' && <GameButton compact label={publishing ? '등록 중…' : '공지 올리기'} disabled={disabled || !board.categories.length} onPress={() => { void editor.publish(); }} />} />
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <View style={[styles.content, styles.topbar]}>
-        <View style={styles.heading}>
-          <ScreenHeader title="공지 쓰기" onBack={() => leave(() => router.dismissTo('/notice'))} backDisabled={!!editor.operation} backLabel="공지로 돌아가기" actions={board && board.status.kind === 'ready' && <GameButton compact label={publishing ? '등록 중…' : '공지 올리기'} disabled={disabled || !board.categories.length} onPress={() => { void editor.publish(); }} />} />
-        </View>
-      </View>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
         <View style={styles.content}>
           {board && <Text style={styles.body}>{board.club.name}</Text>}

@@ -21,10 +21,9 @@ export function ProfileScreen() {
     { title: '이번 주', value: formatStudySummary(data.weekSeconds), color: GameColors.pink },
     { title: '연속 출석', value: `${data.attendanceStreak}일`, color: '#8FD97A' },
   ] : [];
-  return <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
+  return <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}><ScreenHeader title="마이" actions={<IconButton icon="settings" label="설정" onPress={() => router.push('/settings')} />} />
     <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll} refreshControl={<RefreshControl refreshing={profile.refreshing || inventory.loading} onRefresh={() => { void profile.refresh(); void inventory.refresh(); }} tintColor={GameColors.ink} />}>
       <View style={styles.content}>
-        <ScreenHeader title="마이" actions={<IconButton icon="settings" label="설정" onPress={() => router.push('/settings')} />} />
         {profile.refreshing && <ActivityIndicator color={GameColors.ink} accessibilityLabel="마이 불러오는 중" />}
         {profile.error && <GameCard><Text accessibilityRole="alert" style={styles.body}>{profile.error}</Text><GameButton compact label="다시 불러오기" disabled={profile.refreshing || profile.saving} onPress={() => { void profile.refresh(); }} /></GameCard>}
         {profile.notice && <Text accessibilityLiveRegion="polite" style={styles.notice}>{profile.notice}</Text>}
