@@ -9,6 +9,7 @@ import { RoomPreview } from '@/features/home/components/room-preview';
 import { StudySummary } from '@/features/home/components/study-summary';
 import { useHome } from '@/features/home/hooks/use-home';
 import type { HomeService } from '@/types/home';
+import { GuestbookEntry } from '@/features/guestbook/guestbook-entry';
 
 type HomeScreenProps = {
   service?: HomeService;
@@ -45,7 +46,7 @@ export function HomeScreen({ service, onStartStudy, onEditRoom, onVisitFriends, 
               <StudySummary home={state.data} onStartStudy={onStartStudy} actionLabel={studyActionLabel} actionDisabled={studyActionDisabled} actionError={studyActionError} />
               <View style={styles.actions}>
                 <GameButton label="친구 방" compact variant="secondary" onPress={onVisitFriends} style={styles.action} />
-                <GameButton label="방명록" compact variant="secondary" onPress={onOpenGuestbook} style={styles.action} />
+                <GuestbookEntry label="방명록" onPress={onOpenGuestbook} style={styles.action} />
               </View>
             </View>
           </ScrollView>

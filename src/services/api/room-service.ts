@@ -4,7 +4,7 @@ import { parseRoom, isSessionId } from './game-dto';
 import { ApiError, type HttpClient } from './http-client';
 import { parseOwnedItemIds, parseShopCatalog } from './shop-service';
 
-function layout(value: unknown, items: RoomOverview['items'], owned: readonly string[], userId?: string): Pick<RoomOverview, 'layout' | 'condition'> {
+export function parseRoomLayout(value: unknown, items: RoomOverview['items'], owned: readonly string[], userId?: string): Pick<RoomOverview, 'layout' | 'condition'> {
   const dto = parseRoom(value) as unknown as Record<string, unknown>;
   if (typeof dto.userId !== 'string' || !dto.userId || (userId && dto.userId !== userId) || !Array.isArray(dto.equipped) || !Array.isArray(dto.placements)) throw new ApiError('response');
   const record = (value: unknown): Record<string, unknown> => { if (!value || typeof value !== 'object' || Array.isArray(value)) throw new ApiError('response'); return value as Record<string, unknown>; };
@@ -19,7 +19,7 @@ export function createApiRoomService(client: HttpClient, userId?: string): RoomS
   async function getRoom(): Promise<RoomOverview> {
     const [catalog, ownership, room] = await Promise.all([client.request('/items'), client.request('/users/me/items'), client.request('/users/me/room')]);
     const items = parseShopCatalog(catalog.data), ownedItemIds = parseOwnedItemIds(ownership.data);
-    return { items, ownedItemIds, ...layout(room.data, items, ownedItemIds, userId) };
+    return { items, ownedItemIds, ...parseRoomLayout(room.data, items, ownedItemIds, userId) };
   }
   return {
     getRoom,
@@ -31,7 +31,7 @@ export function createApiRoomService(client: HttpClient, userId?: string): RoomS
       // Serialize only writable decoration fields; never send condition or guestbook timestamps.
       const body: RoomLayout = { equipped: draft.equipped.map(({ slot, itemId }) => ({ slot, itemId })), placements: draft.placements.map(({ target, x, y }) => ({ target, x, y })) };
       try {
-        const result = layout((await client.request('/users/me/room', { method: 'PATCH', body })).data, current.items, current.ownedItemIds, userId);
+        const result = parseRoomLayout((await client.request('/users/me/room', { method: 'PATCH', body })).data, current.items, current.ownedItemIds, userId);
         if (!sameRoomLayout(result.layout, draft)) throw new ApiError('response');
         return { ...current, ...result };
       } catch (error) {
