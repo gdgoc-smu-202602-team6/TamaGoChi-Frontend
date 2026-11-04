@@ -55,7 +55,7 @@ export function ProfileScreen() {
           {clubs.status === 'ready' && selectedClub && <ClubMembersEntry key={`members:${selectedClub.id}`} clubId={selectedClub.id} clubName={selectedClub.name} />}
           {clubs.status === 'ready' && selectedClub && <ClubLeaveEntry clubId={selectedClub.id} clubName={selectedClub.name} />}
           <GameButton compact variant="secondary" label={auth.user ? '내 계정' : '이메일로 로그인'} onPress={() => router.push(auth.user ? '/account' : '/login')} />
-          <GameButton compact variant="secondary" label="잠금한 앱 관리 · 준비 중" disabled />
+          <GameButton compact variant="secondary" label="앱 차단 안내" onPress={() => router.push('/app-blocking')} />
           <GameButton compact variant="secondary" label={`보유 아이템${inventory.data ? ` ${inventory.data.ownedCount}개` : inventory.loading ? ' 확인 중…' : ' 확인 필요'} · 방 꾸미기`} onPress={() => router.push('/room-edit')} />
           {inventory.error && <><Text accessibilityRole="alert" style={styles.body}>보유·장착 정보를 확인하지 못했어요.</Text><GameButton compact label="아이템 다시 확인" onPress={() => { void inventory.refresh(); }} /></>}
           <GuestbookEntry />

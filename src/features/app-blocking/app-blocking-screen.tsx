@@ -1,0 +1,15 @@
+import { router } from 'expo-router';
+import { GameButton } from '@/components/ui/game-button';
+import { GameCard } from '@/components/ui/game-card';
+import { GameScreen } from '@/components/ui/game-screen';
+import { useStudy } from '@/state/study-context';
+import { AppBlockingNotice } from './components/app-blocking-notice';
+
+export function AppBlockingScreen() {
+  const { state, operation } = useStudy();
+  return <GameScreen title="앱 차단 안내" subtitle="현재 사용할 수 있는 기능을 확인해요.">
+    <GameCard><AppBlockingNotice /></GameCard>
+    {state.status === 'ready' && state.session && <GameButton label="진행 중인 공부로" disabled={!!operation} onPress={() => router.dismissTo('/study')} />}
+    <GameButton variant="secondary" label="마이로 돌아가기" disabled={!!operation} onPress={() => router.dismissTo('/mypage')} />
+  </GameScreen>;
+}

@@ -6,7 +6,7 @@
 
 `src/app/(tabs)/mypage.tsx`는 `features/profile/profile-screen.tsx`를 내보낸다. 프로필 카드, 주간 차트, 목표 편집기와 조회·저장 훅은 기능 폴더에 나눴다. 공통 헤더·카드·입력·버튼·진행 막대를 재사용한다. 캐릭터는 Home과 같은 교체 가능한 임시 SVG이며 후속 [보유·장착 표시](account-deletion-flow.md)에서 방과 공통 `CharacterSprite`로 현재 액세서리까지 표시한다. 최종 에셋 교체는 남아 있다.
 
-연결한 범위는 프로필 조회, 공부 통계, 하루 목표 예약, 기존 내 계정 진입이다. 후속 작업에서 보유 아이템 수를 [방 꾸미기](room-edit-flow.md)의 보유 인벤토리로, 내 방명록을 [방명록](guestbook-flow.md)으로 연결했다. `닉네임 설정`과 선택한 동아리의 `내 소속·알림 설정`도 [개인 설정](personal-settings-flow.md)으로 연결했다. 내 계정에서 [계정 탈퇴](account-deletion-flow.md)를 연다. 잠금한 앱 관리는 플랫폼 검토 후 구현한다.
+연결한 범위는 프로필 조회, 공부 통계, 하루 목표 예약, 기존 내 계정 진입이다. 후속 작업에서 보유 아이템 수를 [방 꾸미기](room-edit-flow.md)의 보유 인벤토리로, 내 방명록을 [방명록](guestbook-flow.md)으로 연결했다. `닉네임 설정`과 선택한 동아리의 `내 소속·알림 설정`도 [개인 설정](personal-settings-flow.md)으로 연결했다. 내 계정에서 [계정 탈퇴](account-deletion-flow.md)를 연다. 기존 비활성 잠금 앱 항목은 [앱 차단 안내](app-blocking-plan.md)로 연결했으며 실제 앱 선택·제한은 미구현이다.
 
 ## API와 표시
 

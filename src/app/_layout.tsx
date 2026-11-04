@@ -26,6 +26,7 @@ export default function RootLayout() {
             <Stack.Screen name="reset-password" />
             <Stack.Screen name="account" />
             <Stack.Screen name="account-delete" />
+            <Stack.Screen name="app-blocking" />
             <Stack.Screen name="clubs/join" />
             <Stack.Screen name="clubs/create" />
             <Stack.Screen name="room-edit" />
