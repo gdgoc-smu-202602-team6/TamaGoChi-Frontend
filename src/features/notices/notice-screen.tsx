@@ -20,6 +20,7 @@ import { ClubSettingsEntry } from '@/features/clubs/components/club-settings-ent
 import { ClubPartsEntry } from '@/features/clubs/components/club-parts-entry';
 import { ClubMembersEntry } from '@/features/clubs/components/club-members-entry';
 import { ClubLeaveEntry } from '@/features/clubs/components/club-leave-entry';
+import { ClubNoticeSelector } from './components/club-notice-selector';
 
 export function NoticeScreen() {
   const clubs = useClubs();
@@ -49,7 +50,7 @@ function ClubNotices({ club }: { club: JoinedClub }) {
         <Text accessibilityRole="header" style={styles.title}>NOTICE</Text>
         <Text style={styles.body}>{club.name}</Text>
         <Text accessibilityLiveRegion="polite" style={styles.caption}>{notices.counterError ? '읽지 않은 수를 확인하지 못했어요. 새로고침해 주세요.' : notices.board ? `안 읽은 공지 ${notices.board.unreadCount}개` : '공지를 확인하고 있어요.'}</Text>
-        <FilterChips label="동아리" value={club.id} options={clubs.clubs} onChange={id => { void clubs.selectClub(id); }} />
+        <ClubNoticeSelector clubs={clubs.clubs} selectedId={club.id} onChange={id => { void clubs.selectClub(id); }} />
         <ApplicationReviewEntry clubId={club.id} clubName={club.name} />
         <NoticeComposeEntry key={club.id} clubId={club.id} clubName={club.name} />
         <CategoryManagementEntry key={`categories:${club.id}`} clubId={club.id} clubName={club.name} />

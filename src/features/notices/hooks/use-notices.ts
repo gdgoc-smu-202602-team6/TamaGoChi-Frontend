@@ -3,12 +3,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ApiError, apiErrorMessage } from '@/services/api/http-client';
 import { useGameServices } from '@/state/game-services';
+import { useNoticeUnread } from '@/state/notice-unread-context';
 import type { Notice, NoticeBoard, NoticeFilter } from '@/types/notice';
 import { appendNoticePage } from '@/utils/notice';
 
 export type NoticeDetail = { open: boolean; loading: boolean; notice?: Notice; error?: string; readError?: string };
 export function useNotices(clubId: string) {
-  const { notices: service } = useGameServices();
+  const { notices: service } = useGameServices(), { refreshClub, invalidateClub } = useNoticeUnread();
   const [filter, setFilter] = useState<NoticeFilter>({});
   const [board, setBoard] = useState<NoticeBoard | null>(null), [details, setDetails] = useState<Record<string, NoticeDetail>>({});
   const [loading, setLoading] = useState(true), [loadingMore, setLoadingMore] = useState(false);
@@ -20,6 +21,7 @@ export function useNotices(clubId: string) {
   const updateDetail = useCallback((id: string, next: NoticeDetail) => { const values = { ...detailRef.current, [id]: next }; detailRef.current = values; setDetails(values); }, []);
 
   const refresh = useCallback(async () => {
+    void refreshClub(clubId);
     const request = ++version.current;
     setLoading(true); setError(null); setPageError(null); setCounterError(false); setLoadingMore(false);
     updateBoard(null); detailRef.current = {}; setDetails({}); pageTokens.current = new Set();
@@ -34,7 +36,7 @@ export function useNotices(clubId: string) {
     } catch (error) {
       if (alive.current && version.current === request) setError(error instanceof ApiError && error.status === 404 ? '이 동아리의 공지에 접근할 수 없어요. 동아리 목록을 다시 확인해 주세요.' : '공지를 불러오지 못했어요. 다시 시도해 주세요.');
     } finally { if (alive.current && version.current === request) setLoading(false); }
-  }, [service, clubId, filter, updateBoard]);
+  }, [service, clubId, filter, updateBoard, refreshClub]);
   useFocusEffect(useCallback(() => { void refresh(); }, [refresh]));
 
   const loadMore = useCallback(async () => {
@@ -67,12 +69,16 @@ export function useNotices(clubId: string) {
       if (!alive.current || request !== version.current) return;
       updateDetail(id, { open: true, loading: !notice.read, notice });
       if (!notice.read) {
+        invalidateClub(clubId);
         try { await service.markRead(clubId, id); }
         catch (error) {
+          invalidateClub(clubId);
+          void refreshClub(clubId);
           if (alive.current && request === version.current) updateDetail(id, { open: true, loading: false, notice, readError: apiErrorMessage(error) });
           return;
         }
       }
+      invalidateClub(clubId); void refreshClub(clubId);
       if (!alive.current || request !== version.current || !snapshot.current) return;
       const readNotice = { ...notice, read: true };
       updateDetail(id, { open: true, loading: false, notice: readNotice });
@@ -88,7 +94,7 @@ export function useNotices(clubId: string) {
     } catch (error) {
       if (alive.current && request === version.current) updateDetail(id, { open: true, loading: false, error: error instanceof ApiError && error.status === 404 ? '공지를 찾을 수 없거나 접근 권한이 바뀌었어요. 목록을 새로 불러와 주세요.' : '공지 내용을 불러오지 못했어요.' });
     } finally { opening.current.delete(key); }
-  }, [service, clubId, updateDetail, updateBoard]);
+  }, [service, clubId, updateDetail, updateBoard, invalidateClub, refreshClub]);
 
   return { board, filter, setFilter, details, loading, loadingMore, error, pageError, counterError, refresh, loadMore, openNotice };
 }

@@ -8,7 +8,8 @@ import { GoalError, type DailyGoal, type ProfileOverview } from '../types/profil
 import { addCalendarDays, goalMinutesOn, isCalendarDay, mondayOf, validGoalMinutes } from '../utils/profile';
 import { mockLevelForXp, mockXpForLevel } from './profile';
 import { RoomEditError, type Placement, type RoomLayout, type RoomOverview } from '../types/room';
-import { changeRoomEquipment, roomAppearance, sameRoomLayout, validateRoomLayout } from '../utils/room-layout';
+import { changeRoomEquipment, roomAppearance, roomSize, sameRoomLayout, validateRoomLayout } from '../utils/room-layout';
+import { fitSurfacePlacements, snapOnSurface, surfacePolicy } from '../utils/room-surfaces';
 
 export const MOCK_STUDY_STORAGE_KEY = '@tamagochi/mock-study/v1';
 
@@ -29,6 +30,7 @@ type Database = {
   shop?: { ownedItemIds: string[]; equipped: Partial<Record<ItemSlot, string>> };
   goals?: DailyGoal[];
   placements?: Placement[];
+  roomPlacementVersion?: 2;
 };
 type MockBackendOptions = {
   storage: Storage;
@@ -36,6 +38,7 @@ type MockBackendOptions = {
   isOnline: () => Promise<boolean>;
   now?: () => number;
   createId?: () => string;
+  surfacePlacement?: boolean;
 };
 
 const emptyDay = (): DayRecord => ({ studyMs: 0, attendanceAwarded: false, goalAwarded: false });
@@ -55,7 +58,7 @@ function isResult(value: unknown): value is StudyResult {
 }
 
 function validateDatabase(value: unknown): asserts value is Database {
-  const valid = isRecord(value) && value.version === 1 && isRecord(value.base)
+  const valid = isRecord(value) && value.version === 1 && (value.roomPlacementVersion === undefined || value.roomPlacementVersion === 2) && isRecord(value.base)
     && isRecord(value.base.profile) && typeof value.base.profile.nickname === 'string'
     && ['bolt', 'level', 'hearts'].every((key) => isNumber((value.base as HomeOverview).profile[key as keyof HomeOverview['profile']]))
     && isRecord(value.base.room) && typeof value.base.room.name === 'string' && typeof value.base.room.characterLabel === 'string'
@@ -71,7 +74,7 @@ function validateDatabase(value: unknown): asserts value is Database {
   if (!valid) throw new StudyServiceError('invalid-record', '저장된 공부 기록을 읽지 못했어요. 기록을 유지한 채 다시 시도해 주세요.');
 }
 
-export function createMockStudyBackend({ storage, initialHome, isOnline, now = Date.now, createId }: MockBackendOptions) {
+export function createMockStudyBackend({ storage, initialHome, isOnline, now = Date.now, createId, surfacePlacement = false }: MockBackendOptions) {
   // Serialize this adapter's operations. Cross-device locking belongs to the real backend.
   let queue: Promise<unknown> = Promise.resolve();
   function serial<T>(operation: () => Promise<T>): Promise<T> {
@@ -131,8 +134,19 @@ export function createMockStudyBackend({ storage, initialHome, isOnline, now = D
 
   function roomState(state: Database): RoomOverview {
     const shop = shopState(state);
+    let layout: RoomLayout = { equipped: Object.entries(shop.equipped).map(([slot, itemId]) => ({ slot: slot as ItemSlot, itemId: itemId! })), placements: state.placements ?? [], ...(state.roomPlacementVersion === 2 ? { wallHeight: 3 } : {}) };
+    if (surfacePlacement && state.roomPlacementVersion === undefined) {
+      // Validate old records before migration. Reading never writes or erases a corrupt ledger.
+      validateRoomLayout(layout, mockShopItems, shop.ownedItemIds);
+      const size = roomSize(layout, mockShopItems);
+      layout = { ...layout, wallHeight: 3, placements: layout.placements.map(point => {
+        const policy = surfacePolicy(layout, point.target, mockShopItems)!;
+        return snapOnSurface({ ...point, surface: 'FLOOR', x: point.x * (size - policy.width) / size, y: point.y * (size - policy.height) / size }, policy, size, 3);
+      }) };
+      layout = { ...layout, placements: fitSurfacePlacements(layout, mockShopItems, size, size) };
+    }
     return { items: mockShopItems, ownedItemIds: shop.ownedItemIds,
-      layout: { equipped: Object.entries(shop.equipped).map(([slot, itemId]) => ({ slot: slot as ItemSlot, itemId: itemId! })), placements: state.placements ?? [] },
+      layout,
       condition: { hearts: state.base.profile.hearts, bugs: state.bugCount, bugProgressSeconds: Math.floor(state.bugProgressMs / 1000) } };
   }
 
@@ -176,6 +190,7 @@ export function createMockStudyBackend({ storage, initialHome, isOnline, now = D
       const shop = shopState(state);
       state.shop = { ownedItemIds: shop.ownedItemIds, equipped: Object.fromEntries(layout.equipped.map(one => [one.slot, one.itemId])) };
       state.placements = layout.placements.map(one => ({ ...one }));
+      if (layout.wallHeight !== undefined) state.roomPlacementVersion = 2;
       try { await save(state); } catch { throw new RoomEditError('storage'); }
       return roomState(state);
     }),
@@ -206,6 +221,7 @@ export function createMockStudyBackend({ storage, initialHome, isOnline, now = D
       const layout = changeRoomEquipment(roomState(state).layout, item, mockShopItems, ownedItemIds);
       state.shop = { ownedItemIds, equipped: Object.fromEntries(layout.equipped.map(one => [one.slot, one.itemId])) };
       state.placements = [...layout.placements];
+      if (layout.wallHeight !== undefined) state.roomPlacementVersion = 2;
       try { await save(state); } catch { throw new ShopError('storage'); }
     }),
     getActiveSession: () => serial(async () => (await load()).active),

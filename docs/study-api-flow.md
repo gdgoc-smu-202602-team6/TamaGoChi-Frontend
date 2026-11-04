@@ -6,6 +6,8 @@
 
 기존 Mock은 `.env.local`의 `EXPO_PUBLIC_DATA_MODE=mock`으로 선택한다. 변경 뒤 Metro를 다시 시작하거나 새로 export한다. Mock에서만 로그인 없이 내 방 미리보기를 열 수 있다. API 오류 시 Mock으로 자동 전환하지 않으며, Mock 기록을 계정 서버 데이터와 합치지 않는다.
 
+공부 화면은 `앱 차단 미적용`을 표시하고 [앱 차단 안내](app-blocking-plan.md)로 이동할 수 있다. 안내 이동/복귀는 시작·종료 요청을 보내지 않으며, 현재 타이머·복구·정산 로직을 바꾸지 않는다. 실제 네이티브 차단은 별도 기기 구현이 남아 있다.
+
 Web SSR에서는 export와 serve에 같은 `.env.local`/모드 설정을 사용한다. Mock 탭은 서버와 첫 클라이언트 렌더에서 동일한 준비 화면을 표시한 뒤 마운트해 초기 HTML 불일치를 방지한다. Mock의 Home → Study → 결과 → Home도 브라우저에서 확인했으며 운영 API 호출은 0회였다.
 
 ## 데이터와 화면
@@ -62,7 +64,7 @@ npm test
 
 ## Web 개발 서버
 
-기존 Metro SSR `unknown module` 오류는 남아 있다. SDK 58의 공식 `asyncRoutes.web: production` 설정으로 개발 분할을 꺼 보는 확인도 수행했지만 직접 접속에서 500이 계속 발생해 설정을 원복했다. 앱 설정·의존성 소스를 우회 수정하지 않았다. 위 브라우저 검증은 프로덕션 SSR 내보내기와 공식 `expo serve`로 수행했다.
+초기 검증의 Metro SSR `unknown module` 오류는 2026-11-04에 검증 산출물 감시와 겹치는 모듈 초기화로 재현하고 수정했다. [Metro 개발 서버 안정화](metro-dev-stability.md)의 실행 명령·비교 실험·Fast Refresh 검증을 참고한다. `asyncRoutes.web: production` 실험은 초기 오류를 해결하지 못해 원복한 상태이며, 현재도 SSR·라우트 분할·의존성 소스는 유지한다. 위 초기 브라우저 검증은 프로덕션 SSR 내보내기와 공식 `expo serve` 결과이며 아래 명령은 배포 번들 확인에도 사용한다.
 
 ```powershell
 npx.cmd expo export --platform web --output-dir .expo/validation/study-api-preview

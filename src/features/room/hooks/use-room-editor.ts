@@ -4,7 +4,7 @@ import { AppState } from 'react-native';
 
 import { apiErrorMessage } from '@/services/api/http-client';
 import { useGameServices } from '@/state/game-services';
-import { RoomEditError, type Placement, type RoomLayout, type RoomOverview } from '@/types/room';
+import { RoomEditError, type Placement, type PlacementTarget, type RoomLayout, type RoomOverview } from '@/types/room';
 import type { ShopItem } from '@/types/shop';
 import { changeRoomEquipment, moveRoomTarget, sameRoomLayout, validateRoomLayout } from '@/utils/room-layout';
 
@@ -45,11 +45,12 @@ export function useRoomEditor() {
   function edit(work: (old: Snapshot) => RoomLayout) {
     if (busy.current || block.current || !current.current) return;
     try { const old = current.current; update({ ...old, draft: work(old) }); setError(null); setNotice(null); }
-    catch { setError('현재 보유한 아이템과 방 크기를 확인해 주세요.'); }
+    catch { setError('물건이 방 안에 들어오고 같은 면의 다른 물건과 겹치지 않도록 옮겨 주세요.'); }
   }
   const toggle = (item: ShopItem) => edit(old => changeRoomEquipment(old.draft, item, old.data.items, old.data.ownedItemIds));
-  const move = (point: Placement) => edit(old => moveRoomTarget(old.draft, point.target, point.x, point.y, old.data.items));
-  const resetPositions = () => edit(old => ({ equipped: old.draft.equipped, placements: [] }));
+  const move = (point: Placement) => edit(old => moveRoomTarget(old.draft, point.target, point.x, point.y, old.data.items, point.surface));
+  const cancelMove = (target: PlacementTarget, previous?: Placement) => edit(old => ({ ...old.draft, placements: [...old.draft.placements.filter(one => one.target !== target), ...(previous ? [previous] : [])] }));
+  const resetPositions = () => edit(old => ({ ...old.draft, placements: [] }));
   async function save() {
     if (busy.current || block.current || !current.current) return false;
     busy.current = true; setOperation('save'); setError(null); setNotice(null);
@@ -69,5 +70,5 @@ export function useRoomEditor() {
       return false;
     } finally { busy.current = false; if (alive.current) setOperation(null); }
   }
-  return { snapshot, operation, blocked, error, notice, dirty: !!snapshot && !sameRoomLayout(snapshot.baseline, snapshot.draft), refresh, toggle, move, resetPositions, save };
+  return { snapshot, operation, blocked, error, notice, dirty: !!snapshot && !sameRoomLayout(snapshot.baseline, snapshot.draft), refresh, toggle, move, cancelMove, resetPositions, save };
 }

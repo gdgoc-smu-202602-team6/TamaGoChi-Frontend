@@ -21,8 +21,16 @@ export type AuthService = {
   restore: () => Promise<AuthUser | null>;
   signIn: (email: string, password: string) => Promise<AuthUser>;
   signOut: () => Promise<void>;
+  deleteAccount: (expected: AccountDeletionIdentity) => Promise<void>;
+  checkAccountDeletion: (expected: AccountDeletionIdentity) => Promise<AccountDeletionCheck>;
   signUp: (input: SignUpInput) => Promise<void>;
   sendVerification: (email: string) => Promise<void>;
   requestPasswordReset: (email: string, redirectTo: string) => Promise<void>;
   resetPassword: (token: string, newPassword: string) => Promise<void>;
 };
+
+export type AccountDeletionIdentity = { readonly userId: string; readonly token: string };
+export type AccountDeletionCheck = { readonly status: 'present'; readonly user: AuthUser } | { readonly status: 'deleted' | 'unavailable' };
+export class AccountDeletionError extends Error {
+  constructor(readonly reason: 'uncertain' | 'cleanup' | 'changed') { super(`Account deletion ${reason}`); this.name = 'AccountDeletionError'; }
+}

@@ -30,7 +30,7 @@ export function createMockFriendsService(storage: MockApplicationStore) {
       const codes = ['basic_clock', 'basic_window', 'basic_desk', seed % 2 ? 'grubby_wall' : 'mint_stripe_wallpaper', level >= 5 && seed % 3 ? 'spacious_two_room' : 'shabby_gosiwon', 'green_plant', ...(seed % 2 ? ['pompom_beanie'] : ['cozy_scarf'])];
       const items = mockShopItems.filter(one => codes.includes(one.code) && one.minLevel <= level), part = parts.find(one => one.id === member.partId);
       if (!part) throw new FriendsError('storage');
-      return { member, part, appearance: { items, placements: [], size: items.find(one => one.slot === 'ROOM')!.roomSize! }, condition: { hearts: seed % 5, bugs: seed % 4, bugProgressSeconds: 0 }, level, todaySeconds: seed % 181 * 60, likeCount: seed % 25 + (liked.includes(member.userId) ? 1 : 0), likedByMe: liked.includes(member.userId) };
+      return { member, part, appearance: { items, placements: [], size: items.find(one => one.slot === 'ROOM')!.roomSize!, wallHeight: 3 }, condition: { hearts: seed % 5, bugs: seed % 4, bugProgressSeconds: 0 }, level, todaySeconds: seed % 181 * 60, likeCount: seed % 25 + (liked.includes(member.userId) ? 1 : 0), likedByMe: liked.includes(member.userId) };
     });
     return { club, friends };
   }

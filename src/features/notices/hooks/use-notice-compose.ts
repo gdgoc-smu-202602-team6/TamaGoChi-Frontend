@@ -5,6 +5,7 @@ import { AppState } from 'react-native';
 import { ApiError, apiErrorMessage } from '@/services/api/http-client';
 import { useClubs } from '@/state/club-context';
 import { useGameServices } from '@/state/game-services';
+import { useNoticeUnread } from '@/state/notice-unread-context';
 import { ClubAdminError } from '@/types/club-admin';
 import { NoticeComposeError, type NoticeComposeBoard, type NoticeCreateInput } from '@/types/notice-compose';
 import { validateNoticeCreate } from '@/utils/notice-compose';
@@ -24,7 +25,7 @@ function errorText(error: unknown) {
   return '제목·내용과 분류를 확인해 주세요.';
 }
 export function useNoticeCompose(clubId: string) {
-  const { noticeCompose: service } = useGameServices(), clubs = useClubs();
+  const { noticeCompose: service } = useGameServices(), clubs = useClubs(), { invalidateClub, refreshClub } = useNoticeUnread();
   const [board, setBoard] = useState<NoticeComposeBoard | null>(null), [draft, setDraft] = useState(emptyDraft);
   const [operation, setOperation] = useState<'check' | 'publish' | 'reset' | 'open' | null>('check');
   const [error, setError] = useState<string | null>(null), [dirty, setDirty] = useState(false), [verified, setVerified] = useState(false);
@@ -42,8 +43,8 @@ export function useNoticeCompose(clubId: string) {
     busy.current = true; canWrite.current = false; setOperation('check'); setError(null); setVerified(false);
     try { const next = await service.getBoard(clubId); if (alive.current) applyBoard(next); }
     catch (reason) { if (alive.current) { if (accessLost(reason)) clearAccess(); setError(errorText(reason)); } }
-    finally { busy.current = false; if (alive.current) setOperation(null); }
-  }, [service, clubId, applyBoard, clearAccess]);
+    finally { void refreshClub(clubId); busy.current = false; if (alive.current) setOperation(null); }
+  }, [service, clubId, applyBoard, clearAccess, refreshClub]);
   useFocusEffect(useCallback(() => {
     void refresh();
     const subscription = AppState.addEventListener('change', state => { if (state === 'active') void refresh(); });
@@ -58,6 +59,7 @@ export function useNoticeCompose(clubId: string) {
     const invalid = validateNoticeCreate(draft);
     if (invalid) { setError(invalid); return; }
     busy.current = true; canWrite.current = false; setOperation('publish'); setError(null);
+    invalidateClub(clubId);
     try {
       const notice = await service.create(clubId, draft);
       if (alive.current) { setBoard({ ...board, status: { kind: 'created', notice } }); setDirty(false); setVerified(true); }
@@ -70,7 +72,7 @@ export function useNoticeCompose(clubId: string) {
         catch (reloadError) { if (alive.current && accessLost(reloadError)) clearAccess(); }
       }
       if (alive.current) setError(errorText(reason));
-    } finally { busy.current = false; if (alive.current) setOperation(null); }
+    } finally { invalidateClub(clubId); void refreshClub(clubId); busy.current = false; if (alive.current) setOperation(null); }
   }
   async function reset() {
     if (busy.current) return false;

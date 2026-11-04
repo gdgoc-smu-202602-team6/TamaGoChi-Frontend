@@ -19,7 +19,7 @@ type RequestOptions = {
 };
 
 export type HttpClient = {
-  request: <T>(path: string, options?: RequestOptions) => Promise<{ data: T; headers: Headers }>;
+  request: <T>(path: string, options?: RequestOptions) => Promise<{ data: T; headers: Headers; status?: number }>;
 };
 
 function errorCode(data: unknown): string | undefined {
@@ -70,7 +70,7 @@ export function createHttpClient({ baseUrl, fetcher = fetch, timeoutMs = 15000 }
           catch { if (response.ok) throw new ApiError('response'); }
         }
         if (!response.ok) throw new ApiError('http', response.status, errorCode(data), problemDetails(data));
-        return { data: data as T, headers: response.headers };
+        return { data: data as T, headers: response.headers, status: response.status };
       } catch (error) {
         if (error instanceof ApiError) throw error;
         throw new ApiError(controller.signal.aborted ? 'timeout' : 'network');

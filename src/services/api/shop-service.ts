@@ -20,6 +20,11 @@ function catalogItem(value: unknown): ShopItem {
     || !itemSlots.includes(data.slot as ShopItem['slot']) || !shopCategories.includes(data.category as ShopItem['category'])
     || !['BASIC', 'COMMON', 'RARE', 'EPIC'].includes(data.grade as string) || !integer(data.price) || !integer(data.minLevel, 1) || typeof data.defaultOwned !== 'boolean') throw new ApiError('response');
   const item = data as ShopItem;
+  if (data.placementPolicy !== undefined) {
+    const policy = record(data.placementPolicy);
+    if (!['FLOOR', 'WALL'].includes(policy.surfaceKind as string) || !integer(policy.width, 1) || !integer(policy.height, 1)
+      || typeof policy.solid !== 'boolean' || (policy.step !== undefined && (typeof policy.step !== 'number' || !Number.isFinite(policy.step) || policy.step <= 0))) throw new ApiError('response');
+  }
   if (categoryForSlot(item.slot) !== item.category || (item.slot === 'ROOM' && !integer(item.roomSize, 1))) throw new ApiError('response');
   return item;
 }

@@ -1,9 +1,18 @@
-import type { ItemGrade, ItemSlot, ShopItem } from '../types/shop';
+import type { ItemGrade, ItemSlot, PlacementPolicy, ShopItem } from '../types/shop';
 import { categoryForSlot } from '../utils/shop';
+// Latest backend seed data; API mode always uses the returned catalog instead.
+const placementPolicies: Partial<Record<ItemSlot, PlacementPolicy>> = {
+  CLOCK: { surfaceKind: 'WALL', width: 1, height: 1, step: .5, solid: true },
+  WINDOW: { surfaceKind: 'WALL', width: 2, height: 2, step: .5, solid: true },
+  DESK: { surfaceKind: 'FLOOR', width: 2, height: 1, step: .5, solid: true },
+  BOOKSHELF: { surfaceKind: 'FLOOR', width: 1, height: 2, step: .5, solid: true },
+  PLANT: { surfaceKind: 'FLOOR', width: 1, height: 1, solid: true },
+  RUG: { surfaceKind: 'FLOOR', width: 2, height: 2, solid: false },
+};
 
-// Preview data based on the backend seed at 98441b9; never a fallback for API catalog failures.
+// Preview data based on the backend seed at 01ace7c; never a fallback for API catalog failures.
 function item(code: string, slot: ItemSlot, name: string, grade: ItemGrade, price: number, minLevel: number, defaultOwned = false, roomSize?: number): ShopItem {
-  return { id: `mock-${code}`, code, slot, category: categoryForSlot(slot), name, grade, price, minLevel, defaultOwned, ...(roomSize ? { roomSize } : {}) };
+  return { id: `mock-${code}`, code, slot, category: categoryForSlot(slot), name, grade, price, minLevel, defaultOwned, ...(roomSize ? { roomSize } : {}), ...(placementPolicies[slot] ? { placementPolicy: placementPolicies[slot] } : {}) };
 }
 export const mockShopItems: readonly ShopItem[] = [
   item('basic_clock', 'CLOCK', '시계', 'BASIC', 0, 1, true),

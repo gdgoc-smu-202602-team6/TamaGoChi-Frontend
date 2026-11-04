@@ -43,6 +43,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "check:web-dev": "node scripts/check-web-dev.cjs",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "test": "tsc --project tsconfig.tests.json && node --test tests/*.test.cjs"

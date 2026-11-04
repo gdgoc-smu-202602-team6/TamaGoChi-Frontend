@@ -16,9 +16,11 @@ const shapes: Record<ShopItem['slot'], string> = {
   NECK: '<path d="M21 36H107V53H91V73H74V53H21Z" fill="#CC555E"/><path d="M32 40V48M51 40V48M82 40V48M77 61H87" stroke="#F6D85F" stroke-width="7"/>',
   ROOM: '<path d="M18 42L64 19L110 42V75L64 97L18 75Z" fill="#F8E6A6"/><path d="M18 75L64 53L110 75L64 97Z" fill="#EEEFFC"/><path d="M64 20V53"/><rect x="30" y="47" width="15" height="18" fill="#A9D9FF"/>',
 };
-export function itemPlaceholder(item: ShopItem, withShadow = true) {
+export function itemPlaceholder(item: ShopItem, withShadow = true, onWall = false) {
   const shape = item.code === 'strawberry_dot_wallpaper'
     ? '<rect x="30" y="14" width="61" height="77" fill="#F1B1C9"/><path d="M43 29H48M69 39H74M46 61H51M74 76H79" stroke="#CC555E" stroke-width="7"/>'
     : shapes[item.slot];
-  return svgSource(`${withShadow ? '<ellipse cx="64" cy="99" rx="37" ry="5" fill="#24213D" opacity=".15"/>' : ''}<g stroke="#24213D" stroke-width="4" stroke-linejoin="miter" shape-rendering="crispEdges">${shape}</g>`, 128, 116);
+  // Crop the catalog thumbnail's blank margins before projecting a wall sprite.
+  const frame = onWall ? item.slot === 'CLOCK' ? [39, 18, 50, 58] : item.slot === 'WINDOW' ? [26, 15, 76, 68] : undefined : undefined;
+  return svgSource(`${withShadow && !frame ? '<ellipse cx="64" cy="99" rx="37" ry="5" fill="#24213D" opacity=".15"/>' : ''}<g ${frame ? `transform="translate(${-frame[0]} ${-frame[1]})"` : ''} stroke="#24213D" stroke-width="4" stroke-linejoin="miter" shape-rendering="crispEdges">${shape}</g>`, frame?.[2] ?? 128, frame?.[3] ?? 116);
 }

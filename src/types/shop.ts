@@ -3,6 +3,7 @@ export type ShopCategory = typeof shopCategories[number];
 export const itemSlots = ['CLOCK', 'WINDOW', 'DESK', 'LAMP', 'PLANT', 'BOOKSHELF', 'RUG', 'WALLPAPER', 'HEAD', 'FACE', 'NECK', 'ROOM'] as const;
 export type ItemSlot = typeof itemSlots[number];
 export type ItemGrade = 'BASIC' | 'COMMON' | 'RARE' | 'EPIC';
+export type PlacementPolicy = { readonly surfaceKind: 'FLOOR' | 'WALL'; readonly width: number; readonly height: number; readonly step?: number; readonly solid: boolean };
 
 export type ShopItem = {
   readonly id: string;
@@ -15,6 +16,7 @@ export type ShopItem = {
   readonly minLevel: number;
   readonly defaultOwned: boolean;
   readonly roomSize?: number;
+  readonly placementPolicy?: PlacementPolicy;
 };
 export type ShopOverview = {
   readonly balance: number;

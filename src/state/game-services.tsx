@@ -60,6 +60,7 @@ import { createMockGuestbookService } from '@/mocks/guestbook';
 import type { PersonalSettingsService } from '@/types/personal-settings';
 import { createApiPersonalSettingsService } from '@/services/api/personal-settings-service';
 import { createMockPersonalSettingsService } from '@/mocks/personal-settings';
+import { NoticeUnreadProvider } from '@/state/notice-unread-context';
 
 type GameServices = { home: HomeService; study: StudyService; shop: ShopService; profile: ProfileService; notices: NoticeService; clubJoin: ClubJoinService; clubCreate: ClubCreateService; room: RoomService; clubAdmin: ClubAdminService; noticeCompose: NoticeComposeService; noticeManagement: NoticeManagementService; noticeCategories: NoticeCategoryService; clubSettings: ClubSettingsService; clubParts: ClubPartsService; clubMembers: ClubMembersService; clubMembership: ClubMembershipService; friends: FriendsService; guestbook: GuestbookService; personalSettings: PersonalSettingsService };
 type GameContext = GameServices & { revision: number; invalidate: () => void };
@@ -111,7 +112,9 @@ function GameScope({ children }: PropsWithChildren) {
   const value = useMemo(() => ({ ...services, revision, invalidate }), [services, revision, invalidate]);
   return <GameServicesContext value={value}>
     <ClubProvider service={services.notices} store={clubStore} enabled={isMockMode || (state.status === 'ready' && !!state.user)}>
-      <StudyProvider service={services.study} enabled={isMockMode || (state.status === 'ready' && !!state.user)}>{children}</StudyProvider>
+      <NoticeUnreadProvider service={services.notices} revision={revision} enabled={isMockMode || (state.status === 'ready' && !!state.user)}>
+        <StudyProvider service={services.study} enabled={isMockMode || (state.status === 'ready' && !!state.user)}>{children}</StudyProvider>
+      </NoticeUnreadProvider>
     </ClubProvider>
   </GameServicesContext>;
 }

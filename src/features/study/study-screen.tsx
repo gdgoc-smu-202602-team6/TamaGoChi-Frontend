@@ -14,6 +14,7 @@ import { useElapsedTime } from '@/features/study/hooks/use-elapsed-time';
 import { studyErrorMessage } from '@/services/study';
 import { useStudy } from '@/state/study-context';
 import { formatStudyClock } from '@/utils/format-duration';
+import { AppBlockingNotice } from '@/features/app-blocking/components/app-blocking-notice';
 
 export function StudyScreen() {
   const { state, operation, revision, refresh, finishStudy } = useStudy();
@@ -75,6 +76,8 @@ export function StudyScreen() {
           <Text style={styles.caption}>한 번의 공부는 최대 {StudyRules.maxSessionSeconds / 3600}시간까지 인정돼요.</Text>
           <GameButton label={operation === 'finish' ? '공부 마무리 중…' : '공부 끝내기'} onPress={finish} disabled={operation !== null} />
           {error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
+          <AppBlockingNotice compact />
+          <GameButton compact variant="secondary" label="앱 차단 안내" disabled={operation !== null} onPress={() => router.push('/app-blocking')} />
         </GameCard>
       </>}
     </GameScreen>

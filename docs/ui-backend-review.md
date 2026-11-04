@@ -82,7 +82,7 @@ ZIP에는 `All Screens.dc.html`, `Study Timer App v4.dc.html`, Claude Design 런
 | 잘못된 재설정 토큰 + localhost callback | 302, localhost `/reset-password?error=INVALID_TOKEN`으로 복귀 |
 | 같은 잘못된 토큰 + 외부 callback | 403 `INVALID_CALLBACK_URL` |
 
-localhost의 CORS 문제는 해결됐다. 검증은 계정·메일·비밀번호를 생성하거나 변경하지 않는 요청으로 제한했다. 유효한 계정의 로그인 성공·토큰 수신, 실제 메일 수신·비밀번호 변경은 추가 확인 범위다. 모바일 scheme·실제 Web 배포 origin은 따로 허용해야 한다. 프론트엔드 Metro의 `unknown module "59"`는 이 수정 후에도 재현되어 별도 문제로 남는다.
+localhost의 CORS 문제는 해결됐다. 검증은 계정·메일·비밀번호를 생성하거나 변경하지 않는 요청으로 제한했다. 유효한 계정의 로그인 성공·토큰 수신, 실제 메일 수신·비밀번호 변경은 추가 확인 범위다. 모바일 scheme·실제 Web 배포 origin은 따로 허용해야 한다. 당시 프론트엔드 Metro의 `unknown module "59"`는 CORS 수정 후에도 재현됐으며, 별개 원인의 후속 수정 결과는 [Metro 안정화](metro-dev-stability.md)에 정리했다.
 
 ## 저장소에서 확인한 구현 범위
 
