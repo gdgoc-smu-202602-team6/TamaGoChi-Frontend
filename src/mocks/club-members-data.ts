@@ -4,6 +4,9 @@ import { mockClubCatalog, readMockApplications, type MockApplicationStore } from
 import { isRemoved, readMockRemovals } from './member-removals-data';
 import { readMockClubReviews } from './club-review-data';
 import { readCreatedMockClubs } from './created-clubs';
+import { preferencesFor, readMockMemberPreferences, readMockNickname } from './personal-settings-data';
+import { getMockClubParts } from './club-parts-data';
+import { PersonalSettingsError } from '../types/personal-settings';
 
 export const MOCK_MEMBER_ROLES_KEY = '@tamagochi/mock-member-roles/v1';
 export const mockRoles: readonly ClubRole[] = [{ id: 'mock-role-manager', name: '운영진', permissions: [...clubPermissions] }, { id: 'mock-role-member', name: '부원', permissions: [] }];
@@ -17,7 +20,7 @@ export async function readMockRoleRegistry(storage: MockApplicationStore): Promi
   } catch { throw new ClubMembersError('storage'); }
 }
 export async function getMockMembers(storage: MockApplicationStore, clubId: string): Promise<ClubMember[]> {
-  const [created, applications, reviews, registry, removed] = await Promise.all([readCreatedMockClubs(storage), readMockApplications(storage), readMockClubReviews(storage), readMockRoleRegistry(storage), readMockRemovals(storage)]);
+  const [created, applications, reviews, registry, removed, preferences, nickname] = await Promise.all([readCreatedMockClubs(storage), readMockApplications(storage), readMockClubReviews(storage), readMockRoleRegistry(storage), readMockRemovals(storage), readMockMemberPreferences(storage), readMockNickname(storage)]);
   const made = created.find(one => one.id === clubId), seed = mockClubCatalog.find(one => one.id === clubId);
   if (!made && !seed) throw new ClubMembersError('forbidden');
   const approved = applications.filter(one => one.clubId === clubId && one.state === 'APPROVED').sort((a, b) => Date.parse(b.decidedAt ?? b.createdAt) - Date.parse(a.decidedAt ?? a.createdAt));
@@ -31,7 +34,12 @@ export async function getMockMembers(storage: MockApplicationStore, clubId: stri
     if (!members.some(one => one.userId === review.userId) && review.partId) members.push({ id: `mock-member-${review.id}`, clubId, userId: review.userId, nickname: review.nickname, partId: review.partId, roleId: mockRoles[1].id, joinedAt: review.decidedAt ?? review.createdAt });
   }
   const overrides = Object.hasOwn(registry, clubId) ? registry[clubId] : {};
-  return members.filter(one => !isRemoved(one, removed)).map(one => ({ ...one, roleId: Object.hasOwn(overrides, one.id) ? overrides[one.id] : one.roleId }));
+  const parts = await getMockClubParts(storage, clubId, made?.parts ?? seed!.parts);
+  return members.filter(one => !isRemoved(one, removed)).map(one => {
+    const preference = one.userId === 'mock-me' ? preferencesFor(one, preferences) : undefined;
+    if (preference && !parts.some(part => part.id === preference.partId)) throw new PersonalSettingsError('storage');
+    return { ...one, ...(one.userId === 'mock-me' ? { nickname } : {}), partId: preference?.partId ?? one.partId, roleId: Object.hasOwn(overrides, one.id) ? overrides[one.id] : one.roleId };
+  });
 }
 export async function getMockSelfPermissions(storage: MockApplicationStore, clubId: string) {
   const me = (await getMockMembers(storage, clubId)).find(one => one.userId === 'mock-me');

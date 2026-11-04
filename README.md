@@ -76,7 +76,7 @@ src/
 
 공부 시작 → Study → 공부 끝내기 → StudyResult → 내 방 흐름을 연결했습니다. Study·StudyResult·방 꾸미기·친구 목록/방 방문은 루트 Stack에 있어 하단 탭을 표시하지 않습니다.
 
-`GameServicesProvider`가 계정별 Home·Study·Shop·Room·Profile·Notice·NoticeCompose·NoticeManagement·NoticeCategory·ClubJoin·ClubCreate·ClubAdmin·ClubSettings·ClubParts·ClubMembers·ClubMembership·Friends·Guestbook 서비스를 제공합니다. `ClubProvider`는 가입한 동아리 목록과 계정별 선택을 관리하며, 동아리가 없어도 공부·상점·마이를 막지 않습니다. 서버 DTO·매핑·인증 요청은 `src/services/api/`에 분리했습니다. 새 로그인에는 고정된 토큰과 새 화면 상태를 사용하며 다른 계정의 늦은 응답을 버립니다. API 호출 실패 시 Mock으로 자동 전환하지 않습니다.
+`GameServicesProvider`가 계정별 Home·Study·Shop·Room·Profile·Notice·NoticeCompose·NoticeManagement·NoticeCategory·ClubJoin·ClubCreate·ClubAdmin·ClubSettings·ClubParts·ClubMembers·ClubMembership·Friends·Guestbook·PersonalSettings 서비스를 제공합니다. `ClubProvider`는 가입한 동아리 목록과 계정별 선택을 관리하며, 동아리가 없어도 공부·상점·마이를 막지 않습니다. 서버 DTO·매핑·인증 요청은 `src/services/api/`에 분리했습니다. 새 로그인에는 고정된 토큰과 새 화면 상태를 사용하며 다른 계정의 늦은 응답을 버립니다. API 호출 실패 시 Mock으로 자동 전환하지 않습니다.
 
 상점에는 가구·벽지·캐릭터·방 확장 카테고리와 두 열 카드, 가격·등급·해금 레벨, 보유·장착 상태를 표시합니다. 새 구매는 서버에서 같은 부위의 아이템과 교체해 장착하며, 구매 후 잔액·보유 목록·장착 상태를 다시 조회합니다. Mock 상점도 공부 보상과 같은 Bolt 잔액을 사용합니다. 세부 계약과 검증 범위는 [상점 흐름](docs/shop-flow.md)을 참고합니다.
 
@@ -101,6 +101,8 @@ src/
 내 방의 `친구 방`에서는 선택한 동아리의 다른 부원을 오늘 공부시간 순으로 보고 방을 방문할 수 있습니다. 레벨·공부시간·버그·좋아요를 확인하며 같은 사용자의 좋아요는 다른 동아리에서도 공유됩니다. 방문은 읽기 전용이며 응답 유실 시 변경을 자동 반복하지 않습니다. 페이지·배치 조회·Mock 공유와 검증은 [친구 방·좋아요](docs/friends-flow.md)를 참고합니다.
 
 내 방과 마이의 `방명록`은 모든 동아리에서 내 방에 남긴 글과 새 글을 보여줍니다. 친구 방 아래에서는 해당 동아리의 글을 읽고 60자까지 작성하며, 작성자나 방 주인이 확인 후 삭제할 수 있습니다. 등록 응답이 유실되면 재실행 후에도 자동 재전송하지 않습니다. 새 글 확인 시각·답방·페이지·삭제 권한과 검증은 [방명록](docs/guestbook-flow.md)을 참고합니다.
+
+마이의 `닉네임 설정`에서 계정 전체 이름을 바꾸고, `내 소속·알림 설정`에서 자신의 파트와 동아리 공지 알림 수신 여부를 저장할 수 있습니다. 관리 권한과 관계없이 본인만 바꾸며 실제 변경 필드만 전송합니다. 충돌·재가입·응답 유실·Mock 공유와 검증은 [개인 설정](docs/personal-settings-flow.md)을 참고합니다.
 
 구현한 영역과 남은 4개 작업 묶음, 대략적인 단계 분할과 외부 의존성은 [개발 현황](docs/development-status.md)에서 확인합니다.
 

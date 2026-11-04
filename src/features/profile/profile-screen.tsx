@@ -19,6 +19,7 @@ import { ClubPartsEntry } from '@/features/clubs/components/club-parts-entry';
 import { ClubMembersEntry } from '@/features/clubs/components/club-members-entry';
 import { ClubLeaveEntry } from '@/features/clubs/components/club-leave-entry';
 import { GuestbookEntry } from '@/features/guestbook/guestbook-entry';
+import { ClubPreferencesEntry } from '@/features/settings/club-preferences-entry';
 
 export function ProfileScreen() {
   const profile = useProfile(), { state: auth } = useAuth();
@@ -44,6 +45,8 @@ export function ProfileScreen() {
           <DailyGoalEditor key={`${data.serviceDay}:${data.scheduledGoals.find(goal => goal.startOn === data.tomorrow)?.minutes ?? '-'}`} profile={data} disabled={profile.refreshing || profile.unverified} saving={profile.saving} onSave={minutes => { void profile.saveGoal(minutes); }} />
         </>}
         <GameCard>
+          <GameButton compact variant="secondary" label="닉네임 설정" onPress={() => router.push('/settings/profile')} />
+          {clubs.status === 'ready' && selectedClub && <ClubPreferencesEntry clubId={selectedClub.id} clubName={selectedClub.name} />}
           <GameButton compact variant="secondary" label="동아리 가입·신청" onPress={() => router.push('/clubs/join')} />
           {clubs.status === 'ready' && selectedClub && <ApplicationReviewEntry key={selectedClub.id} clubId={selectedClub.id} clubName={selectedClub.name} />}
           {clubs.status === 'ready' && selectedClub && <ClubSettingsEntry key={`settings:${selectedClub.id}`} clubId={selectedClub.id} clubName={selectedClub.name} />}
