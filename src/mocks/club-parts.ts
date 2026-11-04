@@ -8,6 +8,7 @@ import { getMockClubParts, MOCK_CLUB_PARTS_KEY, readMockPartsRegistry } from './
 import { getMockMembers } from './club-members-data';
 import { readMockClubReviews } from './club-review-data';
 import { readCreatedMockClubs } from './created-clubs';
+import { withMockMemberMutation } from './member-removals-data';
 
 export function createMockClubPartsService(storage: MockApplicationStore) {
   const access = createMockClubAdminService(storage);
@@ -22,7 +23,8 @@ export function createMockClubPartsService(storage: MockApplicationStore) {
       if (!(await access.getPermissions(id)).includes('parts.manage')) throw new ClubPartsError('forbidden');
       return { club: (await joinedMockClubs(storage)).find(one => one.id === id)!, parts: await parts(id) };
     },
-    async apply(id, action) {
+    apply: (id, action) => withMockMemberMutation(storage, async () => {
+      if (!(await access.getPermissions(id)).includes('parts.manage')) throw new ClubPartsError('forbidden');
       const current = await parts(id);
       if (action.kind === 'add') {
         if (current.some(one => one.name === action.name)) throw new ClubPartsError('duplicate');
@@ -33,6 +35,6 @@ export function createMockClubPartsService(storage: MockApplicationStore) {
         if (members.some(one => one.partId === action.part.id) || [...applications, ...reviews].some(one => one.clubId === id && one.partId === action.part.id && one.state === 'PENDING')) throw new ClubPartsError('in-use');
         await save(id, current.filter(one => one.id !== action.part.id));
       }
-    },
+    }),
   });
 }
