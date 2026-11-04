@@ -1,5 +1,4 @@
 import { NativeTabs } from 'expo-router/native-tabs';
-import { Platform } from 'react-native';
 import { GameColors } from '@/constants/theme';
 import { useSelectedNoticeUnread } from '@/state/notice-unread-context';
 import { unreadBadge, unreadDescription } from '@/utils/notice-unread';
@@ -8,16 +7,16 @@ export default function AppTabs() {
   const unread = useSelectedNoticeUnread(), badge = unreadBadge(unread.count);
   return (
     <NativeTabs
-      backgroundColor={GameColors.ink}
-      indicatorColor={GameColors.yellow}
+      backgroundColor={GameColors.paper}
+      indicatorColor={GameColors.skyLight}
       badgeBackgroundColor={GameColors.coral}
       badgeTextColor={GameColors.paper}
       backBehavior="initialRoute"
       labelVisibilityMode="labeled"
-      iconColor={{ default: GameColors.skyLight, selected: Platform.OS === 'android' ? GameColors.ink : GameColors.yellow }}
+      iconColor={{ default: GameColors.inkMuted, selected: GameColors.accent }}
       labelStyle={{
-        default: { color: GameColors.skyLight },
-        selected: { color: GameColors.yellow },
+        default: { color: GameColors.inkMuted },
+        selected: { color: GameColors.accent },
       }}>
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>내 방</NativeTabs.Trigger.Label>

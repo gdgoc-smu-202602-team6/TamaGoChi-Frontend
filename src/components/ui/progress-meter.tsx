@@ -22,10 +22,10 @@ export function ProgressMeter({ value, target, label, color = GameColors.green }
 
 const styles = StyleSheet.create({
   track: {
-    height: 14,
+    height: 6,
     borderRadius: 7,
     borderWidth: GameUi.borderWidth,
-    borderColor: GameColors.ink,
+    borderColor: GameColors.track,
     backgroundColor: GameColors.track,
     overflow: 'hidden',
   },

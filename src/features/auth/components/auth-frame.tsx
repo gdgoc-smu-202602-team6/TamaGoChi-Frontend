@@ -21,8 +21,6 @@ export function AuthFrame({ title, subtitle, tab, busy, children }: PropsWithChi
           <View style={styles.content}>
             <View style={styles.hero}>
               <Image source={characterPlaceholder} style={styles.character} contentFit="contain" accessibilityLabel="다마GoC치 캐릭터" />
-              <Text style={styles.brand}>다마GoC치</Text>
-              <Text style={styles.tagline}>공부 시간으로 꾸미는 나만의 공간</Text>
             </View>
             <GameCard>
               {tab && <View style={styles.tabs}>
@@ -37,7 +35,6 @@ export function AuthFrame({ title, subtitle, tab, busy, children }: PropsWithChi
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-      <View pointerEvents="none" style={styles.ground}><View style={styles.grass} /><View style={styles.soil} /></View>
     </SafeAreaView>
   );
 }
@@ -53,8 +50,6 @@ const styles = StyleSheet.create({
   content: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center', paddingHorizontal: 18, gap: Spacing.four },
   hero: { alignItems: 'center', gap: Spacing.two },
   character: { width: 80, height: 96 },
-  brand: { ...GameUi.typography.brand, color: GameColors.yellow, fontSize: 36, lineHeight: 46, textShadowColor: GameColors.ink, textShadowOffset: { width: 3, height: 3 }, textShadowRadius: 1 },
-  tagline: { ...GameUi.typography.body, color: GameColors.ink, textAlign: 'center' },
   title: { ...GameUi.typography.title, color: GameColors.ink },
   body: { ...GameUi.typography.body, color: GameColors.inkMuted },
   tabs: { flexDirection: 'row', backgroundColor: GameColors.paper, borderRadius: GameUi.radius.button, borderWidth: GameUi.borderWidth, borderColor: GameColors.ink, padding: 3, gap: 3 },
@@ -63,7 +58,4 @@ const styles = StyleSheet.create({
   tabLabel: { ...GameUi.typography.body, fontWeight: '800', color: GameColors.ink },
   message: { ...GameUi.typography.body, color: GameColors.greenDark },
   error: { color: GameColors.coral },
-  ground: { height: 24 },
-  grass: { height: 7, backgroundColor: GameColors.grass },
-  soil: { flex: 1, backgroundColor: GameColors.soil, borderTopWidth: 3, borderTopColor: GameColors.greenDark },
 });

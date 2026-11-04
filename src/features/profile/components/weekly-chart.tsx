@@ -30,9 +30,9 @@ const styles = StyleSheet.create({
   caption: { ...GameUi.typography.caption, color: GameColors.inkMuted },
   chart: { flexDirection: 'row', marginTop: 10 },
   column: { flex: 1, minWidth: 0 },
-  plot: { height: chartHeight, justifyContent: 'flex-end', alignItems: 'center', borderBottomWidth: 3, borderBottomColor: GameColors.ink },
-  bar: { width: '72%', borderWidth: 2, borderBottomWidth: 0, borderColor: GameColors.ink, borderTopLeftRadius: 4, borderTopRightRadius: 4 },
-  goal: { position: 'absolute', width: '100%', borderTopWidth: 2, borderColor: GameColors.heart, borderStyle: 'dashed' },
+  plot: { height: chartHeight, justifyContent: 'flex-end', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: GameColors.border },
+  bar: { width: '60%', borderTopLeftRadius: 5, borderTopRightRadius: 5 },
+  goal: { position: 'absolute', width: '100%', borderTopWidth: 1, borderColor: GameColors.inkMuted, borderStyle: 'dashed' },
   day: { ...GameUi.typography.caption, color: GameColors.inkMuted, textAlign: 'center', marginTop: 8, paddingVertical: 2 },
   today: { color: GameColors.ink, fontWeight: '900', backgroundColor: GameColors.yellow, borderRadius: 6, overflow: 'hidden' },
 });

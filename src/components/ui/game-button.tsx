@@ -36,10 +36,10 @@ export function GameButton({ label, onPress, variant = 'primary', compact, disab
 }
 
 const styles = StyleSheet.create({
-  depth: { borderRadius: GameUi.radius.button, backgroundColor: GameColors.ink, paddingBottom: GameUi.depth },
+  depth: { borderRadius: GameUi.radius.button },
   face: {
     borderWidth: GameUi.borderWidth,
-    borderColor: GameColors.ink,
+    borderColor: GameColors.border,
     borderRadius: GameUi.radius.button,
     minHeight: 56,
     paddingHorizontal: Spacing.three,
@@ -47,9 +47,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  label: { ...GameUi.typography.title, color: GameColors.ink, textAlign: 'center' },
+  label: { ...GameUi.typography.body, fontWeight: '600', color: GameColors.ink, textAlign: 'center' },
   compact: { minHeight: 44, paddingHorizontal: Spacing.two },
-  compactLabel: { ...GameUi.typography.body, fontWeight: '800' },
+  compactLabel: { ...GameUi.typography.body, fontWeight: '600' },
   disabledLabel: { color: GameColors.inkMuted },
-  pressed: { transform: [{ translateY: 2 }] },
+  pressed: { opacity: .65 },
 });

@@ -51,7 +51,7 @@ export function StudyScreen() {
   }
 
   return (
-    <GameScreen title="공부 모드" subtitle="지금 쌓는 시간이 내 방을 바꿔요.">
+    <GameScreen title="공부 중">
       {state.status === 'loading' ? (
         <GameCard><ActivityIndicator color={GameColors.ink} /><Text style={styles.body}>진행 중인 공부를 확인하고 있어요.</Text></GameCard>
       ) : state.status === 'error' ? (

@@ -7,6 +7,7 @@ import { GameColors, Spacing } from '@/constants/theme';
 import { UnreadBadge } from '@/components/ui/unread-badge';
 import { useSelectedNoticeUnread } from '@/state/notice-unread-context';
 import { unreadDescription } from '@/utils/notice-unread';
+import { UiIcon, type UiIconName } from '@/components/ui/ui-icon';
 
 export default function AppTabs() {
   const insets = useSafeAreaInsets();
@@ -20,22 +21,22 @@ export default function AppTabs() {
         style={[
           styles.tabList,
           {
-            backgroundColor: GameColors.ink,
-            borderTopColor: GameColors.ink,
+            backgroundColor: GameColors.paper,
+            borderTopColor: GameColors.border,
             paddingBottom: Math.max(insets.bottom, Spacing.two),
           },
         ]}>
         <TabTrigger name="home" href="/" asChild>
-          <TabButton>내 방</TabButton>
+          <TabButton icon="home">내 방</TabButton>
         </TabTrigger>
         <TabTrigger name="notice" href="/notice" asChild>
-          <TabButton unread={{ count: unread.count, description: unread.club ? unreadDescription(unread.club.name, unread.count) : '선택한 동아리 없음' }}>공지</TabButton>
+          <TabButton icon="notice" unread={{ count: unread.count, description: unread.club ? unreadDescription(unread.club.name, unread.count) : '선택한 동아리 없음' }}>공지</TabButton>
         </TabTrigger>
         <TabTrigger name="shop" href="/shop" asChild>
-          <TabButton>상점</TabButton>
+          <TabButton icon="shop">상점</TabButton>
         </TabTrigger>
         <TabTrigger name="mypage" href="/mypage" asChild>
-          <TabButton>마이</TabButton>
+          <TabButton icon="person">마이</TabButton>
         </TabTrigger>
       </TabList>
     </Tabs>
@@ -45,12 +46,13 @@ export default function AppTabs() {
 // Derive the host ref type from Pressable; the router's slot type targets View.
 type TabButtonProps = Omit<ComponentProps<typeof Pressable>, 'children'> & {
   children: ReactNode;
+  icon: UiIconName;
   isFocused?: boolean;
   href?: string;
   unread?: { count: number | null; description: string };
 };
 
-function TabButton({ children, isFocused, style, unread, ...props }: TabButtonProps) {
+function TabButton({ children, icon, isFocused, style, unread, ...props }: TabButtonProps) {
   return (
     <Pressable
       {...props}
@@ -61,12 +63,11 @@ function TabButton({ children, isFocused, style, unread, ...props }: TabButtonPr
       style={(state) => [
         typeof style === 'function' ? style(state) : style,
         styles.tabButton,
-        { backgroundColor: isFocused ? GameColors.yellow : GameColors.ink },
         state.pressed && styles.pressed,
       ]}>
-      <View style={styles.labelRow}><Text style={[styles.tabLabel, { color: isFocused ? GameColors.ink : GameColors.skyLight }]}>
+      <View style={styles.labelRow}><View style={styles.iconWrap}><UiIcon name={icon} color={isFocused ? GameColors.accent : GameColors.inkMuted} />{unread && <View style={styles.badge}><UnreadBadge count={unread.count} /></View>}</View><Text style={[styles.tabLabel, { color: isFocused ? GameColors.accent : GameColors.inkMuted }]}>
         {children}
-      </Text>{unread && <UnreadBadge count={unread.count} />}</View>
+      </Text></View>
       {unread && <Text nativeID="notice-tab-unread-description" style={styles.description}>{unread.description}</Text>}
     </Pressable>
   );
@@ -88,7 +89,7 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     flex: 1,
-    minHeight: 48,
+    minHeight: 52,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: Spacing.two,
@@ -96,7 +97,9 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.7,
   },
-  tabLabel: { fontSize: 14, fontWeight: '800', lineHeight: 20 },
-  labelRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  tabLabel: { fontSize: 11, fontWeight: '500', lineHeight: 16 },
+  labelRow: { alignItems: 'center', gap: 3 },
+  iconWrap: { position: 'relative' },
+  badge: { position: 'absolute', top: -5, right: -13 },
   description: { position: 'absolute', width: 1, height: 1, overflow: 'hidden', opacity: 0 },
 });

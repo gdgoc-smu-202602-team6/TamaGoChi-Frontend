@@ -3,10 +3,11 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { Keyframe, Easing } from 'react-native-reanimated';
 
 import classes from './animated-icon.module.css';
+import { BrandSplash } from './brand-splash';
 const DURATION = 300;
 
 export function AnimatedSplashOverlay() {
-  return null;
+  return <BrandSplash />;
 }
 
 const keyframe = new Keyframe({

@@ -33,6 +33,9 @@ export default function RootLayout() {
             <Stack.Screen name="friends" />
             <Stack.Screen name="guestbook" />
             <Stack.Screen name="settings/profile" />
+            <Stack.Screen name="settings/index" />
+            <Stack.Screen name="settings/study-goal" />
+            <Stack.Screen name="clubs/[clubId]/manage" />
             <Stack.Screen name="clubs/[clubId]/preferences" />
             <Stack.Screen name="clubs/[clubId]/friends/[memberId]" />
             <Stack.Screen name="clubs/[clubId]/applications" />

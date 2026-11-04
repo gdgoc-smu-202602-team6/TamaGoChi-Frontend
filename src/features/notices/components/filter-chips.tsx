@@ -11,7 +11,7 @@ export function FilterChips({ label, options, value, onChange, disabled }: { lab
 }
 const styles = StyleSheet.create({
   row: { gap: 6, paddingVertical: 4 },
-  chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, borderWidth: GameUi.borderWidth, borderColor: GameColors.ink, backgroundColor: GameColors.paper, borderRadius: GameUi.radius.badge },
+  chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, borderWidth: GameUi.borderWidth, borderColor: GameColors.border, backgroundColor: GameColors.paper, borderRadius: GameUi.radius.badge },
   selected: { backgroundColor: GameColors.yellow },
-  text: { ...GameUi.typography.body, fontWeight: '800', color: GameColors.ink },
+  text: { ...GameUi.typography.body, fontWeight: '600', color: GameColors.ink },
 });

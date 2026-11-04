@@ -31,7 +31,7 @@ export function StudyResultScreen() {
   }
 
   if (state.status !== 'ready') return (
-    <GameScreen title="공부 결과" subtitle="오늘도 차곡차곡 쌓았어요.">
+    <GameScreen title="공부 결과">
       <GameCard>
         {state.status === 'loading' ? <><ActivityIndicator color={GameColors.ink} /><Text style={styles.body}>공부 결과를 불러오고 있어요.</Text></> : <>
           <Text accessibilityRole="alert" style={styles.body}>공부 결과를 불러오지 못했어요.</Text>
@@ -44,13 +44,13 @@ export function StudyResultScreen() {
 
   const result = state.result;
   if (!result) return (
-    <GameScreen title="공부 결과" subtitle="저장된 공부 결과를 확인해요.">
+    <GameScreen title="공부 결과">
       <GameCard><Text style={styles.body}>이 공부 결과를 찾지 못했어요.</Text><GameButton label="내 방으로" onPress={goHome} /></GameCard>
     </GameScreen>
   );
 
   return (
-    <GameScreen title="공부 완료!" subtitle="나를 위한 시간이 방의 보상이 되었어요.">
+    <GameScreen title="공부 완료">
       {home.status === 'ready' && <View style={styles.room}><RoomPreview bugs={home.data.bugs.count} name={home.data.room.name} characterLabel={home.data.room.characterLabel} appearance={home.data.room.appearance} /></View>}
       <GameCard>
         <Text style={styles.heading}>인정된 공부 시간</Text>
@@ -65,7 +65,7 @@ export function StudyResultScreen() {
             <Text style={styles.label}>XP</Text><Text style={styles.rewardNumber}>+{result.totalXp}</Text>
           </View>
         </View>
-        <Text style={styles.caption}>공부 XP +{result.studyXp} · 세션 보상은 분 단위로 계산돼요.</Text>
+        <Text style={styles.caption}>공부 XP +{result.studyXp}</Text>
         {result.attendanceXp > 0 && <Text style={styles.bonus}>출석 달성 보너스 +{result.attendanceXp} XP</Text>}
         {result.goalXp > 0 && <Text style={styles.bonus}>하루 목표 달성 보너스 +{result.goalXp} XP</Text>}
         {result.bugsRemoved > 0 && <Text style={styles.bonus}>버그 {result.bugsRemoved}마리를 퇴치했어요!</Text>}
