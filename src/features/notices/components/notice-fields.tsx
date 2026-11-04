@@ -20,6 +20,6 @@ export function NoticeFields({ draft, categories, disabled, label, onChange, chi
   </View>;
 }
 const styles = StyleSheet.create({
-  fields: { gap: Spacing.three }, label: { ...GameUi.typography.body, color: GameColors.ink, fontWeight: '800' }, error: { ...GameUi.typography.body, color: GameColors.coral }, bodyInput: { minHeight: 180 },
+  fields: { gap: Spacing.three }, label: { ...GameUi.typography.body, color: GameColors.ink, fontWeight: '800' }, error: GameUi.errorText, bodyInput: { minHeight: 180 },
   options: { padding: 12, backgroundColor: GameColors.paper, borderRadius: GameUi.radius.card, borderWidth: 2, borderColor: GameColors.ink, gap: 10 }, divider: { height: 2, backgroundColor: GameColors.track },
 });

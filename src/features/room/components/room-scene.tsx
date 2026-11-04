@@ -53,6 +53,8 @@ export function RoomScene({ appearance, bugs, label = '내 방', interaction }: 
   const layout: RoomLayout = { equipped: appearance.items.map(item => ({ slot: item.slot, itemId: item.id })), placements: appearance.placements, ...(appearance.wallHeight !== undefined ? { wallHeight: appearance.wallHeight } : {}) };
   const targets = availableTargets(layout, appearance.items);
   const item = (slot: string) => appearance.items.find(item => item.slot === slot);
+  // 20px on the full-width home room (about 354px wide), proportionally smaller in thumbnails.
+  const bugSize = width ? Math.max(8, Math.min(22, Math.round(width * 0.056))) : 20;
   return <View style={styles.scene} onLayout={event => setWidth(event.nativeEvent.layout.width)} accessible={!interaction} accessibilityRole={!interaction ? 'image' : undefined}
     accessibilityLabel={!interaction ? `${label}, ${appearance.size}칸 방, ${appearance.items.map(item => item.name).join(', ')}, 버그 ${bugs}마리` : undefined} testID="room-scene">
     <Image source={shell} style={StyleSheet.absoluteFill} contentFit="contain" accessible={false} />
@@ -61,7 +63,7 @@ export function RoomScene({ appearance, bugs, label = '내 방', interaction }: 
     {targets.map(target => <RoomObject key={target} point={effectivePlacement(layout, target, appearance.size, appearance.items)} previous={layout.placements.find(one => one.target === target)} size={appearance.size} wallHeight={appearance.wallHeight} policy={appearance.wallHeight ? surfacePolicy(layout, target, appearance.items) : undefined} viewportWidth={width} interaction={interaction}>
       {target === 'CHARACTER' ? <CharacterSprite accessories={appearance.items} /> : <Image source={itemSource(item(target)!, true, !!appearance.wallHeight && surfacePolicy(layout, target, appearance.items)?.surfaceKind === 'WALL')} contentFit={appearance.wallHeight && surfacePolicy(layout, target, appearance.items)?.surfaceKind === 'WALL' ? 'fill' : 'contain'} style={StyleSheet.absoluteFill} accessible={false} />}
     </RoomObject>)}
-    {[{ left: '35%', top: '67%' }, { left: '73%', top: '72%' }, { left: '45%', top: '84%' }].slice(0, bugs).map((position, index) => <View key={index} pointerEvents="none" style={[styles.bug, { left: position.left as `${number}%`, top: position.top as `${number}%` }]}><PixelIcon name="bug" size={20} /></View>)}
+    {[{ left: '35%', top: '67%' }, { left: '73%', top: '72%' }, { left: '45%', top: '84%' }].slice(0, bugs).map((position, index) => <View key={index} pointerEvents="none" style={[styles.bug, { left: position.left as `${number}%`, top: position.top as `${number}%` }]}><PixelIcon name="bug" size={bugSize} /></View>)}
   </View>;
 }
 const styles = StyleSheet.create({

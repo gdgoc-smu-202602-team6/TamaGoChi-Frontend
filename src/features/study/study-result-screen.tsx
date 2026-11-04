@@ -6,18 +6,19 @@ import { GameButton } from '@/components/ui/game-button';
 import { GameCard } from '@/components/ui/game-card';
 import { GameScreen } from '@/components/ui/game-screen';
 import { PixelIcon } from '@/components/ui/pixel-icon';
+import { PixelNumber } from '@/components/ui/pixel-number';
 import { GameColors, GameUi, Spacing } from '@/constants/theme';
-import { RoomPreview } from '@/features/home/components/room-preview';
-import { useHome } from '@/features/home/hooks/use-home';
 import { useStudyResult } from '@/features/study/hooks/use-study-result';
 import { formatStudyClock } from '@/utils/format-duration';
+import { formatStudySummary } from '@/utils/profile';
 import { useStudy } from '@/state/study-context';
 import { studyErrorMessage } from '@/services/study';
+
+type Chip = { label: string; background: string; color: string };
 
 export function StudyResultScreen() {
   const { sessionId } = useLocalSearchParams<{ sessionId?: string | string[] }>();
   const { state, retry } = useStudyResult(typeof sessionId === 'string' ? sessionId : '');
-  const { state: home } = useHome();
   const { acknowledgeResult } = useStudy();
   const [returning, setReturning] = useState(false);
   const [returnError, setReturnError] = useState<string | null>(null);
@@ -49,45 +50,44 @@ export function StudyResultScreen() {
     </GameScreen>
   );
 
+  const levelUp = result.levelAfter !== undefined && result.levelBefore !== undefined && result.levelAfter > result.levelBefore;
+  const chips: Chip[] = [
+    { label: `+${result.studyXp} XP`, background: GameColors.skyLight, color: '#2447A3' },
+    ...(result.attendanceXp > 0 ? [{ label: `출석 보너스 +${result.attendanceXp} XP`, background: GameColors.yellowLight, color: '#634A00' }] : []),
+    ...(result.goalXp > 0 ? [{ label: `목표 달성 +${result.goalXp} XP`, background: GameColors.yellowLight, color: '#634A00' }] : []),
+    ...(result.bugsRemoved > 0 ? [{ label: `버그 ${result.bugsRemoved}마리 퇴치`, background: GameColors.greenLight, color: GameColors.greenDark }] : []),
+    ...(result.heartsChange ? [{ label: `Heart ${result.heartsChange > 0 ? '+' : ''}${result.heartsChange}`, background: GameColors.alertLight, color: GameColors.coral }] : []),
+    ...(levelUp ? [{ label: `레벨 업 LV.${result.levelBefore} → LV.${result.levelAfter}`, background: '#E6DCFF', color: '#4E2C9E' }] : []),
+  ];
   return (
     <GameScreen title="공부 완료">
-      {home.status === 'ready' && <View style={styles.room}><RoomPreview bugs={home.data.bugs.count} name={home.data.room.name} characterLabel={home.data.room.characterLabel} appearance={home.data.room.appearance} /></View>}
-      <GameCard>
-        <Text style={styles.heading}>인정된 공부 시간</Text>
-        <Text accessibilityLabel={`인정된 공부시간 ${formatStudyClock(result.creditedSeconds)}`} adjustsFontSizeToFit numberOfLines={1} style={styles.clock}>{formatStudyClock(result.creditedSeconds)}</Text>
-        {result.elapsedSeconds > result.creditedSeconds && <Text style={styles.body}>기록한 시간 {formatStudyClock(result.elapsedSeconds)} 중 최대 12시간을 인정했어요.</Text>}
-        <View style={styles.rewards}>
-          <View style={[styles.reward, { backgroundColor: GameColors.yellow }]}>
-            <View style={styles.rewardLabel}><PixelIcon name="bolt" size={22} /><Text style={styles.label}>BOLT</Text></View>
-            <Text style={styles.rewardNumber}>+{result.bolt}</Text>
-          </View>
-          <View style={[styles.reward, { backgroundColor: GameColors.lavender }]}>
-            <Text style={styles.label}>XP</Text><Text style={styles.rewardNumber}>+{result.totalXp}</Text>
-          </View>
+      <GameCard contentStyle={styles.panel}>
+        <View style={styles.chest}><PixelIcon name="chest" size={92} /></View>
+        <Text style={styles.kicker}>STAGE CLEAR</Text>
+        <Text accessibilityRole="header" style={styles.title}>{formatStudySummary(result.creditedSeconds)} 공부했어요</Text>
+        <View style={styles.reward}>
+          <PixelIcon name="bolt" size={40} label="Bolt" />
+          <PixelNumber inline value={`+${result.bolt}`} label={`Bolt ${result.bolt}개 획득`} height={58} />
         </View>
-        <Text style={styles.caption}>공부 XP +{result.studyXp}</Text>
-        {result.attendanceXp > 0 && <Text style={styles.bonus}>출석 달성 보너스 +{result.attendanceXp} XP</Text>}
-        {result.goalXp > 0 && <Text style={styles.bonus}>하루 목표 달성 보너스 +{result.goalXp} XP</Text>}
-        {result.bugsRemoved > 0 && <Text style={styles.bonus}>버그 {result.bugsRemoved}마리를 퇴치했어요!</Text>}
-        {!!result.heartsChange && <Text style={styles.bonus}>Heart {result.heartsChange > 0 ? '+' : ''}{result.heartsChange}</Text>}
-        {result.levelAfter !== undefined && result.levelBefore !== undefined && result.levelAfter > result.levelBefore && <Text style={styles.bonus}>레벨 업! LV.{result.levelBefore} → LV.{result.levelAfter}</Text>}
+        <View style={styles.chips}>{chips.map(chip => <Text key={chip.label} style={[styles.chip, { backgroundColor: chip.background, color: chip.color }]}>{chip.label}</Text>)}</View>
+        {result.totalXp !== result.studyXp && <Text style={styles.caption}>총 {result.totalXp} XP</Text>}
+        {result.elapsedSeconds > result.creditedSeconds && <Text style={styles.caption}>기록한 시간 {formatStudyClock(result.elapsedSeconds)} 중 최대 12시간을 인정했어요.</Text>}
       </GameCard>
-      {returnError && <Text accessibilityRole="alert" style={styles.body}>{returnError}</Text>}
-      <GameButton label={returning ? '내 방으로 이동 중…' : '내 방으로'} disabled={returning} onPress={() => { void finishViewing(); }} />
+      {returnError && <Text accessibilityRole="alert" style={styles.error}>{returnError}</Text>}
+      <GameButton icon="home" label={returning ? '내 방으로 이동 중…' : '내 방으로'} disabled={returning} onPress={() => { void finishViewing(); }} />
     </GameScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  room: { width: '100%', maxWidth: 260, alignSelf: 'center' },
-  heading: { ...GameUi.typography.title, color: GameColors.ink, textAlign: 'center' },
-  clock: { ...GameUi.typography.number, fontSize: 45, lineHeight: 62, color: GameColors.ink, textAlign: 'center', letterSpacing: -1.5 },
+  panel: { alignItems: 'center', paddingVertical: Spacing.four, gap: Spacing.two },
+  chest: { width: 92, height: 60, alignItems: 'center', justifyContent: 'center' },
+  kicker: { ...GameUi.typography.caption, fontSize: 13, letterSpacing: 1.5, fontWeight: '900', color: GameColors.coral, marginTop: Spacing.two },
+  title: { ...GameUi.typography.title, fontSize: 22, lineHeight: 30, color: GameColors.ink, textAlign: 'center' },
+  reward: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.two, marginVertical: Spacing.one },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 },
+  chip: { ...GameUi.typography.caption, fontSize: 13, fontWeight: '800', borderWidth: GameUi.borderWidth, borderColor: GameColors.ink, borderRadius: GameUi.radius.badge, paddingHorizontal: 12, paddingVertical: 5, overflow: 'hidden' },
   body: { ...GameUi.typography.body, color: GameColors.ink, textAlign: 'center' },
-  rewards: { flexDirection: 'row', gap: Spacing.two },
-  reward: { flex: 1, padding: Spacing.three, borderWidth: GameUi.borderWidth, borderColor: GameColors.ink, borderRadius: GameUi.radius.button, alignItems: 'center', justifyContent: 'center', gap: Spacing.two },
-  rewardLabel: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one },
-  label: { ...GameUi.typography.caption, color: GameColors.ink, fontWeight: '800' },
-  rewardNumber: { ...GameUi.typography.number, fontSize: 30, color: GameColors.ink },
   caption: { ...GameUi.typography.caption, color: GameColors.inkMuted, textAlign: 'center' },
-  bonus: { ...GameUi.typography.body, color: GameColors.greenDark, textAlign: 'center', fontWeight: '700' },
+  error: { ...GameUi.errorText, textAlign: 'center' },
 });

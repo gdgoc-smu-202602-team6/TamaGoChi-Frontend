@@ -2,9 +2,10 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-nat
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GameButton } from '@/components/ui/game-button';
-import { PixelIcon } from '@/components/ui/pixel-icon';
+import { IconButton } from '@/components/ui/icon-button';
+import { ScreenHeader } from '@/components/ui/screen-header';
 import { GameColors, GameUi, Spacing } from '@/constants/theme';
-import { HomeHeader } from '@/features/home/components/home-header';
+import { HomeStatus } from '@/features/home/components/home-header';
 import { RoomPreview } from '@/features/home/components/room-preview';
 import { StudySummary } from '@/features/home/components/study-summary';
 import { useHome } from '@/features/home/hooks/use-home';
@@ -28,31 +29,24 @@ export function HomeScreen({ service, onStartStudy, onEditRoom, onVisitFriends, 
   return (
     <View style={styles.screen}>
       <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
+        <ScreenHeader title={state.status === 'ready' ? `${state.data.profile.nickname}의 방` : '내 방'} actions={<>
+          {onVisitFriends && <IconButton icon="group" label="친구 방" onPress={onVisitFriends} />}
+          <GuestbookEntry variant="icon" label="방명록" onPress={onOpenGuestbook} />
+        </>} />
         {state.status === 'ready' ? (
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.content}>
-              <HomeHeader profile={state.data.profile} />
-              <View style={styles.roomSection}>
-                <View style={styles.roomStatus}>
-                  <View style={styles.statusBadge}>
-                    <PixelIcon name={state.data.bugs.count > 0 ? 'bug' : 'heart'} size={19} />
-                    <Text style={styles.statusText}>{state.data.bugs.count > 0 ? `버그 ${state.data.bugs.count}` : '깨끗한 방'}</Text>
-                  </View>
-                  <PixelIcon name="cloud" size={58} />
-                </View>
+              <HomeStatus profile={state.data.profile} bugs={state.data.bugs.count} />
+              <View>
                 <RoomPreview bugs={state.data.bugs.count} name={state.data.room.name} characterLabel={state.data.room.characterLabel} appearance={state.data.room.appearance} />
-                <GameButton label="방 꾸미기" compact variant="secondary" onPress={onEditRoom} style={styles.editButton} />
+                {/* Decorating belongs to the room itself, so it stays on the room's corner. */}
+                <GameButton label="방 꾸미기" icon="pencil" compact variant="secondary" onPress={onEditRoom} style={styles.decorate} />
               </View>
               <StudySummary home={state.data} onStartStudy={onStartStudy} actionLabel={studyActionLabel} actionDisabled={studyActionDisabled} actionError={studyActionError} />
-              <View style={styles.actions}>
-                <GameButton label="친구 방" compact variant="secondary" onPress={onVisitFriends} style={styles.action} />
-                <GuestbookEntry label="방명록" onPress={onOpenGuestbook} style={styles.action} />
-              </View>
             </View>
           </ScrollView>
         ) : (
           <View style={styles.message}>
-            <Text style={styles.messageTitle}>내 방</Text>
             {state.status === 'loading' ? <>
               <ActivityIndicator color={GameColors.ink} accessibilityLabel="내 방 불러오는 중" />
               <Text style={styles.messageText}>내 방을 불러오고 있어요.</Text>
@@ -70,16 +64,9 @@ export function HomeScreen({ service, onStartStudy, onEditRoom, onVisitFriends, 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: GameColors.sky },
   safeArea: { flex: 1 },
-  scrollContent: { flexGrow: 1, paddingVertical: Spacing.three },
+  scrollContent: { flexGrow: 1, paddingTop: 14, paddingBottom: Spacing.four },
   content: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center', paddingHorizontal: 18, gap: Spacing.three },
-  roomSection: { marginTop: -Spacing.two },
-  roomStatus: { position: 'absolute', top: 0, left: 0, right: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', zIndex: 1 },
-  statusBadge: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, backgroundColor: GameColors.skyLight, borderRadius: GameUi.radius.badge, paddingVertical: 6, paddingHorizontal: 10 },
-  statusText: { ...GameUi.typography.caption, color: GameColors.inkMuted },
-  editButton: { alignSelf: 'flex-end', marginTop: -40 },
-  actions: { flexDirection: 'row', gap: Spacing.two },
-  action: { flex: 1 },
+  decorate: { position: 'absolute', right: 0, bottom: 0 },
   message: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Spacing.four, gap: Spacing.three },
-  messageTitle: { ...GameUi.typography.brand, color: GameColors.ink },
   messageText: { ...GameUi.typography.body, color: GameColors.ink, textAlign: 'center' },
 });

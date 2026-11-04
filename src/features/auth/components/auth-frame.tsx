@@ -57,5 +57,5 @@ const styles = StyleSheet.create({
   selected: { backgroundColor: GameColors.yellow, borderColor: GameColors.ink },
   tabLabel: { ...GameUi.typography.body, fontWeight: '800', color: GameColors.ink },
   message: { ...GameUi.typography.body, color: GameColors.greenDark },
-  error: { color: GameColors.coral },
+  error: GameUi.errorText,
 });

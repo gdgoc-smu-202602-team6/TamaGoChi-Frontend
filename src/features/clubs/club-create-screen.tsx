@@ -4,6 +4,7 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollVie
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GameButton } from '@/components/ui/game-button';
+import { ScreenHeader } from '@/components/ui/screen-header';
 import { GameCard } from '@/components/ui/game-card';
 import { GameInput } from '@/components/ui/game-input';
 import { GameColors, GameUi, Spacing } from '@/constants/theme';
@@ -19,11 +20,10 @@ export function ClubCreateScreen() {
   async function reset() {
     if (await create.reset()) { setName(''); setParts([{ key: ++sequence.current, name: '', color: 'GREEN' }]); setMyPart(null); setConfirmReset(false); }
   }
-  return <SafeAreaView style={styles.screen}>
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="동아리 만들기" onBack={() => router.dismissTo('/clubs/join')} backLabel="가입·신청으로 돌아가기" />
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
         <View style={styles.content}>
-          <View style={styles.heading}><GameButton compact variant="secondary" label="◀ 가입·신청" onPress={() => router.dismissTo('/clubs/join')} /><Text accessibilityRole="header" style={styles.title}>동아리 만들기</Text></View>
           {create.operation && <ActivityIndicator accessibilityLabel={create.operation === 'create' ? '동아리 생성 결과 확인 중' : '동아리 정보 확인 중'} color={GameColors.ink} />}
           {create.error && <Text accessibilityRole="alert" style={styles.error}>{create.error}</Text>}
           {create.status?.kind === 'ready' && <GameCard>
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   heading: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 12 },
   title: { ...GameUi.typography.title, color: GameColors.ink }, label: { ...GameUi.typography.body, color: GameColors.ink, fontWeight: '800' },
   body: { ...GameUi.typography.body, color: GameColors.ink }, caption: { ...GameUi.typography.caption, color: GameColors.inkMuted },
-  error: { ...GameUi.typography.body, color: GameColors.coral }, parts: { gap: 12 }, confirm: { gap: 12 },
+  error: GameUi.errorText, parts: { gap: 12 }, confirm: { gap: 12 },
   select: { minHeight: 48, padding: 10, borderWidth: 2, borderColor: GameColors.ink, borderRadius: 12, justifyContent: 'center', backgroundColor: GameColors.paper }, selected: { backgroundColor: GameColors.yellow },
   celebration: { ...GameUi.typography.title, color: GameColors.coral, textAlign: 'center' },
   code: { ...GameUi.typography.number, fontSize: 28, lineHeight: 42, textAlign: 'center', color: GameColors.ink, backgroundColor: GameColors.paper, borderWidth: GameUi.borderWidth, borderColor: GameColors.ink, borderRadius: 14, padding: 12 },

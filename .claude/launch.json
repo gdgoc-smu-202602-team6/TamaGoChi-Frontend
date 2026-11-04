@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web-mock",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["expo", "start", "--web", "--localhost", "--port", "8084"],
+      "env": { "EXPO_PUBLIC_DATA_MODE": "mock", "BROWSER": "none" },
+      "port": 8084
+    }
+  ]
+}

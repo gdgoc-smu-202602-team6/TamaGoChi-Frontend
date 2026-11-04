@@ -13,7 +13,7 @@ export function GameInput({ label, hint, ...props }: TextInputProps & { label: s
         accessibilityLabel={label}
         aria-labelledby={`${id}-label`}
         placeholderTextColor={GameColors.inkMuted}
-        selectionColor={GameColors.yellowShade}
+        selectionColor={GameColors.orange}
         style={[styles.input, props.editable === false && styles.disabled, props.style]}
       />
       {hint && <Text style={styles.hint}>{hint}</Text>}
@@ -24,7 +24,7 @@ export function GameInput({ label, hint, ...props }: TextInputProps & { label: s
 const styles = StyleSheet.create({
   field: { gap: Spacing.one },
   label: { ...GameUi.typography.body, fontWeight: '800', color: GameColors.ink },
-  input: { ...GameUi.typography.body, minHeight: 52, paddingHorizontal: Spacing.three, paddingVertical: 12, borderWidth: GameUi.borderWidth, borderColor: GameColors.ink, borderRadius: GameUi.radius.button, color: GameColors.ink, backgroundColor: GameColors.paper },
+  input: { ...GameUi.typography.body, fontSize: 15, minHeight: 52, paddingHorizontal: Spacing.three, paddingVertical: 12, borderWidth: GameUi.borderWidth, borderColor: GameColors.ink, borderRadius: GameUi.radius.button, color: GameColors.ink, backgroundColor: GameColors.paper },
   hint: { ...GameUi.typography.caption, color: GameColors.inkMuted },
   disabled: { opacity: 0.6 },
 });

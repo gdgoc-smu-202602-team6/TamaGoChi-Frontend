@@ -3,6 +3,7 @@ import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, Pressable,
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GameButton } from '@/components/ui/game-button';
+import { ScreenHeader } from '@/components/ui/screen-header';
 import { GameCard } from '@/components/ui/game-card';
 import { GameInput } from '@/components/ui/game-input';
 import { Palette } from '@/constants/palette';
@@ -24,13 +25,12 @@ export function ClubJoinScreen() {
   const joinedPreview = join.data?.clubs.some(club => club.id === join.preview?.id);
   const pendingPreview = join.data?.applications.some(one => one.clubId === join.preview?.id && one.state === 'PENDING');
   const rows: Row[] = [...(join.data?.applications.map(application => ({ kind: 'application' as const, application })) ?? []), ...(join.data?.clubs.map(club => ({ kind: 'club' as const, club })) ?? [])];
-  return <SafeAreaView style={styles.screen}>
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="동아리 가입" onBack={() => router.dismissTo('/')} backLabel="내 방으로 돌아가기" />
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <FlatList<Row> style={styles.list} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled"
         data={rows} keyExtractor={row => row.kind === 'club' ? `club:${row.club.id}` : `application:${row.application.id}`}
         refreshing={join.refreshing} onRefresh={() => { void join.refresh(); }}
         ListHeaderComponent={<View style={styles.header}>
-          <View style={styles.heading}><GameButton compact variant="secondary" label="◀ 내 방" onPress={() => router.dismissTo('/')} /><Text accessibilityRole="header" style={styles.title}>동아리 가입</Text></View>
           <GameButton compact variant="secondary" label="새 동아리 만들기" onPress={() => router.push('/clubs/create')} />
           <GameCard>
             <Text accessibilityRole="header" style={styles.cardTitle}>초대 코드 입력</Text>
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   heading: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 12 }, title: { ...GameUi.typography.title, color: GameColors.ink },
   cardTitle: { ...GameUi.typography.title, color: GameColors.ink }, body: { ...GameUi.typography.body, color: GameColors.ink },
   caption: { ...GameUi.typography.caption, color: GameColors.inkMuted }, label: { ...GameUi.typography.body, color: GameColors.ink, fontWeight: '800' },
-  error: { ...GameUi.typography.body, color: GameColors.coral }, notice: { ...GameUi.typography.body, fontWeight: '800', color: GameColors.ink, backgroundColor: GameColors.cream, borderWidth: 2, borderColor: GameColors.ink, borderRadius: 12, padding: 12 },
+  error: GameUi.errorText, notice: { ...GameUi.typography.body, fontWeight: '800', color: GameColors.ink, backgroundColor: GameColors.cream, borderWidth: 2, borderColor: GameColors.ink, borderRadius: 12, padding: 12 },
   preview: { backgroundColor: GameColors.paper }, parts: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   part: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 8, borderWidth: GameUi.borderWidth, borderColor: GameColors.ink, borderRadius: 13 },
   partText: { ...GameUi.typography.body, fontWeight: '800' }, sectionTitle: { ...GameUi.typography.title, color: GameColors.ink, marginBottom: 10 }, item: { marginBottom: Spacing.three },

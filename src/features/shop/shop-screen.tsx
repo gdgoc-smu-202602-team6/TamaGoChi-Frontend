@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GameButton } from '@/components/ui/game-button';
 import { GameCard } from '@/components/ui/game-card';
 import { ScreenHeader } from '@/components/ui/screen-header';
+import { SegmentedTabs } from '@/components/ui/segmented-tabs';
 import { GameColors, GameUi, Spacing } from '@/constants/theme';
 import { shopCategories, type ShopCategory } from '@/types/shop';
 import { ShopItemCard } from './components/shop-item-card';
@@ -16,6 +17,9 @@ export function ShopScreen() {
   const shop = useShop();
   const entries = shop.data?.items.filter(item => item.category === category) ?? [];
   return <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
+    <ScreenHeader title="상점">
+      <View style={styles.tabs}><SegmentedTabs label="상점 분류" value={category} onChange={setCategory} options={shopCategories.map(id => ({ id, name: categoryLabels[id] }))} /></View>
+    </ScreenHeader>
     <FlatList
       style={styles.list}
       contentContainerStyle={styles.content}
@@ -26,12 +30,6 @@ export function ShopScreen() {
       refreshing={shop.refreshing}
       onRefresh={() => { void shop.refresh(); }}
       ListHeaderComponent={<View style={styles.heading}>
-        <ScreenHeader title="상점" />
-        <View accessibilityRole="tablist" style={styles.tabs}>
-          {shopCategories.map(key => <Pressable key={key} accessibilityRole="tab" accessibilityState={{ selected: category === key }} onPress={() => setCategory(key)} style={[styles.tab, category === key && styles.selectedTab]}>
-            <Text style={styles.tabText}>{categoryLabels[key]}</Text>
-          </Pressable>)}
-        </View>
         {shop.error && <GameCard><Text accessibilityRole="alert" style={styles.message}>{shop.error}</Text><GameButton compact label="다시 불러오기" disabled={shop.refreshing || !!shop.purchasing} onPress={() => { void shop.refresh(); }} /></GameCard>}
         {shop.notice && <Text accessibilityLiveRegion="polite" style={styles.notice}>{shop.notice}</Text>}
         {shop.refreshing && <ActivityIndicator accessibilityLabel="상점 불러오는 중" color={GameColors.ink} />}
@@ -44,13 +42,10 @@ export function ShopScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: GameColors.sky },
   list: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center' },
-  content: { flexGrow: 1, paddingHorizontal: 18, paddingTop: Spacing.four, paddingBottom: Spacing.four },
-  heading: { gap: 12, marginBottom: Spacing.three },
-  tabs: { flexDirection: 'row', padding: 4, backgroundColor: GameColors.skyLight, borderRadius: 16 },
-  tab: { flex: 1, minHeight: 44, paddingVertical: 8, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'transparent', borderRadius: 13 },
-  selectedTab: { backgroundColor: GameColors.paper, borderColor: GameColors.paper },
-  tabText: { ...GameUi.typography.caption, color: GameColors.ink, fontWeight: '800' },
+  content: { flexGrow: 1, paddingHorizontal: 18, paddingTop: 14, paddingBottom: Spacing.four },
+  heading: { gap: 12 },
+  tabs: { paddingHorizontal: 10, paddingBottom: 10 },
   row: { justifyContent: 'space-between', marginBottom: Spacing.three },
   message: { ...GameUi.typography.body, color: GameColors.ink },
-  notice: { ...GameUi.typography.body, fontWeight: '600', color: GameColors.ink, padding: 12, backgroundColor: GameColors.cream, borderWidth: 1, borderColor: GameColors.border, borderRadius: 12 },
+  notice: { ...GameUi.typography.body, fontWeight: '700', color: GameColors.ink, padding: 12, backgroundColor: GameColors.cream, borderWidth: GameUi.borderWidth, borderColor: GameColors.border, borderRadius: 12, overflow: 'hidden' },
 });

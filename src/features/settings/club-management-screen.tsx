@@ -52,8 +52,7 @@ export function ClubManagementScreen({ clubId }: { clubId: string }) {
     try { const current = await read(); if (current?.includes(row.permission)) router.push({ pathname: row.pathname, params: { clubId } }); }
     finally { opening.current = false; }
   }
-  return <SafeAreaView style={styles.screen}><ScrollView contentContainerStyle={styles.content}>
-    <ScreenHeader title={club?.name ?? '동아리 설정'} onBack={() => router.canGoBack() ? router.back() : router.dismissTo('/settings')} />
+  return <SafeAreaView style={styles.screen}><ScreenHeader title={club?.name ?? '동아리 설정'} onBack={() => router.canGoBack() ? router.back() : router.dismissTo('/settings')} /><ScrollView contentContainerStyle={styles.content}>
     {loading && <ActivityIndicator color={GameColors.accent} accessibilityLabel="설정 권한 확인 중" />}
     {clubs.status === 'loading' && <ActivityIndicator color={GameColors.accent} accessibilityLabel="동아리 확인 중" />}
     {clubs.error && <><Text accessibilityRole="alert" style={styles.error}>{clubs.error}</Text><SettingsRow title="동아리 다시 확인" icon="refresh" onPress={() => { void clubs.refresh(); }} /></>}

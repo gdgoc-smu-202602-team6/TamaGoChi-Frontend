@@ -3,6 +3,7 @@ import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GameButton } from '@/components/ui/game-button';
+import { ScreenHeader } from '@/components/ui/screen-header';
 import { GameCard } from '@/components/ui/game-card';
 import { isMockMode } from '@/constants/api';
 import { GameColors, GameUi, Spacing } from '@/constants/theme';
@@ -12,11 +13,10 @@ import { useApplicationReview } from './hooks/use-application-review';
 export function ApplicationReviewScreen({ clubId }: { clubId: string }) {
   const review = useApplicationReview(clubId), disabled = review.refreshing || !!review.processing || review.unverified;
   const board = review.board;
-  return <SafeAreaView style={styles.screen}>
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="가입 신청 관리" onBack={() => router.dismissTo('/clubs/join')} backLabel="가입·신청으로 돌아가기" backDisabled={!!review.processing} />
     <FlatList style={styles.list} contentContainerStyle={styles.content} data={board ? board.applications : []} keyExtractor={item => item.id}
       refreshing={review.refreshing} onRefresh={() => { void review.refresh(); }} ItemSeparatorComponent={() => <View style={styles.separator} />}
       ListHeaderComponent={<View style={styles.header}>
-        <View style={styles.heading}><GameButton compact variant="secondary" label="◀ 가입·신청" disabled={!!review.processing} onPress={() => router.dismissTo('/clubs/join')} /><Text accessibilityRole="header" style={styles.title}>가입 신청 관리</Text></View>
         {board && <GameCard contentStyle={styles.summary}>
           <Text accessibilityRole="header" style={styles.title}>{board.club.name}</Text>
           <Text style={styles.body}>부원 {board.club.memberCount}명 · 파트 {board.parts.length}개</Text>
@@ -38,6 +38,6 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: GameColors.sky }, list: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center' }, content: { flexGrow: 1, padding: 18, paddingBottom: Spacing.four },
   header: { gap: Spacing.three, marginBottom: Spacing.three }, heading: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 12 },
   title: { ...GameUi.typography.title, color: GameColors.ink }, body: { ...GameUi.typography.body, color: GameColors.ink }, caption: { ...GameUi.typography.caption, color: GameColors.inkMuted },
-  summary: { backgroundColor: GameColors.cream }, count: { ...GameUi.typography.title, color: GameColors.coral }, error: { ...GameUi.typography.body, color: GameColors.coral },
+  summary: { backgroundColor: GameColors.cream }, count: { ...GameUi.typography.title, color: GameColors.coral }, error: GameUi.errorText,
   notice: { ...GameUi.typography.body, color: GameColors.ink, backgroundColor: GameColors.cream, borderWidth: 2, borderColor: GameColors.ink, borderRadius: 12, padding: 12 }, separator: { height: Spacing.three },
 });

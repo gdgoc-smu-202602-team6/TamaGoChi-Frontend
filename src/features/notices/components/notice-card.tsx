@@ -17,7 +17,7 @@ export function NoticeCard({ notice, categories, authors, detail, onToggle, onRe
       <Text style={[styles.badge, { backgroundColor: color.background, color: color.text }]}>{category?.name ?? '분류 정보 없음'}</Text>
       {subcategory && <Text style={styles.subcategory}>{subcategory.name}</Text>}
       {shown.pinned && <Text style={[styles.badge, styles.pinned]}>고정</Text>}
-      {!shown.read && <Text style={styles.new}>NEW</Text>}
+      {!shown.read && <Text style={styles.new}>NEW!</Text>}
       <Text style={[styles.caption, styles.date]}>{noticeDate(shown.createdAt)}</Text>
     </View>
     <Text accessibilityRole="header" style={styles.title}>{shown.title}</Text>
@@ -35,17 +35,17 @@ export function NoticeCard({ notice, categories, authors, detail, onToggle, onRe
 const styles = StyleSheet.create({
   surface: { backgroundColor: GameColors.paper, gap: 10 },
   badges: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 },
-  badge: { ...GameUi.typography.caption, fontWeight: '600', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3, overflow: 'hidden' },
+  badge: { ...GameUi.typography.caption, fontWeight: '800', borderWidth: 1.5, borderColor: GameColors.ink, borderRadius: GameUi.radius.badge, paddingHorizontal: 9, paddingVertical: 2, overflow: 'hidden' },
   pinned: { backgroundColor: GameColors.yellow, color: GameColors.ink },
-  subcategory: { ...GameUi.typography.caption, color: GameColors.inkMuted },
-  new: { ...GameUi.typography.caption, color: GameColors.accent, fontWeight: '600' },
-  title: { ...GameUi.typography.title, color: GameColors.ink, fontSize: 18 },
+  subcategory: { ...GameUi.typography.caption, fontWeight: '800', color: GameColors.inkMuted, borderWidth: 1.5, borderColor: GameColors.inkSoft, borderRadius: GameUi.radius.badge, paddingHorizontal: 9, paddingVertical: 2, overflow: 'hidden' },
+  new: { ...GameUi.typography.caption, color: GameColors.alert, fontWeight: '900' },
+  title: { ...GameUi.typography.title, color: GameColors.ink, fontSize: 17, lineHeight: 25 },
   meta: { flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 },
   caption: { ...GameUi.typography.caption, color: GameColors.inkMuted },
   date: { marginLeft: 'auto' },
   toggle: { minHeight: 44, gap: 10 },
   toggleText: { ...GameUi.typography.body, color: GameColors.inkMuted, fontWeight: '700' },
-  bodyArea: { paddingTop: 12, borderTopWidth: 1, borderColor: GameColors.track, gap: 10 },
-  body: { ...GameUi.typography.body, color: GameColors.ink },
-  error: { ...GameUi.typography.body, color: GameColors.coral },
+  bodyArea: { paddingTop: 12, borderTopWidth: 1.5, borderColor: GameColors.line, borderStyle: 'dashed', gap: 10 },
+  body: { ...GameUi.typography.body, fontSize: 15, lineHeight: 23, color: GameColors.ink },
+  error: GameUi.errorText,
 });

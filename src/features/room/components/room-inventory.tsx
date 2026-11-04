@@ -22,6 +22,6 @@ export function RoomInventory({ data, layout, category, disabled, onToggle }: { 
 }
 const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 12 },
-  item: { width: '47%', padding: 8, gap: 6, backgroundColor: GameColors.paper, borderWidth: GameUi.borderWidth, borderColor: GameColors.border, borderRadius: 16 }, equipped: { backgroundColor: '#DCE8E1', borderColor: GameColors.greenDark },
+  item: { width: '47%', padding: 8, gap: 6, backgroundColor: GameColors.paper, borderWidth: GameUi.borderWidth, borderColor: GameColors.border, borderRadius: 16 }, equipped: { backgroundColor: GameColors.greenLight },
   name: { ...GameUi.typography.body, fontWeight: '800', color: GameColors.ink }, body: { ...GameUi.typography.body, color: GameColors.ink }, caption: { ...GameUi.typography.caption, color: GameColors.inkMuted },
 });
