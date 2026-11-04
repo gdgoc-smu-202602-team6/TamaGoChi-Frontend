@@ -8,6 +8,7 @@ import { readMockNickname } from '@/mocks/personal-settings-data';
 const backend = createMockStudyBackend({
   storage: AsyncStorage,
   initialHome: mockHomeScenarios.dirty,
+  surfacePlacement: true,
   async isOnline() {
     const network = await Network.getNetworkStateAsync();
     return network.isConnected === true && network.isInternetReachable === true;
