@@ -37,6 +37,7 @@ export default function HomeRoute() {
 
   return <HomeScreen
     onEditRoom={() => router.push('/room-edit')}
+    onVisitFriends={() => router.push('/friends')}
     onStartStudy={openStudy}
     refreshKey={revision}
     studyActionLabel={label}
