@@ -28,7 +28,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#ECF1F8"
+          "backgroundColor": "#82B1FA"
         }
       ],
       "expo-secure-store"

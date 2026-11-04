@@ -1,22 +1,27 @@
 import { NativeTabs } from 'expo-router/native-tabs';
+import { Platform } from 'react-native';
 import { GameColors } from '@/constants/theme';
 import { useSelectedNoticeUnread } from '@/state/notice-unread-context';
 import { unreadBadge, unreadDescription } from '@/utils/notice-unread';
+
+// Android draws the selected item on a yellow indicator pill, so the selected icon stays navy there.
+// iOS has no indicator, so the selected icon itself turns yellow on the navy bar.
+const selected = Platform.OS === 'android' ? GameColors.ink : GameColors.yellow;
 
 export default function AppTabs() {
   const unread = useSelectedNoticeUnread(), badge = unreadBadge(unread.count);
   return (
     <NativeTabs
-      backgroundColor={GameColors.paper}
-      indicatorColor={GameColors.skyLight}
-      badgeBackgroundColor={GameColors.coral}
+      backgroundColor={GameColors.ink}
+      indicatorColor={GameColors.yellow}
+      badgeBackgroundColor={GameColors.alert}
       badgeTextColor={GameColors.paper}
       backBehavior="initialRoute"
       labelVisibilityMode="labeled"
-      iconColor={{ default: GameColors.inkMuted, selected: GameColors.accent }}
+      iconColor={{ default: GameColors.inkSoft, selected }}
       labelStyle={{
-        default: { color: GameColors.inkMuted },
-        selected: { color: GameColors.accent },
+        default: { color: GameColors.inkSoft },
+        selected: { color: Platform.OS === 'android' ? GameColors.paper : GameColors.yellow, fontWeight: '800' },
       }}>
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>내 방</NativeTabs.Trigger.Label>

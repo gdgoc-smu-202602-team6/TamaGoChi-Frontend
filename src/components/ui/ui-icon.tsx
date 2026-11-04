@@ -6,6 +6,7 @@ const paths = {
   back: '<path d="m14 5-7 7 7 7"/>',
   chevron: '<path d="m9 5 7 7-7 7"/>',
   play: '<path d="m8 5 11 7-11 7Z" fill="currentColor" stroke-linejoin="round"/>',
+  stop: '<rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/>',
   settings: '<path d="m9.5 3-.6 2.1-2 .9L5 5l-2 3.5 1.5 1.6v2.2L3 14l2 3.5 2-.6 1.9 1.1.6 2h4l.6-2 1.9-1.1 2 .6 2-3.5-1.5-1.7v-2.2L20 8.5 18 5l-2 .9-1.9-.8-.6-2.1Z"/><circle cx="11.5" cy="11.5" r="3"/>',
   refresh: '<path d="M20 10a8 8 0 1 0-2 8M20 4v6h-6"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -18,9 +19,14 @@ const paths = {
   group: '<circle cx="9" cy="7" r="3"/><path d="M2 21v-2a7 7 0 0 1 14 0v2M16 4a3 3 0 0 1 0 6M19 21v-2a7 7 0 0 0-2-5"/>',
   lock: '<rect x="5" y="10" width="14" height="12" rx="3"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 15v3"/>',
   folder: '<path d="M3 6h7l2 3h9v12H3Z"/>',
+  pencil: '<path d="M4 20h4L19 9l-4-4L4 16Z"/><path d="m13 7 4 4"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+  visit: '<path d="M3 11 12 4l9 7"/><path d="M6 10v10h12V10"/><path d="m10 15 2 2 4-4"/>',
+  check: '<path d="m5 12 5 5 9-10"/>',
 } as const;
 export type UiIconName = keyof typeof paths;
-export function UiIcon({ name, size = 22, color = GameColors.ink }: { name: UiIconName; size?: number; color?: string }) {
-  const source = svgSource(`<g stroke="${color}" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round">${paths[name].replaceAll('currentColor', color)}</g>`, 24, 24);
+/** Line icon. `fill` paints filled shapes (such as the play triangle) separately from the outline. */
+export function UiIcon({ name, size = 22, color = GameColors.ink, fill }: { name: UiIconName; size?: number; color?: string; fill?: string }) {
+  const source = svgSource(`<g stroke="${color}" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">${paths[name].replaceAll('currentColor', fill ?? color)}</g>`, 24, 24);
   return <Image source={source} style={{ width: size, height: size }} contentFit="contain" accessible={false} />;
 }

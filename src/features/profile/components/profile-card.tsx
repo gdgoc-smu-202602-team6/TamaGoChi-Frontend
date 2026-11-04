@@ -24,12 +24,12 @@ export function ProfileCard({ profile, inventory, inventoryLoading }: { profile:
 }
 const styles = StyleSheet.create({
   surface: { backgroundColor: GameColors.paper, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  avatar: { width: 82, height: 104, backgroundColor: GameColors.skyLight, borderRadius: 20, padding: 10 },
+  avatar: { width: 88, height: 108, backgroundColor: '#FFE0EA', borderWidth: GameUi.borderWidth, borderColor: GameColors.ink, borderRadius: 18, padding: 10 },
   info: { flex: 1, minWidth: 0, gap: Spacing.one },
   heading: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: Spacing.two, marginBottom: Spacing.one },
   nickname: { ...GameUi.typography.title, color: GameColors.ink, flexShrink: 1 },
-  level: { ...GameUi.typography.caption, fontWeight: '600', color: GameColors.accent, backgroundColor: GameColors.skyLight, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3, overflow: 'hidden' },
+  level: { ...GameUi.typography.caption, fontWeight: '900', color: GameColors.paper, backgroundColor: GameColors.accent, borderWidth: 1.5, borderColor: GameColors.ink, borderRadius: GameUi.radius.badge, paddingHorizontal: 9, paddingVertical: 2, overflow: 'hidden' },
   caption: { ...GameUi.typography.caption, color: GameColors.inkMuted },
   wallet: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 },
-  balance: { ...GameUi.typography.body, color: GameColors.ink, fontWeight: '600' },
+  balance: { ...GameUi.typography.body, fontSize: 16, color: GameColors.ink, fontWeight: '800' },
 });

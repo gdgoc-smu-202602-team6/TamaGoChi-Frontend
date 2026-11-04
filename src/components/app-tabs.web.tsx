@@ -18,14 +18,7 @@ export default function AppTabs() {
       <TabSlot style={styles.content} />
       <TabList
         accessibilityRole="tablist"
-        style={[
-          styles.tabList,
-          {
-            backgroundColor: GameColors.paper,
-            borderTopColor: GameColors.border,
-            paddingBottom: Math.max(insets.bottom, Spacing.two),
-          },
-        ]}>
+        style={[styles.tabList, { marginBottom: Math.max(insets.bottom, 10) }]}>
         <TabTrigger name="home" href="/" asChild>
           <TabButton icon="home">내 방</TabButton>
         </TabTrigger>
@@ -63,9 +56,10 @@ function TabButton({ children, icon, isFocused, style, unread, ...props }: TabBu
       style={(state) => [
         typeof style === 'function' ? style(state) : style,
         styles.tabButton,
+        isFocused && styles.focused,
         state.pressed && styles.pressed,
       ]}>
-      <View style={styles.labelRow}><View style={styles.iconWrap}><UiIcon name={icon} color={isFocused ? GameColors.accent : GameColors.inkMuted} />{unread && <View style={styles.badge}><UnreadBadge count={unread.count} /></View>}</View><Text style={[styles.tabLabel, { color: isFocused ? GameColors.accent : GameColors.inkMuted }]}>
+      <View style={styles.labelRow}><View style={styles.iconWrap}><UiIcon name={icon} color={isFocused ? GameColors.ink : GameColors.inkSoft} />{unread && <View style={styles.badge}><UnreadBadge count={unread.count} /></View>}</View><Text style={[styles.tabLabel, isFocused && styles.focusedLabel]}>
         {children}
       </Text></View>
       {unread && <Text nativeID="notice-tab-unread-description" style={styles.description}>{unread.description}</Text>}
@@ -76,30 +70,40 @@ function TabButton({ children, icon, isFocused, style, unread, ...props }: TabBu
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: GameColors.sky,
   },
   content: {
     flex: 1,
   },
+  // Floating navy bar with a yellow pill for the current tab, as in the v4 mockup.
   tabList: {
     flexDirection: 'row',
-    borderTopWidth: 1,
-    paddingTop: Spacing.two,
-    paddingHorizontal: Spacing.two,
+    alignSelf: 'center',
+    width: '94%',
+    maxWidth: 520,
+    marginTop: Spacing.two,
+    padding: 6,
     gap: Spacing.one,
+    backgroundColor: GameColors.ink,
+    borderRadius: 24,
   },
   tabButton: {
     flex: 1,
-    minHeight: 52,
+    minHeight: 56,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: Spacing.two,
+    borderRadius: 18,
+  },
+  focused: {
+    backgroundColor: GameColors.yellow,
   },
   pressed: {
-    opacity: 0.7,
+    opacity: 0.8,
   },
-  tabLabel: { fontSize: 11, fontWeight: '500', lineHeight: 16 },
-  labelRow: { alignItems: 'center', gap: 3 },
+  tabLabel: { fontSize: 11, fontWeight: '700', lineHeight: 16, color: GameColors.inkSoft },
+  focusedLabel: { color: GameColors.ink, fontWeight: '800' },
+  labelRow: { alignItems: 'center', gap: 2 },
   iconWrap: { position: 'relative' },
-  badge: { position: 'absolute', top: -5, right: -13 },
+  badge: { position: 'absolute', top: -6, right: -14 },
   description: { position: 'absolute', width: 1, height: 1, overflow: 'hidden', opacity: 0 },
 });

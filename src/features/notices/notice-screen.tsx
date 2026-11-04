@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
   heading: { gap: 10, marginBottom: Spacing.three },
   body: { ...GameUi.typography.body, color: GameColors.ink },
   caption: { ...GameUi.typography.caption, color: GameColors.ink },
-  error: { ...GameUi.typography.body, color: GameColors.coral },
+  error: GameUi.errorText,
   card: { marginBottom: Spacing.three },
   footer: { gap: 10, paddingTop: 8 },
   message: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center', padding: Spacing.four, gap: Spacing.three },

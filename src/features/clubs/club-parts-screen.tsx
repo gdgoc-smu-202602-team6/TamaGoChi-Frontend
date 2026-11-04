@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GameButton } from '@/components/ui/game-button';
+import { ScreenHeader } from '@/components/ui/screen-header';
 import { GameCard } from '@/components/ui/game-card';
 import { GameColorPicker } from '@/components/ui/game-color-picker';
 import { GameConfirmDialog } from '@/components/ui/game-confirm-dialog';
@@ -22,7 +23,7 @@ function PartsContent({ manager }: { manager: ReturnType<typeof useClubParts> })
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <FlatList style={styles.list} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" data={board ? board.parts : []} keyExtractor={item => item.id}
         ListHeaderComponent={<View style={styles.header}>
-          <View style={styles.heading}><GameButton compact variant="secondary" label="◀ 공지" disabled={!!manager.operation || !!target} onPress={() => { void manager.openList(); }} /><Text accessibilityRole="header" style={styles.title}>파트 관리</Text></View>
+          <ScreenHeader title="파트 관리" onBack={() => { void manager.openList(); }} backLabel="공지로 돌아가기" backDisabled={!!manager.operation || !!target} />
           {board && <Text style={styles.body}>{board.club.name} · 파트 {board.parts.length}개</Text>}
           {manager.operation && <ActivityIndicator accessibilityLabel="파트 확인 중" color={GameColors.ink} />}
           {manager.error && <Text accessibilityRole="alert" style={styles.error}>{manager.error}</Text>}
@@ -49,6 +50,6 @@ function PartsContent({ manager }: { manager: ReturnType<typeof useClubParts> })
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: GameColors.sky }, list: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center' }, content: { flexGrow: 1, padding: 18, paddingBottom: Spacing.four },
   header: { gap: Spacing.three, marginBottom: Spacing.three }, heading: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 }, title: { ...GameUi.typography.title, color: GameColors.ink }, body: { ...GameUi.typography.body, color: GameColors.ink },
-  caption: { ...GameUi.typography.caption, color: GameColors.inkMuted }, error: { ...GameUi.typography.body, color: GameColors.coral }, notice: { ...GameUi.typography.body, color: GameColors.ink, padding: 12, backgroundColor: GameColors.cream, borderRadius: 12 },
+  caption: { ...GameUi.typography.caption, color: GameColors.inkMuted }, error: GameUi.errorText, notice: { ...GameUi.typography.body, color: GameColors.ink, padding: 12, backgroundColor: GameColors.cream, borderRadius: 12 },
   item: { marginBottom: Spacing.three }, badge: { ...GameUi.typography.title, flex: 1, padding: 12, borderWidth: 2, borderColor: GameColors.ink, borderRadius: 14 },
 });

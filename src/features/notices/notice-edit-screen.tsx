@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GameButton } from '@/components/ui/game-button';
+import { ScreenHeader } from '@/components/ui/screen-header';
 import { GameCard } from '@/components/ui/game-card';
 import { GameConfirmDialog } from '@/components/ui/game-confirm-dialog';
 import { GameColors, GameUi, Spacing } from '@/constants/theme';
@@ -28,9 +29,7 @@ function NoticeEditContent({ editor }: { editor: ReturnType<typeof useNoticeEdit
   return <SafeAreaView style={styles.screen}>
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={[styles.content, styles.topbar]}><View style={styles.heading}>
-        <GameButton compact variant="secondary" label="◀ 공지" disabled={!!editor.operation || modal} onPress={() => leave(() => router.dismissTo('/notice'))} />
-        <Text accessibilityRole="header" style={styles.title}>공지 수정</Text>
-        {snapshot && <GameButton compact label={editor.operation === 'save' ? '저장 중…' : '저장'} accessibilityLabel="공지 수정 저장" disabled={disabled || !editor.dirty} onPress={() => { void editor.save(); }} />}
+        <ScreenHeader title="공지 수정" onBack={() => leave(() => router.dismissTo('/notice'))} backDisabled={!!editor.operation || modal} backLabel="공지로 돌아가기" actions={snapshot && <GameButton compact label={editor.operation === 'save' ? '저장 중…' : '저장'} accessibilityLabel="공지 수정 저장" disabled={disabled || !editor.dirty} onPress={() => { void editor.save(); }} />} />
       </View></View>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}><View style={styles.content}>
         {snapshot && <Text style={styles.body}>{snapshot.board.club.name}</Text>}
@@ -60,6 +59,6 @@ function NoticeEditContent({ editor }: { editor: ReturnType<typeof useNoticeEdit
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: GameColors.sky }, scroll: { flexGrow: 1, paddingVertical: Spacing.three }, content: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center', paddingHorizontal: 18, gap: Spacing.three },
   topbar: { paddingVertical: 12 }, heading: { flexDirection: 'row', alignItems: 'center', gap: 8 }, title: { ...GameUi.typography.title, color: GameColors.ink, flex: 1 }, result: { ...GameUi.typography.title, color: GameColors.ink },
-  body: { ...GameUi.typography.body, color: GameColors.ink }, caption: { ...GameUi.typography.caption, color: GameColors.inkMuted }, error: { ...GameUi.typography.body, color: GameColors.coral },
+  body: { ...GameUi.typography.body, color: GameColors.ink }, caption: { ...GameUi.typography.caption, color: GameColors.inkMuted }, error: GameUi.errorText,
   notice: { ...GameUi.typography.body, color: GameColors.ink, backgroundColor: GameColors.cream, padding: 12, borderRadius: 12 }, form: { backgroundColor: GameColors.cream },
 });

@@ -31,23 +31,20 @@ export function HomeScreen({ service, onStartStudy, onEditRoom, onVisitFriends, 
         {state.status === 'ready' ? (
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.content}>
-              <HomeHeader profile={state.data.profile} />
+              <HomeHeader profile={state.data.profile} onVisitFriends={onVisitFriends} />
               <View style={styles.roomSection}>
-                <View style={styles.roomStatus}>
-                  <View style={styles.statusBadge}>
-                    <PixelIcon name={state.data.bugs.count > 0 ? 'bug' : 'heart'} size={19} />
-                    <Text style={styles.statusText}>{state.data.bugs.count > 0 ? `버그 ${state.data.bugs.count}` : '깨끗한 방'}</Text>
-                  </View>
-                  <PixelIcon name="cloud" size={58} />
-                </View>
                 <RoomPreview bugs={state.data.bugs.count} name={state.data.room.name} characterLabel={state.data.room.characterLabel} appearance={state.data.room.appearance} />
-                <GameButton label="방 꾸미기" compact variant="secondary" onPress={onEditRoom} style={styles.editButton} />
+                <View pointerEvents="none" style={[styles.status, state.data.bugs.count > 0 && styles.bugStatus]}>
+                  <PixelIcon name={state.data.bugs.count > 0 ? 'bug' : 'heart'} size={18} />
+                  <Text style={styles.statusText}>{state.data.bugs.count > 0 ? `버그 ${state.data.bugs.count}` : '깨끗한 방'}</Text>
+                </View>
+                {/* Room shortcuts sit in the empty corners beside the floor, as in the v4 home. */}
+                <View pointerEvents="box-none" style={styles.corners}>
+                  <GuestbookEntry label="방명록" onPress={onOpenGuestbook} />
+                  <GameButton label="방 꾸미기" icon="pencil" compact variant="secondary" onPress={onEditRoom} />
+                </View>
               </View>
               <StudySummary home={state.data} onStartStudy={onStartStudy} actionLabel={studyActionLabel} actionDisabled={studyActionDisabled} actionError={studyActionError} />
-              <View style={styles.actions}>
-                <GameButton label="친구 방" compact variant="secondary" onPress={onVisitFriends} style={styles.action} />
-                <GuestbookEntry label="방명록" onPress={onOpenGuestbook} style={styles.action} />
-              </View>
             </View>
           </ScrollView>
         ) : (
@@ -70,15 +67,13 @@ export function HomeScreen({ service, onStartStudy, onEditRoom, onVisitFriends, 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: GameColors.sky },
   safeArea: { flex: 1 },
-  scrollContent: { flexGrow: 1, paddingVertical: Spacing.three },
+  scrollContent: { flexGrow: 1, paddingTop: Spacing.three, paddingBottom: Spacing.four },
   content: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center', paddingHorizontal: 18, gap: Spacing.three },
-  roomSection: { marginTop: -Spacing.two },
-  roomStatus: { position: 'absolute', top: 0, left: 0, right: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', zIndex: 1 },
-  statusBadge: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, backgroundColor: GameColors.skyLight, borderRadius: GameUi.radius.badge, paddingVertical: 6, paddingHorizontal: 10 },
-  statusText: { ...GameUi.typography.caption, color: GameColors.inkMuted },
-  editButton: { alignSelf: 'flex-end', marginTop: -40 },
-  actions: { flexDirection: 'row', gap: Spacing.two },
-  action: { flex: 1 },
+  roomSection: { marginTop: -Spacing.one },
+  status: { position: 'absolute', top: 0, left: 0, flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: GameColors.paper, borderWidth: GameUi.borderWidth, borderColor: GameColors.ink, borderRadius: GameUi.radius.badge, paddingVertical: 4, paddingHorizontal: 10 },
+  bugStatus: { backgroundColor: GameColors.alertLight },
+  statusText: { ...GameUi.typography.caption, fontWeight: '800', color: GameColors.ink },
+  corners: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
   message: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Spacing.four, gap: Spacing.three },
   messageTitle: { ...GameUi.typography.brand, color: GameColors.ink },
   messageText: { ...GameUi.typography.body, color: GameColors.ink, textAlign: 'center' },

@@ -31,5 +31,5 @@ export function SettingsScreen() {
     {clubs.error && <><Text accessibilityRole="alert" style={styles.error}>{clubs.error}</Text><SettingsRow title="동아리 다시 확인" icon="refresh" onPress={() => { void clubs.refresh(); }} /></>}
   </ScrollView></SafeAreaView>;
 }
-export const settingsStyles = StyleSheet.create({ screen: { flex: 1, backgroundColor: GameColors.sky }, content: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center', padding: 18, paddingBottom: 36, gap: 26 }, error: { ...GameUi.typography.body, color: GameColors.coral } });
+export const settingsStyles = StyleSheet.create({ screen: { flex: 1, backgroundColor: GameColors.sky }, content: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center', padding: 18, paddingBottom: 36, gap: 26 }, error: GameUi.errorText });
 const styles = settingsStyles;

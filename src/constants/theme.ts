@@ -64,39 +64,56 @@ export const Spacing = {
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;
 
-// Shared pastel palette. Pixel artwork is separate from the quiet, readable app chrome.
+// v4 game palette (sky, cream, navy outline, yellow/green accents), one step calmer than the
+// original mockup. Text tokens keep 4.5:1 on cream and white; text placed directly on sky uses ink.
 export const GameColors = {
-  sky: '#ECF1F8',
-  skyLight: '#DFE8F3',
-  ink: '#30384C',
-  inkMuted: '#69748A',
-  cream: '#F8F7F2',
-  paper: '#FDFDFE',
-  yellow: '#E8E2F2',
-  yellowShade: '#C8BEDB',
-  green: '#C7DED3',
-  greenDark: '#426C60',
-  coral: '#76576F',
-  heart: '#AEBFCE',
-  heartEmpty: '#DBE2EB',
-  lavender: '#C4BDDC',
-  track: '#E2E7EF',
-  grass: '#D2E0DB',
-  soil: '#DEE1E8',
-  accent: '#526998',
-  border: '#DCE2EC',
+  sky: '#82B1FA',
+  skyLight: '#DDE9FF',
+  ink: '#1D1B3A',
+  inkMuted: '#4A4863',
+  inkSoft: '#C9C7DD',
+  cream: '#FFF4D6',
+  paper: '#FFFFFF',
+  yellow: '#FFD23F',
+  yellowLight: '#FFF0B8',
+  orange: '#F5A623',
+  green: '#5EC34A',
+  greenLight: '#D4F2C9',
+  greenDark: '#24601D',
+  pink: '#FF9FBB',
+  /** Error and danger text. Readable on sky, cream and white. */
+  coral: '#8E1728',
+  /** Badge and NEW highlight background (white text). */
+  alert: '#D63645',
+  alertLight: '#FFE3E6',
+  heart: '#EF5262',
+  heartEmpty: '#D9DEEF',
+  lavender: '#A98BFF',
+  track: '#E4E3EE',
+  accent: '#3460D6',
+  border: '#1D1B3A',
+  line: '#E4E3EE',
+  night: '#1D1B3A',
+  nightDeep: '#2A2850',
 } as const;
 
 export const GameUi = {
-  borderWidth: 1,
-  radius: { card: 22, button: 16, badge: 24 },
-  depth: 0,
+  borderWidth: 2,
+  radius: { card: 20, button: 14, badge: 999 },
+  /** Height of the hard navy drop under cards and buttons. */
+  depth: 3,
   contentWidth: 440,
   typography: {
-    brand: { fontSize: 23, lineHeight: 31, fontWeight: '700' },
-    title: { fontSize: 18, lineHeight: 26, fontWeight: '600' },
+    brand: { fontSize: 23, lineHeight: 31, fontWeight: '800' },
+    title: { fontSize: 18, lineHeight: 26, fontWeight: '800' },
     body: { fontSize: 14, lineHeight: 21, fontWeight: '500' },
     caption: { fontSize: 12, lineHeight: 18, fontWeight: '600' },
-    number: { fontWeight: '600', fontVariant: ['tabular-nums'] },
+    number: { fontWeight: '800', fontVariant: ['tabular-nums'] },
+  },
+  /** Inline error message that stays readable on any background. */
+  errorText: {
+    fontSize: 14, lineHeight: 21, fontWeight: '600',
+    color: '#8E1728', backgroundColor: '#FFE3E6',
+    borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, overflow: 'hidden',
   },
 } as const;

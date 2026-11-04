@@ -9,17 +9,24 @@ const shapes = {
   bug: ['..1..1..', '...11...', '.113311.', '12233221', '12233221', '.122221.', '1.1111.1', '..1..1..'],
   hourglass: ['11111111', '.122221.', '.122221.', '..1221..', '...11...', '..1221..', '.123321.', '11111111'],
   cloud: ['....111111....', '..1122222211..', '.122222222221.', '12222222222221', '11111111111111'],
+  chest: ['.111111111111.', '12222222222221', '12222222222221', '11111144111111', '13333345433331', '13333344433331', '13333333333331', '13333333333331', '11111111111111'],
 } as const;
 
-type PixelIconProps = { name: keyof typeof shapes; size?: number; muted?: boolean; label?: string };
+type PixelIconName = keyof typeof shapes;
+type PixelIconProps = { name: PixelIconName; size?: number; muted?: boolean; label?: string };
 
-const sources = Object.fromEntries(Object.entries(shapes).map(([name, rows]) => [name,
-  pixelArtSource(rows, {
-    '1': GameColors.ink,
-    '2': name === 'heart' ? GameColors.heart : name === 'cloud' ? GameColors.paper : name === 'bug' ? GameColors.lavender : GameColors.yellow,
-    '3': name === 'heart' ? GameColors.skyLight : GameColors.cream,
-  }),
-]));
+const fills: Record<PixelIconName, [string, string]> = {
+  bolt: [GameColors.yellow, '#FFF1C9'],
+  heart: [GameColors.heart, '#FFC4CB'],
+  bug: [GameColors.lavender, '#EDE6FF'],
+  hourglass: [GameColors.yellow, GameColors.cream],
+  cloud: [GameColors.paper, GameColors.paper],
+  chest: ['#A9774B', '#C99260'],
+};
+const sources = Object.fromEntries(Object.entries(shapes).map(([name, rows]) => {
+  const [main, light] = fills[name as PixelIconName];
+  return [name, pixelArtSource(rows, { '1': GameColors.ink, '2': main, '3': light, '4': GameColors.yellow, '5': GameColors.ink })];
+})) as Record<PixelIconName, string>;
 const emptyHeart = pixelArtSource(shapes.heart, { '1': GameColors.ink, '2': GameColors.heartEmpty, '3': GameColors.heartEmpty });
 
 export function PixelIcon({ name, size = 24, muted, label }: PixelIconProps) {

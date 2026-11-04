@@ -3,6 +3,7 @@ import { usePreventRemove } from 'expo-router';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GameButton } from '@/components/ui/game-button';
+import { ScreenHeader } from '@/components/ui/screen-header';
 import { GameCard } from '@/components/ui/game-card';
 import { GameConfirmDialog } from '@/components/ui/game-confirm-dialog';
 import { ClubLeaveEntry } from './components/club-leave-entry';
@@ -23,7 +24,7 @@ function MembersContent({ manager }: { manager: ReturnType<typeof useClubMembers
   return <SafeAreaView style={styles.screen}>
     <FlatList style={styles.list} contentContainerStyle={styles.content} data={board ? board.members : []} keyExtractor={item => item.id}
       ListHeaderComponent={<View style={styles.header}>
-        <View style={styles.heading}><GameButton compact variant="secondary" label="◀ 공지" disabled={!!manager.operation || !!target || !!removeTarget} onPress={() => { void manager.openList(); }} /><Text accessibilityRole="header" style={styles.title}>부원·역할 관리</Text></View>
+        <ScreenHeader title="부원·역할 관리" onBack={() => { void manager.openList(); }} backLabel="공지로 돌아가기" backDisabled={!!manager.operation || !!target || !!removeTarget} />
         {board && <Text style={styles.body}>{board.club.name} · 조회한 부원 {board.members.length}명</Text>}
         {manager.operation && <ActivityIndicator accessibilityLabel="부원 확인 중" color={GameColors.ink} />}
         {manager.error && <Text accessibilityRole="alert" style={styles.error}>{manager.error}</Text>}
@@ -49,6 +50,6 @@ function MembersContent({ manager }: { manager: ReturnType<typeof useClubMembers
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: GameColors.sky }, list: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center' }, content: { flexGrow: 1, padding: 18, paddingBottom: Spacing.four }, header: { gap: Spacing.three, marginBottom: Spacing.three },
   heading: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 }, identity: { flex: 1, minWidth: 120, gap: 4 }, title: { ...GameUi.typography.title, color: GameColors.ink }, body: { ...GameUi.typography.body, color: GameColors.ink }, caption: { ...GameUi.typography.caption, color: GameColors.inkMuted },
-  error: { ...GameUi.typography.body, color: GameColors.coral }, notice: { ...GameUi.typography.body, color: GameColors.ink, padding: 12, backgroundColor: GameColors.cream, borderRadius: 12 }, item: { marginBottom: Spacing.three },
+  error: GameUi.errorText, notice: { ...GameUi.typography.body, color: GameColors.ink, padding: 12, backgroundColor: GameColors.cream, borderRadius: 12 }, item: { marginBottom: Spacing.three },
   role: { ...GameUi.typography.caption, color: GameColors.ink, backgroundColor: GameColors.yellow, borderWidth: 2, borderColor: GameColors.ink, borderRadius: 12, padding: 8 }, part: { ...GameUi.typography.body, alignSelf: 'flex-start', borderWidth: 2, borderColor: GameColors.ink, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 },
 });

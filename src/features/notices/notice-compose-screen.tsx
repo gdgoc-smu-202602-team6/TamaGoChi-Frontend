@@ -4,6 +4,7 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleShe
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GameButton } from '@/components/ui/game-button';
+import { ScreenHeader } from '@/components/ui/screen-header';
 import { GameCard } from '@/components/ui/game-card';
 import { GameToggle } from '@/components/ui/game-toggle';
 import { isMockMode } from '@/constants/api';
@@ -29,9 +30,7 @@ export function NoticeComposeScreen({ clubId }: { clubId: string }) {
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={[styles.content, styles.topbar]}>
         <View style={styles.heading}>
-          <GameButton compact variant="secondary" label="◀ 공지" disabled={!!editor.operation} onPress={() => leave(() => router.dismissTo('/notice'))} />
-          <Text accessibilityRole="header" style={[styles.title, styles.headingTitle]}>공지 쓰기</Text>
-          {board && board.status.kind === 'ready' && <GameButton compact label={publishing ? '등록 중…' : '공지 올리기'} disabled={disabled || !board.categories.length} onPress={() => { void editor.publish(); }} />}
+          <ScreenHeader title="공지 쓰기" onBack={() => leave(() => router.dismissTo('/notice'))} backDisabled={!!editor.operation} backLabel="공지로 돌아가기" actions={board && board.status.kind === 'ready' && <GameButton compact label={publishing ? '등록 중…' : '공지 올리기'} disabled={disabled || !board.categories.length} onPress={() => { void editor.publish(); }} />} />
         </View>
       </View>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
@@ -79,6 +78,6 @@ const styles = StyleSheet.create({
   content: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center', paddingHorizontal: 18, gap: Spacing.three },
   topbar: { paddingVertical: 12 }, heading: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 }, headingTitle: { flex: 1 }, title: { ...GameUi.typography.title, color: GameColors.ink },
   body: { ...GameUi.typography.body, color: GameColors.ink }, label: { ...GameUi.typography.body, color: GameColors.ink, fontWeight: '800' },
-  caption: { ...GameUi.typography.caption, color: GameColors.inkMuted }, error: { ...GameUi.typography.body, color: GameColors.coral },
+  caption: { ...GameUi.typography.caption, color: GameColors.inkMuted }, error: GameUi.errorText,
   form: { backgroundColor: GameColors.cream, gap: Spacing.three },
 });

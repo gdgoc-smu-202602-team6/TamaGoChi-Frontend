@@ -8,15 +8,15 @@ import { GameCard } from '@/components/ui/game-card';
 import { GameColors, GameUi, Spacing } from '@/constants/theme';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { IconButton } from '@/components/ui/icon-button';
-import { FilterChips } from '@/features/notices/components/filter-chips';
+import { SegmentedTabs } from '@/components/ui/segmented-tabs';
 import type { PlacementTarget } from '@/types/room';
 import { shopCategories, type ShopCategory } from '@/types/shop';
+import { categoryLabels } from '@/features/shop/constants';
 import { availableTargets, roomAppearance } from '@/utils/room-layout';
 import { RoomInventory } from './components/room-inventory';
 import { RoomScene } from './components/room-scene';
 import { useRoomEditor } from './hooks/use-room-editor';
 
-const categoryLabels: Record<ShopCategory, string> = { FURNITURE: '가구', WALLPAPER: '벽지', ACCESSORY: '캐릭터', ROOM_SIZE: '방 확장' };
 export function RoomEditScreen() {
   const editor = useRoomEditor(), snapshot = editor.snapshot;
   const [category, setCategory] = useState<ShopCategory>('FURNITURE'), [selected, setSelected] = useState<PlacementTarget | null>(null);
@@ -58,10 +58,12 @@ export function RoomEditScreen() {
           {editor.error && <Text accessibilityRole="alert" style={styles.error}>{editor.error}</Text>}
           <GameCard>
             <Text accessibilityRole="header" style={styles.title}>보유 아이템</Text>
-            <FilterChips label="아이템 분류" value={category} options={shopCategories.map(id => ({ id, name: categoryLabels[id] }))} onChange={id => setCategory(id as ShopCategory)} disabled={disabled} />
+            <SegmentedTabs label="아이템 분류" value={category} options={shopCategories.map(id => ({ id, name: categoryLabels[id] }))} onChange={setCategory} disabled={disabled} />
             <RoomInventory data={snapshot.data} layout={snapshot.draft} category={category} disabled={disabled} onToggle={editor.toggle} />
-            <GameButton label={saving ? '저장 중…' : '완료'} accessibilityLabel="방 꾸미기 완료" disabled={disabled} onPress={() => { void save(); }} />
-            <GameButton compact variant="secondary" label="상점 가기" disabled={!!editor.operation || dragging} onPress={() => leave('/shop')} />
+            <View style={styles.footer}>
+              <GameButton variant="secondary" icon="shop" label="상점 가기" disabled={!!editor.operation || dragging} onPress={() => leave('/shop')} style={styles.shopButton} />
+              <GameButton variant="success" icon="check" label={saving ? '저장 중…' : '완료'} accessibilityLabel="방 꾸미기 완료" disabled={disabled} onPress={() => { void save(); }} style={styles.doneButton} />
+            </View>
           </GameCard>
         </> : !editor.operation && <GameButton label="방 다시 불러오기" onPress={() => { void editor.refresh(); }} />}
       </View>
@@ -72,6 +74,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: GameColors.sky }, scroll: { flexGrow: 1, paddingVertical: Spacing.three },
   content: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center', paddingHorizontal: 18, gap: Spacing.three },
   title: { ...GameUi.typography.title, color: GameColors.ink },
+  footer: { flexDirection: 'row', gap: 10 }, shopButton: { flex: 1 }, doneButton: { flex: 1.4 },
   body: { ...GameUi.typography.body, color: GameColors.ink },
-  error: { ...GameUi.typography.body, color: GameColors.coral }, notice: { ...GameUi.typography.body, color: GameColors.ink, backgroundColor: GameColors.cream, padding: 12, borderRadius: 12 },
+  error: GameUi.errorText, notice: { ...GameUi.typography.body, fontWeight: '700', color: GameColors.ink, backgroundColor: GameColors.cream, borderWidth: GameUi.borderWidth, borderColor: GameColors.ink, padding: 12, borderRadius: 12, overflow: 'hidden' },
 });

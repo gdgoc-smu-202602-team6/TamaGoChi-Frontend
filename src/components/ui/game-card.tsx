@@ -6,18 +6,22 @@ import { GameColors, GameUi, Spacing } from '@/constants/theme';
 type GameCardProps = PropsWithChildren<{
   style?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
+  /** Drops the navy base for cards nested inside another card. */
+  flat?: boolean;
 }>;
 
-export function GameCard({ children, style, contentStyle }: GameCardProps) {
+export function GameCard({ children, style, contentStyle, flat }: GameCardProps) {
   return (
-    <View style={[styles.depth, style]}>
+    <View style={[styles.depth, flat && styles.flat, style]}>
       <View style={[styles.surface, contentStyle]}>{children}</View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  depth: { borderRadius: GameUi.radius.card },
+  // The navy base peeks out under the surface like the v4 game panels.
+  depth: { borderRadius: GameUi.radius.card, backgroundColor: GameColors.ink, paddingBottom: GameUi.depth },
+  flat: { backgroundColor: 'transparent', paddingBottom: 0 },
   surface: {
     backgroundColor: GameColors.cream,
     borderColor: GameColors.border,
