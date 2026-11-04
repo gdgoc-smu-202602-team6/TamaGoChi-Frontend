@@ -17,10 +17,10 @@ export function GameCard({ children, style, contentStyle }: GameCardProps) {
 }
 
 const styles = StyleSheet.create({
-  depth: { backgroundColor: GameColors.ink, borderRadius: GameUi.radius.card, paddingBottom: GameUi.depth },
+  depth: { borderRadius: GameUi.radius.card },
   surface: {
     backgroundColor: GameColors.cream,
-    borderColor: GameColors.ink,
+    borderColor: GameColors.border,
     borderWidth: GameUi.borderWidth,
     borderRadius: GameUi.radius.card,
     padding: Spacing.three,

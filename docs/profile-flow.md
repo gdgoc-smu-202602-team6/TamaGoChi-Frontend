@@ -2,9 +2,9 @@
 
 ## 구현 범위와 디자인
 
-사용자의 마이 시안과 기획 v4 `23-mypage`를 참고했다. 하늘색 배경·네이비 테두리·단단한 그림자, 게임 헤더와 MY PAGE 제목, 캐릭터 프로필과 Level·XP, 노랑/분홍/초록 요약 카드, 주간 막대 차트와 설정 목록을 반영했다. 서버 계약에 없는 동아리 파트 배지나 시안의 예시 통계는 추가하지 않았다.
+2026-11-04 최신 [UI 기준](ui-design.md)에 맞춰 작은 마이 제목과 톱니바퀴, 차분한 파스텔 카드로 정리했다. 마이는 캐릭터·닉네임·Bolt·Level/XP·오늘/주간/출석·차트에 집중한다. 목표 예약은 `마이 → 설정 → 공부 → 하루 목표 시간`(`/settings/study-goal`)으로 이동했고 계정·내 방·동아리 기능은 `/settings`에 묶었다. [화면 경로와 검증](ui-refinement.md)을 참고한다.
 
-`src/app/(tabs)/mypage.tsx`는 `features/profile/profile-screen.tsx`를 내보낸다. 프로필 카드, 주간 차트, 목표 편집기와 조회·저장 훅은 기능 폴더에 나눴다. 공통 헤더·카드·입력·버튼·진행 막대를 재사용한다. 캐릭터는 Home과 같은 교체 가능한 임시 SVG이며 후속 [보유·장착 표시](account-deletion-flow.md)에서 방과 공통 `CharacterSprite`로 현재 액세서리까지 표시한다. 최종 에셋 교체는 남아 있다.
+`src/app/(tabs)/mypage.tsx`는 `features/profile/profile-screen.tsx`를 내보낸다. 프로필 카드·주간 차트와 조회·저장 훅은 기능 폴더에 나눴다. 목표 편집기는 새 설정 화면에서 기존 훅과 함께 재사용한다. 공통 헤더·카드·입력·버튼·진행 막대를 재사용한다. 캐릭터는 Home과 같은 교체 가능한 임시 SVG이며 후속 [보유·장착 표시](account-deletion-flow.md)에서 방과 공통 `CharacterSprite`로 현재 액세서리까지 표시한다. 최종 에셋 교체는 남아 있다.
 
 연결한 범위는 프로필 조회, 공부 통계, 하루 목표 예약, 기존 내 계정 진입이다. 후속 작업에서 보유 아이템 수를 [방 꾸미기](room-edit-flow.md)의 보유 인벤토리로, 내 방명록을 [방명록](guestbook-flow.md)으로 연결했다. `닉네임 설정`과 선택한 동아리의 `내 소속·알림 설정`도 [개인 설정](personal-settings-flow.md)으로 연결했다. 내 계정에서 [계정 탈퇴](account-deletion-flow.md)를 연다. 기존 비활성 잠금 앱 항목은 [앱 차단 안내](app-blocking-plan.md)로 연결했으며 실제 앱 선택·제한은 미구현이다.
 

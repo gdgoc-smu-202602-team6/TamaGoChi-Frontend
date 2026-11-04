@@ -64,37 +64,39 @@ export const Spacing = {
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;
 
-// Shared game palette. The existing system theme remains available to other screens.
+// Shared pastel palette. Pixel artwork is separate from the quiet, readable app chrome.
 export const GameColors = {
-  sky: '#8099F2',
-  skyLight: '#A9C9FF',
-  ink: '#24213D',
-  inkMuted: '#625C78',
-  cream: '#FFF7DA',
-  paper: '#FFFFFF',
-  yellow: '#F6D85F',
-  yellowShade: '#DFA647',
-  green: '#87C45B',
-  greenDark: '#4D753E',
-  coral: '#CC555E',
-  heart: '#E9788F',
-  heartEmpty: '#6371A5',
-  lavender: '#A387E5',
-  track: '#E2DCCF',
-  grass: '#85BB58',
-  soil: '#BA8E59',
+  sky: '#ECF1F8',
+  skyLight: '#DFE8F3',
+  ink: '#30384C',
+  inkMuted: '#69748A',
+  cream: '#F8F7F2',
+  paper: '#FDFDFE',
+  yellow: '#E8E2F2',
+  yellowShade: '#C8BEDB',
+  green: '#C7DED3',
+  greenDark: '#426C60',
+  coral: '#76576F',
+  heart: '#AEBFCE',
+  heartEmpty: '#DBE2EB',
+  lavender: '#C4BDDC',
+  track: '#E2E7EF',
+  grass: '#D2E0DB',
+  soil: '#DEE1E8',
+  accent: '#526998',
+  border: '#DCE2EC',
 } as const;
 
 export const GameUi = {
-  borderWidth: 3,
-  radius: { card: 24, button: 16, badge: 24 },
-  depth: 5,
+  borderWidth: 1,
+  radius: { card: 22, button: 16, badge: 24 },
+  depth: 0,
   contentWidth: 440,
   typography: {
-    brand: { fontSize: 29, lineHeight: 38, fontWeight: '900' },
-    title: { fontSize: 19, lineHeight: 27, fontWeight: '800' },
+    brand: { fontSize: 23, lineHeight: 31, fontWeight: '700' },
+    title: { fontSize: 18, lineHeight: 26, fontWeight: '600' },
     body: { fontSize: 14, lineHeight: 21, fontWeight: '500' },
     caption: { fontSize: 12, lineHeight: 18, fontWeight: '600' },
-    number: { fontFamily: Fonts.mono, fontWeight: '800', fontVariant: ['tabular-nums'] },
+    number: { fontWeight: '600', fontVariant: ['tabular-nums'] },
   },
 } as const;

@@ -6,10 +6,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { GameButton } from '@/components/ui/game-button';
 import { GameCard } from '@/components/ui/game-card';
 import { GameColors, GameUi, Spacing } from '@/constants/theme';
+import { ScreenHeader } from '@/components/ui/screen-header';
+import { IconButton } from '@/components/ui/icon-button';
 import { FilterChips } from '@/features/notices/components/filter-chips';
 import type { PlacementTarget } from '@/types/room';
 import { shopCategories, type ShopCategory } from '@/types/shop';
-import { availableTargets, roomAppearance, roomSize, targetLabels } from '@/utils/room-layout';
+import { availableTargets, roomAppearance } from '@/utils/room-layout';
 import { RoomInventory } from './components/room-inventory';
 import { RoomScene } from './components/room-scene';
 import { useRoomEditor } from './hooks/use-room-editor';
@@ -33,11 +35,10 @@ export function RoomEditScreen() {
   async function save() { if (await editor.save()) { setAllowLeave(true); disablePrevention(); router.dismissTo('/'); } }
   const targets = snapshot ? availableTargets(snapshot.draft, snapshot.data.items) : [];
   const activeTarget = selected && targets.includes(selected) ? selected : null;
-  const size = snapshot ? roomSize(snapshot.draft, snapshot.data.items) : 0;
   return <SafeAreaView style={styles.screen}>
     <ScrollView scrollEnabled={!dragging} contentContainerStyle={styles.scroll}>
       <View style={styles.content}>
-        <View style={styles.heading}><GameButton compact variant="secondary" label="◀ 내 방" disabled={!!editor.operation || dragging} onPress={() => leave('/')} /><Text accessibilityRole="header" style={styles.title}>방 꾸미기</Text></View>
+        <ScreenHeader title="방 꾸미기" onBack={() => leave('/')} backDisabled={!!editor.operation || dragging} backLabel="내 방으로 돌아가기" actions={<IconButton icon="refresh" label="위치 초기화" disabled={disabled} onPress={editor.resetPositions} />} />
         {editor.operation && <ActivityIndicator accessibilityLabel={saving ? '방 배치 저장 중' : '방 정보 확인 중'} color={GameColors.ink} />}
         {editor.error && !snapshot && <Text accessibilityRole="alert" style={styles.error}>{editor.error}</Text>}
         {editor.notice && <Text accessibilityLiveRegion="polite" style={styles.notice}>{editor.notice}</Text>}
@@ -54,18 +55,12 @@ export function RoomEditScreen() {
         {reloadPrompt && <GameCard><Text style={styles.body}>현재 편집을 버리고 서버에 저장된 방을 불러올까요?</Text><GameButton label="편집 유지" onPress={() => setReloadPrompt(false)} /><GameButton variant="secondary" label="서버 방으로 되돌리기" onPress={() => { setReloadPrompt(false); void editor.refresh(true); }} /></GameCard>}
         {snapshot ? <>
           <RoomScene appearance={roomAppearance(snapshot.data, snapshot.draft)} bugs={snapshot.data.condition.bugs} interaction={{ selected: activeTarget, disabled: sceneDisabled, onSelect: setSelected, onMove: editor.move, onCancel: editor.cancelMove, onDragging: setDragging }} />
-          <View style={styles.dragHint}>
-            <Text accessibilityLiveRegion="polite" style={styles.dragLabel}>{activeTarget ? `${targetLabels[activeTarget]} ${dragging ? '옮기는 중…' : '선택됨'}` : '물건을 터치한 채 끌어보세요.'}</Text>
-            <GameButton compact variant="secondary" label="위치 초기화" disabled={disabled} onPress={editor.resetPositions} />
-          </View>
           {editor.error && <Text accessibilityRole="alert" style={styles.error}>{editor.error}</Text>}
           <GameCard>
             <Text accessibilityRole="header" style={styles.title}>보유 아이템</Text>
-            <Text style={styles.caption}>선택하면 미리보기에 반영돼요. 완료를 눌러야 저장됩니다. 현재 방 {size}×{size}칸</Text>
             <FilterChips label="아이템 분류" value={category} options={shopCategories.map(id => ({ id, name: categoryLabels[id] }))} onChange={id => setCategory(id as ShopCategory)} disabled={disabled} />
             <RoomInventory data={snapshot.data} layout={snapshot.draft} category={category} disabled={disabled} onToggle={editor.toggle} />
-            <Text style={styles.caption}>{snapshot.draft.wallHeight ? '시계·창문은 벽을 따라 끌어 옮길 수 있어요. 물건의 크기와 이동 간격에 맞춰 배치되며 같은 면의 일부 물건은 겹쳐 놓을 수 없어요.' : '현재 방의 시계·창문은 고정 위치예요.'} 스탠드는 고정 위치이며 캐릭터 장식은 캐릭터와 함께 이동해요. 방은 다른 보유 방으로 교체할 수 있어요.</Text>
-            <GameButton label={saving ? '저장 확인 중…' : '완료 · 저장하고 나가기'} disabled={disabled} onPress={() => { void save(); }} />
+            <GameButton label={saving ? '저장 중…' : '완료'} accessibilityLabel="방 꾸미기 완료" disabled={disabled} onPress={() => { void save(); }} />
             <GameButton compact variant="secondary" label="상점 가기" disabled={!!editor.operation || dragging} onPress={() => leave('/shop')} />
           </GameCard>
         </> : !editor.operation && <GameButton label="방 다시 불러오기" onPress={() => { void editor.refresh(); }} />}
@@ -76,9 +71,7 @@ export function RoomEditScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: GameColors.sky }, scroll: { flexGrow: 1, paddingVertical: Spacing.three },
   content: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center', paddingHorizontal: 18, gap: Spacing.three },
-  heading: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 12 }, title: { ...GameUi.typography.title, color: GameColors.ink },
-  body: { ...GameUi.typography.body, color: GameColors.ink }, caption: { ...GameUi.typography.caption, color: GameColors.inkMuted },
+  title: { ...GameUi.typography.title, color: GameColors.ink },
+  body: { ...GameUi.typography.body, color: GameColors.ink },
   error: { ...GameUi.typography.body, color: GameColors.coral }, notice: { ...GameUi.typography.body, color: GameColors.ink, backgroundColor: GameColors.cream, padding: 12, borderRadius: 12 },
-  dragHint: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 12, padding: 12, backgroundColor: GameColors.cream, borderWidth: GameUi.borderWidth, borderColor: GameColors.ink, borderRadius: GameUi.radius.button },
-  dragLabel: { ...GameUi.typography.body, color: GameColors.ink, flexGrow: 1, flexShrink: 1 },
 });

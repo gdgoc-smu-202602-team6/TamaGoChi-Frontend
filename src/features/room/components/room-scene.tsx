@@ -3,7 +3,6 @@ import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { StyleSheet, View, type GestureResponderEvent } from 'react-native';
 
 import { PixelIcon } from '@/components/ui/pixel-icon';
-import { GameColors } from '@/constants/theme';
 import { CharacterSprite } from '@/components/character-sprite';
 import { itemSource } from '@/features/shop/assets/item-assets';
 import type { Placement, PlacementTarget, RoomAppearance, RoomLayout } from '@/types/room';
@@ -44,7 +43,7 @@ function RoomObject({ point, previous, size, wallHeight, policy, viewportWidth, 
     accessibilityLabel={`배치 ${targetLabels[point.target]}`} accessibilityState={{ selected: interaction?.selected === point.target, disabled: interaction?.disabled }}
     accessibilityHint={interaction ? wall ? '터치한 채 벽을 따라 끌어서 옮겨요. 모서리를 지나 반대 벽으로 옮길 수 있어요.' : '터치한 채 끌어서 옮겨요.' : undefined}
     onAccessibilityTap={() => interaction?.onSelect(point.target)}
-    style={[styles.object, { left: `${(anchor.x - width / 2) / 4.8}%`, top: `${(anchor.y - height * (wall ? .5 : feet)) / 4}%`, width: `${width / 4.8}%`, height: `${height / 4}%`, zIndex: wall ? 3 : point.target === 'RUG' ? 1 : 10 + Math.round(anchor.y) }, wall && { transform: [{ skewY: point.surface === 'LEFT_WALL' ? '-24.78deg' : '24.78deg' }] }, interaction?.selected === point.target && styles.selected]}>
+    style={[styles.object, { left: `${(anchor.x - width / 2) / 4.8}%`, top: `${(anchor.y - height * (wall ? .5 : feet)) / 4}%`, width: `${width / 4.8}%`, height: `${height / 4}%`, zIndex: wall ? 3 : point.target === 'RUG' ? 1 : 10 + Math.round(anchor.y) }, wall && { transform: [{ skewY: point.surface === 'LEFT_WALL' ? '-24.78deg' : '24.78deg' }] }]}>
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>{children}</View>
   </View>;
 }
@@ -67,7 +66,6 @@ export function RoomScene({ appearance, bugs, label = '내 방', interaction }: 
 }
 const styles = StyleSheet.create({
   scene: { width: '100%', aspectRatio: 480 / 400, overflow: 'hidden' }, object: { position: 'absolute' },
-  selected: { outlineColor: GameColors.heart, outlineWidth: 3, outlineStyle: 'dashed', borderWidth: 2, borderColor: GameColors.heart, borderStyle: 'dashed' },
   fixed: { position: 'absolute', zIndex: 2 }, window: { left: '15%', top: '24%', width: '20%', height: '25%' }, clock: { left: '62%', top: '14%', width: '12%', height: '21%' }, lamp: { left: '76%', top: '36%', width: '13%', height: '25%' },
   bug: { position: 'absolute', zIndex: 500 }, dustOne: { position: 'absolute', left: '32%', top: '64%', width: '12%', height: '4%', backgroundColor: '#A4A1B870', transform: [{ rotate: '-25deg' }] }, dustTwo: { position: 'absolute', left: '65%', top: '77%', width: '12%', height: '4%', backgroundColor: '#A4A1B870', transform: [{ rotate: '25deg' }] },
 });

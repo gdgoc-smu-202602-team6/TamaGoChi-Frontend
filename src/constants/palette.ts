@@ -4,8 +4,8 @@ export const PaletteLabels: Record<PaletteColor, string> = { RED: '빨강', ORAN
 
 // API palette names are mapped to accessible text/background pairs, never used as raw CSS colors.
 export const Palette: Record<PaletteColor, { background: string; text: string }> = {
-  RED: { background: '#CC555E', text: '#FFFFFF' }, ORANGE: { background: '#F0AA60', text: '#24213D' },
-  YELLOW: { background: '#F6D85F', text: '#24213D' }, GREEN: { background: '#C8E4A7', text: '#24213D' },
-  BLUE: { background: '#526BC5', text: '#FFFFFF' }, PURPLE: { background: '#7750AD', text: '#FFFFFF' },
-  PINK: { background: '#F1BAD5', text: '#24213D' }, GRAY: { background: '#DFE4EC', text: '#24213D' },
+  RED: { background: '#E5D8DF', text: '#514453' }, ORANGE: { background: '#E9E1D5', text: '#514B43' },
+  YELLOW: { background: '#ECE7D5', text: '#514D40' }, GREEN: { background: '#D8E5DC', text: '#3D594D' },
+  BLUE: { background: '#DCE5F2', text: '#435574' }, PURPLE: { background: '#E3DEEE', text: '#55496D' },
+  PINK: { background: '#EADFE8', text: '#644C60' }, GRAY: { background: '#E4E7EC', text: '#4D5564' },
 };

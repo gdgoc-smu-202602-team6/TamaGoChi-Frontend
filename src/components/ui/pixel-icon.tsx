@@ -17,7 +17,7 @@ const sources = Object.fromEntries(Object.entries(shapes).map(([name, rows]) => 
   pixelArtSource(rows, {
     '1': GameColors.ink,
     '2': name === 'heart' ? GameColors.heart : name === 'cloud' ? GameColors.paper : name === 'bug' ? GameColors.lavender : GameColors.yellow,
-    '3': name === 'heart' ? '#FFA5B6' : GameColors.cream,
+    '3': name === 'heart' ? GameColors.skyLight : GameColors.cream,
   }),
 ]));
 const emptyHeart = pixelArtSource(shapes.heart, { '1': GameColors.ink, '2': GameColors.heartEmpty, '3': GameColors.heartEmpty });

@@ -4,14 +4,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GameColors, GameUi, Spacing } from '@/constants/theme';
 
-export function GameScreen({ title, subtitle, children }: PropsWithChildren<{ title: string; subtitle: string }>) {
+export function GameScreen({ title, subtitle, children }: PropsWithChildren<{ title: string; subtitle?: string }>) {
   return (
     <SafeAreaView style={styles.screen}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.content}>
           <View style={styles.heading}>
             <Text accessibilityRole="header" style={styles.title}>{title}</Text>
-            <Text style={styles.subtitle}>{subtitle}</Text>
+            {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
           </View>
           {children}
         </View>
