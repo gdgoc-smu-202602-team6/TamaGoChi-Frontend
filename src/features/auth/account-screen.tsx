@@ -24,6 +24,7 @@ export function AccountScreen() {
           <Text style={styles.title}>{state.user.nickname}님, 반가워요!</Text>
           <Text style={styles.body}>{state.user.email}</Text>
           <GameButton label={busy ? '로그아웃 중…' : '로그아웃'} disabled={busy || action.pending} onPress={() => { void action.run(signOut); }} />
+          <GameButton label="계정 탈퇴 안내" variant="secondary" disabled={busy || action.pending} onPress={() => router.push('/account-delete')} />
         </>}
       {action.error && <AuthMessage error>{action.error}</AuthMessage>}
     </GameCard>

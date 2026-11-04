@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { PixelIcon } from '@/components/ui/pixel-icon';
 import { GameColors } from '@/constants/theme';
-import { characterPlaceholder } from '@/features/home/assets/room-placeholder';
+import { CharacterSprite } from '@/components/character-sprite';
 import { itemSource } from '@/features/shop/assets/item-assets';
 import type { Placement, PlacementTarget, RoomAppearance, RoomLayout } from '@/types/room';
 import { availableTargets, dragOnFloor, effectivePlacement, placementToScene, targetLabels } from '@/utils/room-layout';
@@ -46,10 +46,7 @@ export function RoomScene({ appearance, bugs, label = '내 방', interaction }: 
     {(['WINDOW', 'CLOCK', 'LAMP'] as const).map(slot => item(slot) && <Image key={slot} source={itemSource(item(slot)!, true)} contentFit="contain" accessible={false} style={[styles.fixed, slot === 'WINDOW' ? styles.window : slot === 'CLOCK' ? styles.clock : styles.lamp]} />)}
     {bugs > 0 && <><View style={styles.dustOne} /><View style={styles.dustTwo} /></>}
     {availableTargets(layout).map(target => <FloorObject key={target} point={effectivePlacement(layout, target, appearance.size)} size={appearance.size} viewportWidth={width} interaction={interaction}>
-      {target === 'CHARACTER' ? <>
-        <Image source={characterPlaceholder} contentFit="contain" style={StyleSheet.absoluteFill} accessible={false} />
-        {(['HEAD', 'FACE', 'NECK'] as const).map(slot => item(slot) && <Image key={slot} source={itemSource(item(slot)!, true)} contentFit="contain" style={[styles.accessory, slot === 'HEAD' ? styles.head : slot === 'FACE' ? styles.face : styles.neck]} accessible={false} />)}
-      </> : <Image source={itemSource(item(target)!, true)} contentFit="contain" style={StyleSheet.absoluteFill} accessible={false} />}
+      {target === 'CHARACTER' ? <CharacterSprite accessories={appearance.items} /> : <Image source={itemSource(item(target)!, true)} contentFit="contain" style={StyleSheet.absoluteFill} accessible={false} />}
     </FloorObject>)}
     {[{ left: '35%', top: '67%' }, { left: '73%', top: '72%' }, { left: '45%', top: '84%' }].slice(0, bugs).map((position, index) => <View key={index} pointerEvents="none" style={[styles.bug, { left: position.left as `${number}%`, top: position.top as `${number}%` }]}><PixelIcon name="bug" size={20} /></View>)}
   </View>;
@@ -58,6 +55,5 @@ const styles = StyleSheet.create({
   scene: { width: '100%', aspectRatio: 480 / 400, overflow: 'hidden' }, object: { position: 'absolute' },
   selected: { outlineColor: GameColors.heart, outlineWidth: 3, outlineStyle: 'dashed', borderWidth: 2, borderColor: GameColors.heart, borderStyle: 'dashed' },
   fixed: { position: 'absolute', zIndex: 2 }, window: { left: '15%', top: '24%', width: '20%', height: '25%' }, clock: { left: '62%', top: '14%', width: '12%', height: '21%' }, lamp: { left: '76%', top: '36%', width: '13%', height: '25%' },
-  accessory: { position: 'absolute' }, head: { top: '-13%', left: '0%', width: '100%', height: '52%' }, face: { top: '18%', left: '7%', width: '86%', height: '34%' }, neck: { top: '42%', left: '0%', width: '100%', height: '38%' },
   bug: { position: 'absolute', zIndex: 500 }, dustOne: { position: 'absolute', left: '32%', top: '64%', width: '12%', height: '4%', backgroundColor: '#A4A1B870', transform: [{ rotate: '-25deg' }] }, dustTwo: { position: 'absolute', left: '65%', top: '77%', width: '12%', height: '4%', backgroundColor: '#A4A1B870', transform: [{ rotate: '25deg' }] },
 });
