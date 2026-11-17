@@ -1,6 +1,7 @@
-export const shopCategories = ['FURNITURE', 'WALLPAPER', 'ACCESSORY', 'ROOM_SIZE'] as const;
+// Tab order: room decoration first, then the character and what it wears.
+export const shopCategories = ['FURNITURE', 'WALLPAPER', 'ROOM_SIZE', 'CHARACTER', 'ACCESSORY'] as const;
 export type ShopCategory = typeof shopCategories[number];
-export const itemSlots = ['CLOCK', 'WINDOW', 'DESK', 'LAMP', 'PLANT', 'BOOKSHELF', 'RUG', 'WALLPAPER', 'HEAD', 'FACE', 'NECK', 'ROOM'] as const;
+export const itemSlots = ['CLOCK', 'WINDOW', 'DESK', 'LAMP', 'PLANT', 'BOOKSHELF', 'RUG', 'WALLPAPER', 'HEAD', 'FACE', 'NECK', 'ROOM', 'CHARACTER'] as const;
 export type ItemSlot = typeof itemSlots[number];
 export type ItemGrade = 'BASIC' | 'COMMON' | 'RARE' | 'EPIC';
 export type PlacementPolicy = { readonly surfaceKind: 'FLOOR' | 'WALL'; readonly width: number; readonly height: number; readonly step?: number; readonly solid: boolean };

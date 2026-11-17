@@ -1,35 +1,48 @@
 import { Image } from 'expo-image';
-import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { StyleSheet, View, type GestureResponderEvent } from 'react-native';
 
 import { PixelIcon } from '@/components/ui/pixel-icon';
-import { CharacterSprite } from '@/components/character-sprite';
-import { itemSource } from '@/features/shop/assets/item-assets';
+import { CharacterSprite, characterPixels } from '@/components/character-sprite';
+import { DesignerPixel, designerRoomFrame, RoomGeometry as G } from '@/constants/room-geometry';
+import { itemArt, itemSource, type ItemArt } from '@/features/shop/assets/item-assets';
 import type { Placement, PlacementTarget, RoomAppearance, RoomLayout } from '@/types/room';
-import { availableTargets, dragOnFloor, effectivePlacement, placementToScene, targetLabels } from '@/utils/room-layout';
+import { availableTargets, dragOnFloor, effectivePlacement, floorToScene, placementToScene, targetLabels } from '@/utils/room-layout';
 import { dragOnSurface, surfacePlacementToScene, surfacePolicy } from '@/utils/room-surfaces';
 import type { PlacementPolicy } from '@/types/shop';
-import { roomShell } from '../assets/room-shell';
+import { roomShell, wallpaperOverlay } from '../assets/room-shell';
 
 type Interaction = { selected: PlacementTarget | null; disabled: boolean; onSelect: (target: PlacementTarget) => void; onMove: (point: Placement) => void; onCancel: (target: PlacementTarget, previous?: Placement) => void; onDragging: (dragging: boolean) => void };
 type SceneProps = { appearance: RoomAppearance; bugs: number; label?: string; interaction?: Interaction };
-// Width, height and feet/center line for the replaceable placeholder sprites.
-const dimensions: Partial<Record<PlacementTarget, readonly [number, number, number]>> = { DESK: [112, 101.5, 99 / 116], BOOKSHELF: [100, 90.625, 99 / 116], PLANT: [64, 58, 99 / 116], RUG: [134, 121.438, 55 / 116], CHARACTER: [72, 90, 1] };
 
-function RoomObject({ point, previous, size, wallHeight, policy, viewportWidth, children, interaction }: { point: Placement; previous?: Placement; size: number; wallHeight?: number; policy?: PlacementPolicy; viewportWidth: number; children: ReactNode; interaction?: Interaction }) {
+// Scene units → percentage of the scene box.
+const px = (value: number) => `${value / (G.width / 100)}%` as const, py = (value: number) => `${value / (G.height / 100)}%` as const;
+// Placeholder sprite sizes were drawn for a 208-unit half floor; keep their size relative to the floor.
+const k = G.halfWidth / 208;
+// Width, height and feet line (fraction of height) at room size 3.
+type Dimensions = readonly [width: number, height: number, feet: number];
+const dimensions: Partial<Record<PlacementTarget, Dimensions>> = { DESK: [112 * k, 101.5 * k, 99 / 116], BOOKSHELF: [100 * k, 90.625 * k, 99 / 116], PLANT: [64 * k, 58 * k, 99 / 116], RUG: [134 * k, 121.438 * k, 55 / 116] };
+// Characters are drawn larger than the room's pixel scale so they read on a phone: the robot is 88 units tall.
+const characterScale = 88 / 39;
+const wallSkew = `${Math.atan(G.halfDepth / G.halfWidth) * 180 / Math.PI}deg`;
+
+function RoomObject({ point, previous, size, wallHeight, wallScene, policy, art, base, viewportWidth, children, interaction }: { point: Placement; previous?: Placement; size: number; wallHeight?: number; wallScene: number; policy?: PlacementPolicy; art?: ItemArt; base?: Dimensions; viewportWidth: number; children: ReactNode; interaction?: Interaction }) {
   const start = useRef<{ point: Placement; previous?: Placement; pageX: number; pageY: number; moved: boolean } | null>(null);
   const wall = !!policy && policy.surfaceKind === 'WALL';
-  const anchor = policy && wallHeight ? surfacePlacementToScene(point, policy, size, wallHeight) : placementToScene(point, size), scale = 3 / size;
-  const [baseWidth, baseHeight, feet] = dimensions[point.target] ?? [72, 72, .5];
-  const width = wall ? policy.width * 208 / size : baseWidth * scale, height = wall ? policy.height * 150 / wallHeight! : baseHeight * scale;
-  const horizontalHit = Math.max(0, (44 - width * viewportWidth / 480) / 2), verticalHit = Math.max(0, (44 - height * viewportWidth / 480) / 2);
+  const anchor = policy && wallHeight ? surfacePlacementToScene(point, policy, size, wallHeight, wallScene) : placementToScene(point, size), scale = 3 / size;
+  const [baseWidth, baseHeight, baseFeet] = base ?? [72 * k, 72 * k, .5];
+  // Designer art keeps its drawn size relative to the designer room; placeholders follow the catalog footprint.
+  const width = art ? art.pixels[0] * DesignerPixel * scale : wall ? policy.width * G.halfWidth / size : baseWidth * scale;
+  const height = art ? art.pixels[1] * DesignerPixel * scale : wall ? policy.height * wallScene / wallHeight! : baseHeight * scale;
+  const feet = wall ? .5 : art ? 1 : baseFeet;
+  const horizontalHit = Math.max(0, (44 - width * viewportWidth / G.width) / 2), verticalHit = Math.max(0, (44 - height * viewportWidth / G.width) / 2);
   const moveTo = (event: GestureResponderEvent) => {
     if (!start.current || interaction?.disabled || event.nativeEvent.touches.length > 1) return;
     const dx = event.nativeEvent.pageX - start.current.pageX, dy = event.nativeEvent.pageY - start.current.pageY;
     if (!Number.isFinite(dx) || !Number.isFinite(dy)) return;
     if (!start.current.moved && Math.hypot(dx, dy) < 1) return;
     start.current.moved = true;
-    interaction?.onMove(policy && wallHeight ? dragOnSurface(start.current.point, policy, dx, dy, viewportWidth, size, wallHeight) : dragOnFloor(start.current.point, dx, dy, viewportWidth, size));
+    interaction?.onMove(policy && wallHeight ? dragOnSurface(start.current.point, policy, dx, dy, viewportWidth, size, wallHeight, wallScene) : dragOnFloor(start.current.point, dx, dy, viewportWidth, size));
   };
   return <View testID={`room-object-${point.target}`} accessible={!!interaction} accessibilityRole={interaction ? 'button' : undefined}
     hitSlop={interaction ? { left: horizontalHit, right: horizontalHit, top: verticalHit, bottom: verticalHit } : undefined}
@@ -43,13 +56,27 @@ function RoomObject({ point, previous, size, wallHeight, policy, viewportWidth, 
     accessibilityLabel={`배치 ${targetLabels[point.target]}`} accessibilityState={{ selected: interaction?.selected === point.target, disabled: interaction?.disabled }}
     accessibilityHint={interaction ? wall ? '터치한 채 벽을 따라 끌어서 옮겨요. 모서리를 지나 반대 벽으로 옮길 수 있어요.' : '터치한 채 끌어서 옮겨요.' : undefined}
     onAccessibilityTap={() => interaction?.onSelect(point.target)}
-    style={[styles.object, { left: `${(anchor.x - width / 2) / 4.8}%`, top: `${(anchor.y - height * (wall ? .5 : feet)) / 4}%`, width: `${width / 4.8}%`, height: `${height / 4}%`, zIndex: wall ? 3 : point.target === 'RUG' ? 1 : 10 + Math.round(anchor.y) }, wall && { transform: [{ skewY: point.surface === 'LEFT_WALL' ? '-24.78deg' : '24.78deg' }] }]}>
+    style={[styles.object, { left: px(anchor.x - width / 2), top: py(anchor.y - height * feet), width: px(width), height: py(height), zIndex: wall ? 3 : point.target === 'RUG' ? 1 : 10 + Math.round(anchor.y) },
+      wall && !art && { transform: [{ skewY: point.surface === 'LEFT_WALL' ? `-${wallSkew}` : wallSkew }] },
+      // Mirror perspective art when it hangs on the other wall.
+      wall && art?.wall && art.wall !== point.surface && styles.mirrored]}>
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>{children}</View>
   </View>;
 }
+
+// Floor spots for bugs and dust, as fractions of the floor, so they stay on any room size.
+const floorSpot = (fx: number, fy: number) => floorToScene(fx, fy, 1);
+const bugSpots = [floorSpot(.25, .85), floorSpot(.85, .45), floorSpot(.7, .95)];
+const dustSpots = [floorSpot(.3, .6), floorSpot(.7, .75)];
+
 export function RoomScene({ appearance, bugs, label = '내 방', interaction }: SceneProps) {
   const [width, setWidth] = useState(0);
-  const shell = useMemo(() => roomShell(appearance.items), [appearance.items]);
+  const room = appearance.items.find(item => item.slot === 'ROOM'), roomArt = room ? itemArt(room)?.room : undefined, roomSource = room && roomArt ? itemArt(room)!.source : undefined;
+  // Designer rooms are scaled so their floor matches the scene floor; their walls keep the drawn height.
+  const frame = roomArt ? designerRoomFrame(roomArt) : undefined, wallScene = frame?.wallHeight ?? G.wallHeight;
+  // React Compiler memoizes this SVG build.
+  const shell = roomArt ? wallpaperOverlay(appearance.items, wallScene) : roomShell(appearance.items);
+  const [characterWidth, characterHeight] = characterPixels(appearance.items);
   const layout: RoomLayout = { equipped: appearance.items.map(item => ({ slot: item.slot, itemId: item.id })), placements: appearance.placements, ...(appearance.wallHeight !== undefined ? { wallHeight: appearance.wallHeight } : {}) };
   const targets = availableTargets(layout, appearance.items);
   const item = (slot: string) => appearance.items.find(item => item.slot === slot);
@@ -57,17 +84,25 @@ export function RoomScene({ appearance, bugs, label = '내 방', interaction }: 
   const bugSize = width ? Math.max(8, Math.min(22, Math.round(width * 0.056))) : 20;
   return <View style={styles.scene} onLayout={event => setWidth(event.nativeEvent.layout.width)} accessible={!interaction} accessibilityRole={!interaction ? 'image' : undefined}
     accessibilityLabel={!interaction ? `${label}, ${appearance.size}칸 방, ${appearance.items.map(item => item.name).join(', ')}, 버그 ${bugs}마리` : undefined} testID="room-scene">
-    <Image source={shell} style={StyleSheet.absoluteFill} contentFit="contain" accessible={false} />
+    {frame && <Image source={roomSource} contentFit="fill" accessible={false} style={[styles.designerRoom, { left: px(frame.left), top: py(frame.top), width: px(frame.width), height: py(frame.height) }]} />}
+    {shell && <Image source={shell} style={StyleSheet.absoluteFill} contentFit="contain" accessible={false} />}
     {(['WINDOW', 'CLOCK', 'LAMP'] as const).map(slot => item(slot) && !targets.includes(slot) && <Image key={slot} source={itemSource(item(slot)!, true)} contentFit="contain" accessible={false} style={[styles.fixed, slot === 'WINDOW' ? styles.window : slot === 'CLOCK' ? styles.clock : styles.lamp]} />)}
-    {bugs > 0 && <><View style={styles.dustOne} /><View style={styles.dustTwo} /></>}
-    {targets.map(target => <RoomObject key={target} point={effectivePlacement(layout, target, appearance.size, appearance.items)} previous={layout.placements.find(one => one.target === target)} size={appearance.size} wallHeight={appearance.wallHeight} policy={appearance.wallHeight ? surfacePolicy(layout, target, appearance.items) : undefined} viewportWidth={width} interaction={interaction}>
-      {target === 'CHARACTER' ? <CharacterSprite accessories={appearance.items} /> : <Image source={itemSource(item(target)!, true, !!appearance.wallHeight && surfacePolicy(layout, target, appearance.items)?.surfaceKind === 'WALL')} contentFit={appearance.wallHeight && surfacePolicy(layout, target, appearance.items)?.surfaceKind === 'WALL' ? 'fill' : 'contain'} style={StyleSheet.absoluteFill} accessible={false} />}
-    </RoomObject>)}
-    {[{ left: '35%', top: '67%' }, { left: '73%', top: '72%' }, { left: '45%', top: '84%' }].slice(0, bugs).map((position, index) => <View key={index} pointerEvents="none" style={[styles.bug, { left: position.left as `${number}%`, top: position.top as `${number}%` }]}><PixelIcon name="bug" size={bugSize} /></View>)}
+    {bugs > 0 && dustSpots.map((spot, index) => <View key={index} style={[styles.dust, { left: px(spot.x - 29), top: py(spot.y - 10), transform: [{ rotate: index ? wallSkew : `-${wallSkew}` }] }]} />)}
+    {targets.map(target => {
+      const policy = appearance.wallHeight ? surfacePolicy(layout, target, appearance.items) : undefined, onWall = policy?.surfaceKind === 'WALL', thing = target === 'CHARACTER' ? undefined : item(target)!;
+      const art = thing ? itemArt(thing) : undefined;
+      return <RoomObject key={target} point={effectivePlacement(layout, target, appearance.size, appearance.items)} previous={layout.placements.find(one => one.target === target)} size={appearance.size} wallHeight={appearance.wallHeight} wallScene={wallScene} policy={policy} art={art} viewportWidth={width} interaction={interaction}
+        base={target === 'CHARACTER' ? [characterWidth * characterScale, characterHeight * characterScale, 1] : dimensions[target]}>
+        {thing ? <Image source={itemSource(thing, true, onWall)} contentFit={onWall && !art ? 'fill' : 'contain'} style={StyleSheet.absoluteFill} accessible={false} /> : <CharacterSprite items={appearance.items} />}
+      </RoomObject>;
+    })}
+    {bugSpots.slice(0, bugs).map((spot, index) => <View key={index} pointerEvents="none" style={[styles.bug, { left: px(spot.x), top: py(spot.y), marginLeft: -bugSize / 2, marginTop: -bugSize / 2 }]}><PixelIcon name="bug" size={bugSize} /></View>)}
   </View>;
 }
 const styles = StyleSheet.create({
-  scene: { width: '100%', aspectRatio: 480 / 400, overflow: 'hidden' }, object: { position: 'absolute' },
-  fixed: { position: 'absolute', zIndex: 2 }, window: { left: '15%', top: '24%', width: '20%', height: '25%' }, clock: { left: '62%', top: '14%', width: '12%', height: '21%' }, lamp: { left: '76%', top: '36%', width: '13%', height: '25%' },
-  bug: { position: 'absolute', zIndex: 500 }, dustOne: { position: 'absolute', left: '32%', top: '64%', width: '12%', height: '4%', backgroundColor: '#A4A1B870', transform: [{ rotate: '-25deg' }] }, dustTwo: { position: 'absolute', left: '65%', top: '77%', width: '12%', height: '4%', backgroundColor: '#A4A1B870', transform: [{ rotate: '25deg' }] },
+  scene: { width: '100%', aspectRatio: G.width / G.height, overflow: 'hidden' }, object: { position: 'absolute' }, mirrored: { transform: [{ scaleX: -1 }] },
+  designerRoom: { position: 'absolute' },
+  // Legacy rooms without wall placement keep fixed spots for the window, clock and lamp.
+  fixed: { position: 'absolute', zIndex: 2 }, window: { left: '21.8%', top: '21.5%', width: '20%', height: '25%' }, clock: { left: '65.8%', top: '25.6%', width: '12.1%', height: '13.3%' }, lamp: { left: '69.1%', top: '45.8%', width: '12.9%', height: '25%' },
+  bug: { position: 'absolute', zIndex: 500 }, dust: { position: 'absolute', width: '12%', height: '4%', backgroundColor: '#A4A1B870' },
 });

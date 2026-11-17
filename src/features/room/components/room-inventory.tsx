@@ -10,12 +10,12 @@ export function RoomInventory({ data, layout, category, disabled, onToggle }: { 
   return <View style={styles.grid}>
     {!items.length && <Text style={styles.body}>이 분류에 보유한 아이템이 없어요. 상점에서 아이템을 구할 수 있어요.</Text>}
     {items.map(item => {
-      const equipped = layout.equipped.some(one => one.itemId === item.id), fixed = equipped && item.slot === 'ROOM';
-      return <Pressable key={item.id} disabled={disabled || fixed} accessibilityRole="button" accessibilityLabel={`${item.name} ${fixed ? '현재 방' : equipped ? '해제' : '장착'}`} accessibilityState={{ selected: equipped, disabled: disabled || fixed }}
+      const equipped = layout.equipped.some(one => one.itemId === item.id), fixed = equipped && (item.slot === 'ROOM' || item.slot === 'CHARACTER');
+      return <Pressable key={item.id} disabled={disabled || fixed} accessibilityRole="button" accessibilityLabel={`${item.name} ${fixed ? item.slot === 'ROOM' ? '현재 방' : '현재 캐릭터' : equipped ? '해제' : '장착'}`} accessibilityState={{ selected: equipped, disabled: disabled || fixed }}
         onPress={() => onToggle(item)} style={[styles.item, equipped && styles.equipped]}>
         <ItemPreview item={item} locked={false} />
         <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.caption}>{fixed ? '현재 방 · 해제 불가' : equipped ? '✓ 장착 · 눌러서 해제' : '눌러서 장착'}{item.slot === 'ROOM' ? ` · ${item.roomSize}×${item.roomSize}` : ''}</Text>
+        <Text style={styles.caption}>{fixed ? `${item.slot === 'ROOM' ? '현재 방' : '현재 캐릭터'} · 해제 불가` : equipped ? '✓ 장착 · 눌러서 해제' : '눌러서 장착'}{item.slot === 'ROOM' ? ` · ${item.roomSize}×${item.roomSize}` : ''}</Text>
       </Pressable>;
     })}
   </View>;

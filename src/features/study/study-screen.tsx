@@ -55,7 +55,7 @@ export function StudyScreen() {
   }
 
   const clock = formatStudyClock(elapsed);
-  const accessories = home.status === 'ready' ? home.data.room.appearance?.items : undefined;
+  const equipped = home.status === 'ready' ? home.data.room.appearance?.items : undefined;
   return (
     <SafeAreaView style={styles.screen}><ScreenHeader title="공부 중" tone="dark" actions={state.session ? <Text style={styles.status}>진행 중</Text> : undefined} />
       <View pointerEvents="none" style={StyleSheet.absoluteFill}>
@@ -79,7 +79,7 @@ export function StudyScreen() {
             <View style={styles.hero}>
               <View style={[styles.glow, styles.glowOuter]} />
               <View style={styles.glow} />
-              <View style={styles.character}><CharacterSprite accessories={accessories} label="공부 중인 내 캐릭터" /></View>
+              <View style={styles.character}><CharacterSprite items={equipped} label="공부 중인 내 캐릭터" /></View>
             </View>
             <View style={styles.timer}>
               <Text style={styles.kicker}>이번 공부</Text>

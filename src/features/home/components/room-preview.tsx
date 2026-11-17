@@ -2,7 +2,8 @@ import { Image, type ImageProps } from 'expo-image';
 import { StyleSheet, View } from 'react-native';
 
 import { PixelIcon } from '@/components/ui/pixel-icon';
-import { characterPlaceholder, deskPlaceholder, plantPlaceholder, roomPlaceholder } from '@/features/home/assets/room-placeholder';
+import { characterSource } from '@/components/character-sprite';
+import { deskPlaceholder, plantPlaceholder, roomPlaceholder } from '@/features/home/assets/room-placeholder';
 import { RoomScene } from '@/features/room/components/room-scene';
 import type { RoomAppearance } from '@/types/room';
 
@@ -17,7 +18,7 @@ type RoomPreviewProps = {
 
 const defaults: RoomAssets = {
   room: roomPlaceholder,
-  character: characterPlaceholder,
+  character: characterSource,
   plant: plantPlaceholder,
   desk: deskPlaceholder,
 };

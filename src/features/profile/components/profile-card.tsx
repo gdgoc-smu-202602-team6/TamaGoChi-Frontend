@@ -11,7 +11,7 @@ import type { ProfileOverview } from '@/types/profile';
 export function ProfileCard({ profile, inventory, inventoryLoading }: { profile: ProfileOverview; inventory: ProfileInventory | null; inventoryLoading: boolean }) {
   const progress = Math.max(0, profile.xp - profile.levelXp), target = profile.nextLevelXp - profile.levelXp;
   return <GameCard contentStyle={styles.surface}>
-    <View style={styles.avatar}><CharacterSprite accessories={inventory?.accessories} label={inventory ? `내 캐릭터, ${inventory.accessories.length ? inventory.accessories.map(item => item.name).join(', ') : '장착한 액세서리 없음'}` : '내 캐릭터, 장착 정보 확인 전'} /></View>
+    <View style={styles.avatar}><CharacterSprite items={inventory ? [...inventory.character ? [inventory.character] : [], ...inventory.accessories] : undefined} label={inventory ? `내 캐릭터${inventory.character ? ` ${inventory.character.name}` : ''}, ${inventory.accessories.length ? inventory.accessories.map(item => item.name).join(', ') : '장착한 액세서리 없음'}` : '내 캐릭터, 장착 정보 확인 전'} /></View>
     <View style={styles.info}>
       <View style={styles.heading}><Text accessibilityRole="header" style={styles.nickname}>{profile.nickname}</Text><Text style={styles.level}>LV.{profile.level}</Text></View>
       <ProgressMeter value={progress} target={target} label="레벨 XP 진행률" />
