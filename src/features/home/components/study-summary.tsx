@@ -1,5 +1,5 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { UiIcon } from '@/components/ui/ui-icon';
+import { StyleSheet, Text, View } from 'react-native';
+import { RoundActionButton } from '@/components/ui/round-action-button';
 import { GameCard } from '@/components/ui/game-card';
 import { PixelIcon } from '@/components/ui/pixel-icon';
 import { PixelNumber } from '@/components/ui/pixel-number';
@@ -19,7 +19,6 @@ type StudySummaryProps = {
 export function StudySummary({ home, onStartStudy, actionLabel, actionDisabled, actionError }: StudySummaryProps) {
   const { attendance, bugs } = home;
   const hasBugs = bugs.count > 0;
-  const disabled = actionDisabled || !onStartStudy;
   const clock = formatStudyClock(home.todayStudySeconds);
   return (
     <GameCard>
@@ -42,19 +41,13 @@ export function StudySummary({ home, onStartStudy, actionLabel, actionDisabled, 
         </View>
       ) : null}
       <View style={styles.playArea}>
-        <View style={styles.playWrap}>
-          <View style={styles.playLip} />
-          <Pressable accessibilityRole="button" accessibilityLabel={actionLabel ?? '공부 시작'} accessibilityState={{ disabled, busy: actionDisabled }} disabled={disabled} onPress={onStartStudy} style={({ pressed }) => [styles.play, pressed && styles.pressed, disabled && styles.dim]}>
-            {actionDisabled ? <ActivityIndicator color={GameColors.ink} /> : <UiIcon name="play" size={34} color={GameColors.ink} fill={GameColors.paper} />}
-          </Pressable>
-        </View>
+        <RoundActionButton icon="play" label={actionLabel ?? '공부 시작'} onPress={onStartStudy} busy={actionDisabled} iconOffset={4} />
       </View>
       {actionError && <Text accessibilityRole="alert" style={styles.error}>{actionError}</Text>}
     </GameCard>
   );
 }
 
-const PLAY = 76;
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: Spacing.one },
   heading: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
@@ -64,9 +57,4 @@ const styles = StyleSheet.create({
   progressTitle: { ...GameUi.typography.caption, fontWeight: '800' },
   error: { ...GameUi.errorText, textAlign: 'center' },
   playArea: { alignItems: 'center', paddingTop: 4 },
-  playWrap: { width: PLAY, height: PLAY + GameUi.depth },
-  playLip: { position: 'absolute', left: 0, right: 0, bottom: 0, top: GameUi.depth, borderRadius: PLAY / 2, backgroundColor: GameColors.ink },
-  play: { width: PLAY, height: PLAY, borderRadius: PLAY / 2, backgroundColor: GameColors.green, borderWidth: GameUi.borderWidth, borderColor: GameColors.ink, justifyContent: 'center', alignItems: 'center', paddingLeft: 4 },
-  pressed: { transform: [{ translateY: GameUi.depth }] },
-  dim: { opacity: .6 },
 });

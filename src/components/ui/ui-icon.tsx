@@ -23,6 +23,7 @@ const paths = {
   mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
   visit: '<path d="M3 11 12 4l9 7"/><path d="M6 10v10h12V10"/><path d="m10 15 2 2 4-4"/>',
   check: '<path d="m5 12 5 5 9-10"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
 } as const;
 export type UiIconName = keyof typeof paths;
 /** Line icon. `fill` paints filled shapes (such as the play triangle) separately from the outline. */
