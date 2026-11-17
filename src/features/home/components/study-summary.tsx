@@ -23,7 +23,7 @@ export function StudySummary({ home, onStartStudy, actionLabel, actionDisabled, 
   return (
     <GameCard>
       <View style={styles.heading}><PixelIcon name="hourglass" size={20} /><Text style={styles.title}>오늘 공부 시간</Text></View>
-      <PixelNumber value={clock} label={`오늘 누적 공부시간 ${clock}`} height={60} />
+      <PixelNumber value={clock} label={`오늘 누적 공부시간 ${clock}`} height={72} />
       <View style={styles.progressBlock}>
         <View style={styles.row}>
           <Text style={[styles.progressTitle, { color: GameColors.greenDark }]}>오늘 출석</Text>
