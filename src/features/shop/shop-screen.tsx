@@ -24,7 +24,7 @@ export function ShopScreen() {
       style={styles.list}
       contentContainerStyle={styles.content}
       data={entries}
-      numColumns={2}
+      numColumns={3}
       keyExtractor={item => item.id}
       columnWrapperStyle={styles.row}
       refreshing={shop.refreshing}
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   content: { flexGrow: 1, paddingHorizontal: 18, paddingTop: 14, paddingBottom: Spacing.four },
   heading: { gap: 12 },
   tabs: { paddingHorizontal: 10, paddingBottom: 10 },
-  row: { justifyContent: 'space-between', marginBottom: Spacing.three },
+  row: { gap: 8, marginBottom: 10 },
   message: { ...GameUi.typography.body, color: GameColors.ink },
   notice: { ...GameUi.typography.body, fontWeight: '700', color: GameColors.ink, padding: 12, backgroundColor: GameColors.cream, borderWidth: GameUi.borderWidth, borderColor: GameColors.border, borderRadius: 12, overflow: 'hidden' },
 });

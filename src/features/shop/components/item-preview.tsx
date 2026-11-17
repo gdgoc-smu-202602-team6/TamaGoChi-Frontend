@@ -11,7 +11,7 @@ export function ItemPreview({ item, locked }: { item: ShopItem; locked: boolean 
   </View>;
 }
 const styles = StyleSheet.create({
-  surface: { aspectRatio: 1, borderRadius: 13, overflow: 'hidden' },
+  surface: { aspectRatio: 1, borderRadius: 8, overflow: 'hidden' },
   image: { width: '100%', height: '100%' },
   art: { margin: '18%', width: '64%', height: '64%' },
   locked: { opacity: 0.4 },
