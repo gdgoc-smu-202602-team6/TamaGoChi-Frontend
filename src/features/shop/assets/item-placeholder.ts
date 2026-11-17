@@ -16,6 +16,7 @@ const shapes: Record<ShopItem['slot'], string> = {
   FACE: `<path d="M20 37H56V65H20ZM72 37H108V65H72Z" fill="${A.blue}"/><path d="M56 46H72M29 43H40M80 43H91" fill="none" stroke-width="7"/>`,
   NECK: `<path d="M21 36H107V53H91V73H74V53H21Z" fill="${A.lavender}"/><path d="M32 40V48M51 40V48M82 40V48M77 61H87" stroke="${A.ivory}" stroke-width="7"/>`,
   ROOM: `<path d="M18 42L64 19L110 42V75L64 97L18 75Z" fill="${A.wall}"/><path d="M18 75L64 53L110 75L64 97Z" fill="${A.ivory}"/><path d="M64 20V53"/><rect x="30" y="47" width="15" height="18" fill="${A.blue}"/>`,
+  CHARACTER: `<path d="M40 30H88V44H96V86H32V44H40Z" fill="${A.butter}"/><path d="M52 52H58V60H52ZM70 52H76V60H70Z" fill="${A.outline}"/><path d="M40 86H54V96H40ZM74 86H88V96H74Z" fill="${A.butter}"/>`,
 };
 export function itemPlaceholder(item: ShopItem, withShadow = true, onWall = false) {
   const shape = item.code === 'strawberry_dot_wallpaper'

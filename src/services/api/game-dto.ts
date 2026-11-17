@@ -1,4 +1,4 @@
-// Selected fields from Backend openapi.yaml 0.1.0, commit 98441b9. UI models live in types/.
+// Selected fields from Backend openapi.yaml (0.1.0 at 98441b9; unchanged in 0.2.0). UI models live in types/.
 import { ApiError } from './http-client';
 
 export type SessionDto = {

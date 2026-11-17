@@ -1,6 +1,7 @@
 import { RoomEditError, placementTargets, type Placement, type PlacementTarget, type RoomAppearance, type RoomLayout, type RoomOverview } from '../types/room';
 import { itemSlots, type ItemSlot, type ShopItem } from '../types/shop';
 import { defaultSurfacePlacement, fitSurfacePlacements, snapOnSurface, surfacePolicy, surfaceTargets, validateSurfacePlacements } from './room-surfaces';
+import { RoomGeometry as G } from '../constants/room-geometry';
 
 export const targetLabels: Record<PlacementTarget, string> = { CLOCK: '시계', WINDOW: '창문', LAMP: '스탠드', WALLPAPER: '벽지', HEAD: '머리 장식', FACE: '얼굴 장식', NECK: '목 장식', ROOM: '방', DESK: '책상', BOOKSHELF: '책장', PLANT: '화분', RUG: '러그', CHARACTER: '캐릭터' };
 const onHalfGrid = (target: PlacementTarget) => target === 'DESK' || target === 'BOOKSHELF';
@@ -23,6 +24,8 @@ export function validateRoomLayout(layout: RoomLayout, catalog: readonly ShopIte
     if (!owned.includes(one.itemId)) throw new RoomEditError('not-owned');
     seenSlots.add(one.slot);
   }
+  // API 0.2.0: a room always has a character once the catalog sells characters (PATCH without one is 400).
+  if (catalog.some(item => item.slot === 'CHARACTER') && !seenSlots.has('CHARACTER')) throw new RoomEditError('invalid');
   const size = roomSize(layout, catalog);
   if (layout.wallHeight !== undefined) { validateSurfacePlacements(layout, catalog, size); return; }
   const targets = availableTargets(layout), seenTargets = new Set<string>();
@@ -71,7 +74,8 @@ export function moveRoomTarget(layout: RoomLayout, target: PlacementTarget, x: n
 export function changeRoomEquipment(layout: RoomLayout, item: ShopItem, catalog: readonly ShopItem[], owned: readonly string[]): RoomLayout {
   if (!owned.includes(item.id) || !catalog.some(one => one.id === item.id && one.slot === item.slot)) throw new RoomEditError('not-owned');
   const existing = layout.equipped.some(one => one.itemId === item.id);
-  if (existing && item.slot === 'ROOM') return layout;
+  // The room and the character can only be swapped, never taken off.
+  if (existing && (item.slot === 'ROOM' || item.slot === 'CHARACTER')) return layout;
   const equipped = [...layout.equipped.filter(one => one.slot !== item.slot), ...existing ? [] : [{ slot: item.slot, itemId: item.id }]];
   const next = { ...layout, equipped, placements: [] as Placement[] }, fromSize = roomSize(layout, catalog), toSize = roomSize(next, catalog);
   if (layout.wallHeight !== undefined) {
@@ -88,8 +92,8 @@ export function roomAppearance(overview: RoomOverview, layout = overview.layout)
   return { items: layout.equipped.map(one => overview.items.find(item => item.id === one.itemId)!), placements: layout.placements, size: roomSize(layout, overview.items), ...(layout.wallHeight !== undefined ? { wallHeight: layout.wallHeight } : {}) };
 }
 // The isometric floor is independent of viewport pixels. (0,0) is its back corner.
-export function floorToScene(x: number, y: number, size: number) { return { x: 240 + (x - y) * 208 / size, y: 172 + (x + y) * 97 / size }; }
-export function sceneToFloor(x: number, y: number, size: number) { return { x: size * ((x - 240) / 416 + (y - 172) / 194), y: size * ((y - 172) / 194 - (x - 240) / 416) }; }
+export function floorToScene(x: number, y: number, size: number) { return { x: G.centerX + (x - y) * G.halfWidth / size, y: G.backY + (x + y) * G.halfDepth / size }; }
+export function sceneToFloor(x: number, y: number, size: number) { return { x: size * ((x - G.centerX) / (2 * G.halfWidth) + (y - G.backY) / (2 * G.halfDepth)), y: size * ((y - G.backY) / (2 * G.halfDepth) - (x - G.centerX) / (2 * G.halfWidth)) }; }
 // Reserve room for each placeholder's footprint at the floor edges. Logical API coordinates
 // still span 0..size; the character's feet and furniture bases stay inside the drawn floor.
 function footprintInset(target: PlacementTarget, size: number) {
@@ -101,7 +105,7 @@ export function placementToScene(point: Placement, size: number) {
 }
 export function dragOnFloor(start: Placement, dx: number, dy: number, viewportWidth: number, size: number): Placement {
   if (viewportWidth <= 0 || ![dx, dy, viewportWidth].every(Number.isFinite)) return start;
-  const sx = dx * 480 / viewportWidth, sy = dy * 480 / viewportWidth;
+  const sx = dx * G.width / viewportWidth, sy = dy * G.width / viewportWidth, u = sx / (2 * G.halfWidth), v = sy / (2 * G.halfDepth);
   const fit = size / (size - 2 * footprintInset(start.target, size));
-  return snapPlacement(start.target, start.x + size * fit * (sx / 416 + sy / 194), start.y + size * fit * (sy / 194 - sx / 416), size);
+  return snapPlacement(start.target, start.x + size * fit * (u + v), start.y + size * fit * (v - u), size);
 }

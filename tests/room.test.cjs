@@ -105,7 +105,7 @@ test('Mock editing shares shop equipment, persists after reopening and never cha
 });
 test('Mock room purchases scale placements and already-owned purchases preserve the edited layout',async()=>{
   const f=mockFixture(),room=await f.backend.getRoom();const draft=moveRoomTarget(room.layout,'DESK',1.5,1.5,room.items);await f.backend.saveRoom(draft,room.layout);
-  await f.backend.purchase('mock-spacious_two_room');const large=await f.backend.getRoom();assert.equal(roomSize(large.layout,large.items),6);assert.deepEqual(large.layout.placements,[{target:'DESK',x:3,y:3}]);
+  await f.backend.purchase('mock-spacious_two_room');const large=await f.backend.getRoom();assert.equal(roomSize(large.layout,large.items),5);assert.deepEqual(large.layout.placements,[{target:'DESK',x:2.5,y:2.5}]);
   await f.backend.purchase('mock-shabby_gosiwon');assert.ok(sameRoomLayout((await f.backend.getRoom()).layout,large.layout));
 });
 test('Mock failed saves preserve the existing ledger, stale baselines are rejected and malformed saved placements are not erased',async()=>{

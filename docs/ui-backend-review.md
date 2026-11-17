@@ -103,7 +103,7 @@ localhost의 CORS 문제는 해결됐다. 검증은 계정·메일·비밀번호
 | 종료 재시도 | 이미 끝났으면 `409 session-ended`다. 같은 세션을 GET해 결과를 가져온다. Mock처럼 PATCH가 항상 기존 영수증을 반환한다고 가정하지 않는다. |
 | 보상 조회 | `GET /users/me/studySessions/{sessionId}`의 `result`. DTO `xp`는 공부 XP이며 보너스 필드는 별도다. UI의 총 XP는 둘을 더해 표시하고 직접 지급하지 않는다. |
 | 12시간 | 서버는 `maxEndAt`에서 세션을 ENDED로 간주한다. 현재 Mock은 경과시간 표시를 계속하며 인정만 12시간으로 제한하므로 상태 모델과 화면 전환을 함께 맞춰야 한다. |
-| 상점 | `GET /items`, `GET /users/me/items`, `PUT /users/me/items/{itemId}`. 카테고리는 `FURNITURE`, `WALLPAPER`, `ACCESSORY`, `ROOM_SIZE`; 구매 시 장착한다. 에셋은 `code`로 매핑한다. |
+| 상점 | `GET /items`, `GET /users/me/items`, `PUT /users/me/items/{itemId}`. 카테고리는 `FURNITURE`, `WALLPAPER`, `ACCESSORY`, `ROOM_SIZE`, `CHARACTER`(0.2.0 추가); 구매 시 장착한다. 에셋은 `code`로 매핑한다. |
 | 방 꾸미기 | `PATCH /users/me/room`. 슬롯별 장착 목록과 방 바닥 칸 단위의 `placements`를 완료 시 보낸다. 화면 픽셀 좌표와 분리한다. |
 
 공통 계약은 Bearer 인증, `application/problem+json` 오류, UTC timestamp, KST 04:00 서비스 날짜, `pageSize`·`pageToken` 페이지네이션이다. 서버 응답을 별도 DTO/mapper로 받아 기존 Home·Study 서비스에 연결한다. 진행 중 세션의 서버 `studiedSeconds`와 foreground 재조회도 사용하여 기기 시계 차이를 처리한다.

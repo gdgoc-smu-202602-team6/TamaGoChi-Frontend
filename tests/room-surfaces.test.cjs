@@ -87,8 +87,8 @@ test('fitting removes only invalid/colliding placements in server target order a
   assert.equal(detached.placements.some(one => one.target === 'CLOCK'), false); assert.equal(detached.wallHeight, 3);
 });
 test('wall projection respects both axes and dragging round-trips without a first-touch jump', () => {
-  assert.deepEqual(surfaceToScene('LEFT_WALL', 3, 3, 3, 3), { x: 32, y: 118 });
-  assert.deepEqual(surfaceToScene('RIGHT_WALL', 3, 0, 3, 3), { x: 448, y: 268 });
+  assert.deepEqual(surfaceToScene('LEFT_WALL', 3, 3, 3, 3), { x: 65, y: 100 });
+  assert.deepEqual(surfaceToScene('RIGHT_WALL', 3, 0, 3, 3), { x: 415, y: 340 });
   for (const point of baseline.placements) {
     const policy = surfacePolicy(baseline, point.target, catalog), moved = dragOnSurface(point, policy, 0, 0, 390, 3, 3);
     assert.ok(Math.abs(moved.x - point.x) < 1e-6); assert.ok(Math.abs(moved.y - point.y) < 1e-6); assert.equal(moved.surface, point.surface);
@@ -131,4 +131,50 @@ test('legacy Mock placement migration is read-only until explicit save and prese
 test('corrupt legacy Mock placement is reported rather than silently fitted or erased during migration', async () => {
   const f = mockFixture(); await f.legacy().startSession(); const bad = JSON.parse(f.read()); bad.placements = [{ target: 'DESK', x: .25, y: 0 }]; f.write(JSON.stringify(bad));
   const raw = f.read(); await assert.rejects(f.current().getRoom(), { code: 'invalid-record' }); assert.equal(f.read(), raw);
+});
+
+test('API 0.2.0 characters are a required slot that can be swapped but never taken off', async () => {
+  const robot = catalog.find(item => item.code === 'robot'), fox = catalog.find(item => item.code === 'fox');
+  assert.equal(robot.category, 'CHARACTER'); assert.equal(robot.defaultOwned, true);
+  assert.ok(baseline.equipped.some(one => one.slot === 'CHARACTER' && one.itemId === robot.id));
+  assert.throws(() => validateRoomLayout({ ...baseline, equipped: baseline.equipped.filter(one => one.slot !== 'CHARACTER') }, catalog, owned), { reason: 'invalid' });
+  assert.equal(changeRoomEquipment(baseline, robot, catalog, owned), baseline);
+  const swapped = changeRoomEquipment(baseline, fox, catalog, owned);
+  assert.deepEqual(swapped.equipped.filter(one => one.slot === 'CHARACTER'), [{ slot: 'CHARACTER', itemId: fox.id }]);
+  assert.deepEqual(swapped.placements.find(one => one.target === 'CHARACTER'), baseline.placements.find(one => one.target === 'CHARACTER'));
+  // The character policy comes from the catalog and the character is listed once.
+  assert.deepEqual(surfacePolicy(baseline, 'CHARACTER', catalog), { surfaceKind: 'FLOOR', width: 1, height: 1, solid: true });
+  assert.equal(availableTargets(baseline, catalog).filter(target => target === 'CHARACTER').length, 1);
+  // Saves always carry ROOM and CHARACTER.
+  const { service, calls } = fixture(), room = await service.getRoom();
+  await service.saveRoom(changeRoomEquipment(room.layout, fox, room.items, room.ownedItemIds), room.layout);
+  const body = calls.find(call => call.method === 'PATCH').body;
+  assert.ok(body.equipped.some(one => one.slot === 'ROOM')); assert.ok(body.equipped.some(one => one.slot === 'CHARACTER' && one.itemId === fox.id));
+});
+test('room tiers follow the 0.2.0 seed and solid characters cannot overlap solid furniture', () => {
+  assert.deepEqual(catalog.filter(item => item.slot === 'ROOM').map(item => [item.code, item.roomSize]), [['shabby_gosiwon', 3], ['cozy_one_room', 4], ['spacious_two_room', 5], ['dream_mansion', 6]]);
+  const desk = baseline.placements.find(one => one.target === 'DESK');
+  assert.throws(() => validateRoomLayout({ ...baseline, placements: [...baseline.placements.filter(one => one.target !== 'CHARACTER'), { target: 'CHARACTER', surface: 'FLOOR', x: desk.x, y: desk.y }] }, catalog, owned), { reason: 'invalid' });
+  // Touching edges is not an overlap.
+  validateRoomLayout({ ...baseline, placements: [...baseline.placements.filter(one => one.target !== 'CHARACTER'), { target: 'CHARACTER', surface: 'FLOOR', x: desk.x, y: desk.y + 1 }] }, catalog, owned);
+});
+test('designer rooms with lower walls map wall cells to their drawn height', () => {
+  assert.equal(surfaceToScene('LEFT_WALL', 0, 3, 3, 3).y, 250 - 240);
+  assert.equal(surfaceToScene('LEFT_WALL', 0, 3, 3, 3, 150).y, 250 - 150);
+  const policy = surfacePolicy(baseline, 'CLOCK', catalog), start = baseline.placements.find(one => one.target === 'CLOCK');
+  assert.deepEqual(dragOnSurface(start, policy, 0, 0, 480, 3, 3, 150), start);
+});
+test('Mock records from before characters gain the default robot, and placements outside a shrunk room are left out', async () => {
+  const f = mockFixture(), backend = f.current(), room = await backend.getRoom();
+  await backend.saveRoom(moveRoomTarget(room.layout, 'CLOCK', 0, 2, room.items, 'RIGHT_WALL'), room.layout);
+  const old = JSON.parse(f.read()), robot = mockShopItems.find(item => item.code === 'robot');
+  old.shop.ownedItemIds = old.shop.ownedItemIds.filter(id => id !== robot.id); delete old.shop.equipped.CHARACTER;
+  old.placements = old.placements.filter(one => one.target !== 'CHARACTER'); f.write(JSON.stringify(old));
+  const migrated = await f.current().getRoom();
+  assert.ok(migrated.ownedItemIds.includes(robot.id)); assert.ok(migrated.layout.equipped.some(one => one.slot === 'CHARACTER' && one.itemId === robot.id));
+  const shrunk = JSON.parse(f.read()), twoRoom = mockShopItems.find(item => item.code === 'spacious_two_room');
+  shrunk.shop.ownedItemIds.push(twoRoom.id); shrunk.shop.equipped.ROOM = twoRoom.id;
+  // Saved on the old 6×6 two-room: the desk still fits 5×5, the clock at x 4.5 no longer does.
+  shrunk.placements = [{ target: 'DESK', surface: 'FLOOR', x: 3, y: 0 }, { target: 'CLOCK', surface: 'RIGHT_WALL', x: 4.5, y: 0 }]; f.write(JSON.stringify(shrunk));
+  assert.deepEqual((await f.current().getRoom()).layout.placements, [{ target: 'DESK', surface: 'FLOOR', x: 3, y: 0 }]);
 });

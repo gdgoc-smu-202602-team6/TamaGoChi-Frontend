@@ -9,7 +9,7 @@ import { addCalendarDays, goalMinutesOn, isCalendarDay, mondayOf, validGoalMinut
 import { mockLevelForXp, mockXpForLevel } from './profile';
 import { RoomEditError, type Placement, type RoomLayout, type RoomOverview } from '../types/room';
 import { changeRoomEquipment, roomAppearance, roomSize, sameRoomLayout, validateRoomLayout } from '../utils/room-layout';
-import { fitSurfacePlacements, snapOnSurface, surfacePolicy } from '../utils/room-surfaces';
+import { fitSurfacePlacements, snapOnSurface, surfacePolicy, validateSurfacePlacements } from '../utils/room-surfaces';
 
 export const MOCK_STUDY_STORAGE_KEY = '@tamagochi/mock-study/v1';
 
@@ -127,9 +127,13 @@ export function createMockStudyBackend({ storage, initialHome, isOnline, now = D
   }
 
   function shopState(state: Database): NonNullable<Database['shop']> {
-    if (state.shop) return state.shop;
     const defaults = mockShopItems.filter(item => item.defaultOwned);
-    return { ownedItemIds: defaults.map(item => item.id), equipped: Object.fromEntries(defaults.map(item => [item.slot, item.id])) };
+    if (!state.shop) return { ownedItemIds: defaults.map(item => item.id), equipped: Object.fromEntries(defaults.map(item => [item.slot, item.id])) };
+    // Like the backend migration: older records gain new default items, and a room without a character gets the default one.
+    const missing = defaults.filter(item => !state.shop!.ownedItemIds.includes(item.id));
+    const character = state.shop.equipped.CHARACTER ? undefined : defaults.find(item => item.slot === 'CHARACTER');
+    if (!missing.length && !character) return state.shop;
+    return { ownedItemIds: [...state.shop.ownedItemIds, ...missing.map(item => item.id)], equipped: { ...state.shop.equipped, ...character ? { CHARACTER: character.id } : {} } };
   }
 
   function roomState(state: Database): RoomOverview {
@@ -144,6 +148,14 @@ export function createMockStudyBackend({ storage, initialHome, isOnline, now = D
         return snapOnSurface({ ...point, surface: 'FLOOR', x: point.x * (size - policy.width) / size, y: point.y * (size - policy.height) / size }, policy, size, 3);
       }) };
       layout = { ...layout, placements: fitSurfacePlacements(layout, mockShopItems, size, size) };
+    } else if (layout.wallHeight !== undefined) {
+      // Rooms can shrink between catalog versions (two-room 6→5, mansion 8→6). Like the server,
+      // a saved placement that no longer fits is left out and drawn at its default spot.
+      const size = roomSize(layout, mockShopItems), kept: Placement[] = [];
+      for (const point of layout.placements) {
+        try { validateSurfacePlacements({ ...layout, placements: [...kept, point] }, mockShopItems, size); kept.push(point); } catch { /* left out */ }
+      }
+      layout = { ...layout, placements: kept };
     }
     return { items: mockShopItems, ownedItemIds: shop.ownedItemIds,
       layout,

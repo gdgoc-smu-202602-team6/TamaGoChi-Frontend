@@ -2,6 +2,7 @@ import { ShopError, type ItemSlot, type ShopCategory, type ShopItem, type ShopOv
 
 export function categoryForSlot(slot: ItemSlot): ShopCategory {
   if (slot === 'ROOM') return 'ROOM_SIZE';
+  if (slot === 'CHARACTER') return 'CHARACTER';
   if (slot === 'WALLPAPER') return 'WALLPAPER';
   if (slot === 'HEAD' || slot === 'FACE' || slot === 'NECK') return 'ACCESSORY';
   return 'FURNITURE';

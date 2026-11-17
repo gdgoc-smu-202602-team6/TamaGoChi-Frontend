@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GameCard } from '@/components/ui/game-card';
 import { GameColors, GameUi, Spacing } from '@/constants/theme';
-import { characterPlaceholder } from '@/features/home/assets/room-placeholder';
+import { characterSource } from '@/components/character-sprite';
 
 export function AuthFrame({ title, subtitle, tab, busy, children }: PropsWithChildren<{
   title: string;
@@ -20,7 +20,7 @@ export function AuthFrame({ title, subtitle, tab, busy, children }: PropsWithChi
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
           <View style={styles.content}>
             <View style={styles.hero}>
-              <Image source={characterPlaceholder} style={styles.character} contentFit="contain" accessibilityLabel="다마GoC치 캐릭터" />
+              <Image source={characterSource} style={styles.character} contentFit="contain" accessibilityLabel="다마GoC치 캐릭터" />
             </View>
             <GameCard>
               {tab && <View style={styles.tabs}>
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   scroll: { flexGrow: 1, paddingVertical: Spacing.four, justifyContent: 'center' },
   content: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center', paddingHorizontal: 18, gap: Spacing.four },
   hero: { alignItems: 'center', gap: Spacing.two },
-  character: { width: 80, height: 96 },
+  character: { width: 80, height: 112 },
   title: { ...GameUi.typography.title, color: GameColors.ink },
   body: { ...GameUi.typography.body, color: GameColors.inkMuted },
   tabs: { flexDirection: 'row', backgroundColor: GameColors.paper, borderRadius: GameUi.radius.button, borderWidth: GameUi.borderWidth, borderColor: GameColors.ink, padding: 3, gap: 3 },

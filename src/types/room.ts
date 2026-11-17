@@ -1,7 +1,9 @@
 import type { ItemSlot, ShopItem } from './shop';
 
+// Targets of the original point-based floor contract. The surface contract places any slot with a placement policy.
 export const placementTargets = ['DESK', 'BOOKSHELF', 'PLANT', 'RUG', 'CHARACTER'] as const;
-export type PlacementTarget = ItemSlot | 'CHARACTER';
+/** API 0.2.0: Placement.target is a Slot. The character is the CHARACTER slot. */
+export type PlacementTarget = ItemSlot;
 export const placementSurfaces = ['FLOOR', 'LEFT_WALL', 'RIGHT_WALL'] as const;
 export type PlacementSurface = typeof placementSurfaces[number];
 export type Placement = { readonly target: PlacementTarget; readonly surface?: PlacementSurface; readonly x: number; readonly y: number };

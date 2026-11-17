@@ -1,15 +1,17 @@
 import { RoomEditError, placementSurfaces, type Placement, type PlacementTarget, type PlacementSurface, type RoomLayout } from '../types/room';
 import type { PlacementPolicy, ShopItem } from '../types/shop';
+import { RoomGeometry as G } from '../constants/room-geometry';
 
-// Only the character is a code rule. Item geometry and collision rules come from the catalog.
+// Item geometry and collision rules come from the catalog (API 0.2.0 sends the character's policy too).
+// The fallback keeps the same rule for a room without an equipped character item.
 const character: PlacementPolicy = { surfaceKind: 'FLOOR', width: 1, height: 1, solid: true };
 export function surfacePolicy(layout: RoomLayout, target: PlacementTarget, catalog: readonly ShopItem[]): PlacementPolicy | undefined {
-  if (target === 'CHARACTER') return character;
   const id = layout.equipped.find(one => one.slot === target)?.itemId;
-  return catalog.find(one => one.id === id)?.placementPolicy;
+  const policy = catalog.find(one => one.id === id)?.placementPolicy;
+  return policy ?? (target === 'CHARACTER' ? character : undefined);
 }
 export function surfaceTargets(layout: RoomLayout, catalog: readonly ShopItem[]): PlacementTarget[] {
-  return ['CHARACTER', ...layout.equipped.filter(one => surfacePolicy(layout, one.slot, catalog)).map(one => one.slot)] as PlacementTarget[];
+  return ['CHARACTER', ...layout.equipped.filter(one => one.slot !== 'CHARACTER' && surfacePolicy(layout, one.slot, catalog)).map(one => one.slot)];
 }
 export function snapOnSurface(point: Placement, policy: PlacementPolicy, size: number, wallHeight: number): Placement {
   const limitY = policy.surfaceKind === 'FLOOR' ? size : wallHeight;
@@ -56,18 +58,19 @@ export function defaultSurfacePlacement(target: PlacementTarget, policy: Placeme
   const y = target === 'CHARACTER' ? size * .55 : target === 'PLANT' ? size - policy.height : policy.surfaceKind === 'WALL' ? (wallHeight - policy.height) / 2 : 0;
   return snapOnSurface({ target, surface, x, y }, policy, size, wallHeight);
 }
-export function surfaceToScene(surface: PlacementSurface, x: number, y: number, size: number, wallHeight: number) {
-  if (surface === 'FLOOR') return { x: 240 + (x - y) * 208 / size, y: 172 + (x + y) * 97 / size };
-  return { x: 240 + (surface === 'RIGHT_WALL' ? 1 : -1) * x * 208 / size, y: 172 + x * 96 / size - y * 150 / wallHeight };
+// `wallScene` is the drawn wall height in scene units: designer rooms draw their walls at different heights.
+export function surfaceToScene(surface: PlacementSurface, x: number, y: number, size: number, wallHeight: number, wallScene: number = G.wallHeight) {
+  if (surface === 'FLOOR') return { x: G.centerX + (x - y) * G.halfWidth / size, y: G.backY + (x + y) * G.halfDepth / size };
+  return { x: G.centerX + (surface === 'RIGHT_WALL' ? 1 : -1) * x * G.halfWidth / size, y: G.backY + x * G.halfDepth / size - y * wallScene / wallHeight };
 }
-export function surfacePlacementToScene(point: Placement, policy: PlacementPolicy, size: number, wallHeight: number) {
-  return surfaceToScene(point.surface!, point.x + policy.width / 2, point.y + policy.height / 2, size, wallHeight);
+export function surfacePlacementToScene(point: Placement, policy: PlacementPolicy, size: number, wallHeight: number, wallScene: number = G.wallHeight) {
+  return surfaceToScene(point.surface!, point.x + policy.width / 2, point.y + policy.height / 2, size, wallHeight, wallScene);
 }
-export function dragOnSurface(start: Placement, policy: PlacementPolicy, dx: number, dy: number, viewportWidth: number, size: number, wallHeight: number): Placement {
+export function dragOnSurface(start: Placement, policy: PlacementPolicy, dx: number, dy: number, viewportWidth: number, size: number, wallHeight: number, wallScene: number = G.wallHeight): Placement {
   if (viewportWidth <= 0 || ![dx, dy, viewportWidth].every(Number.isFinite)) return start;
-  const sx = dx * 480 / viewportWidth, sy = dy * 480 / viewportWidth;
-  if (start.surface === 'FLOOR') return snapOnSurface({ ...start, x: start.x + size * (sx / 416 + sy / 194), y: start.y + size * (sy / 194 - sx / 416) }, policy, size, wallHeight);
-  const anchor = surfacePlacementToScene(start, policy, size, wallHeight), ax = anchor.x + sx, ay = anchor.y + sy;
-  const surface = ax < 240 ? 'LEFT_WALL' : 'RIGHT_WALL', x = Math.abs(ax - 240) * size / 208;
-  return snapOnSurface({ ...start, surface, x: x - policy.width / 2, y: (172 + x * 96 / size - ay) * wallHeight / 150 - policy.height / 2 }, policy, size, wallHeight);
+  const sx = dx * G.width / viewportWidth, sy = dy * G.width / viewportWidth, u = sx / (2 * G.halfWidth), v = sy / (2 * G.halfDepth);
+  if (start.surface === 'FLOOR') return snapOnSurface({ ...start, x: start.x + size * (u + v), y: start.y + size * (v - u) }, policy, size, wallHeight);
+  const anchor = surfacePlacementToScene(start, policy, size, wallHeight, wallScene), ax = anchor.x + sx, ay = anchor.y + sy;
+  const surface = ax < G.centerX ? 'LEFT_WALL' : 'RIGHT_WALL', x = Math.abs(ax - G.centerX) * size / G.halfWidth;
+  return snapOnSurface({ ...start, surface, x: x - policy.width / 2, y: (G.backY + x * G.halfDepth / size - ay) * wallHeight / wallScene - policy.height / 2 }, policy, size, wallHeight);
 }
