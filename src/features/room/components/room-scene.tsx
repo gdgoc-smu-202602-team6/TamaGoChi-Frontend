@@ -34,7 +34,8 @@ function RoomObject({ point, previous, size, wallHeight, wallScene, policy, art,
   // Designer art keeps its drawn size relative to the designer room; placeholders follow the catalog footprint.
   const width = art ? art.pixels[0] * DesignerPixel * scale : wall ? policy.width * G.halfWidth / size : baseWidth * scale;
   const height = art ? art.pixels[1] * DesignerPixel * scale : wall ? policy.height * wallScene / wallHeight! : baseHeight * scale;
-  const feet = wall ? .5 : art ? 1 : baseFeet;
+  // Standing art rests on its footprint; a rug lies flat, so its middle sits on the footprint centre.
+  const feet = wall ? .5 : art ? point.target === 'RUG' ? .5 : 1 : baseFeet;
   const horizontalHit = Math.max(0, (44 - width * viewportWidth / G.width) / 2), verticalHit = Math.max(0, (44 - height * viewportWidth / G.width) / 2);
   const moveTo = (event: GestureResponderEvent) => {
     if (!start.current || interaction?.disabled || event.nativeEvent.touches.length > 1) return;

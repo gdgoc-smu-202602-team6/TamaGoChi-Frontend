@@ -18,6 +18,9 @@ const art: Readonly<Record<string, ItemArt>> = {
   basic_window: { source: require('@/assets/game/window.png'), pixels: [13, 21], wall: 'LEFT_WALL' },
   basic_clock: { source: require('@/assets/game/clock.png'), pixels: [11, 12], wall: 'RIGHT_WALL' },
   basic_desk: { source: require('@/assets/game/desk.png'), pixels: [19, 21] },
+  bookshelf_of_knowledge: { source: require('@/assets/game/bookshelf.png'), pixels: [24, 46] },
+  green_plant: { source: require('@/assets/game/plant.png'), pixels: [10, 13] },
+  royal_rug: { source: require('@/assets/game/rug.png'), pixels: [40, 18] },
   pompom_beanie: { source: require('@/assets/game/beanie.png'), pixels: [18, 10] },
   study_glasses: { source: require('@/assets/game/glasses.png'), pixels: [12, 5] },
   cozy_scarf: { source: require('@/assets/game/scarf.png'), pixels: [16, 7], variants: {
