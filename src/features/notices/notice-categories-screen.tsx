@@ -4,6 +4,7 @@ import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, StyleSheet
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GameButton } from '@/components/ui/game-button';
 import { ScreenHeader } from '@/components/ui/screen-header';
+import { IconButton } from '@/components/ui/icon-button';
 import { GameCard } from '@/components/ui/game-card';
 import { GameColorPicker } from '@/components/ui/game-color-picker';
 import { GameConfirmDialog } from '@/components/ui/game-confirm-dialog';
@@ -22,7 +23,7 @@ function CategoryContent({ manager }: { manager: ReturnType<typeof useCategoryMa
   const [target, setTarget] = useState<Extract<CategoryAction, { kind: 'delete-category' | 'delete-subcategory' }> | null>(null);
   const board = manager.board, disabled = !!manager.operation || !manager.verified || !!target;
   const targetName = target?.kind === 'delete-category' ? target.category.name : target?.subcategory.name;
-  return <SafeAreaView style={styles.screen}><ScreenHeader title="공지 분류 관리" onBack={() => router.dismissTo('/notice')} backLabel="공지로 돌아가기" backDisabled={!!manager.operation || !!target} />
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="공지 분류 관리" onBack={() => router.dismissTo('/notice')} backLabel="공지로 돌아가기" backDisabled={!!manager.operation || !!target} actions={<IconButton icon="refresh" label="분류 목록 새로고침" disabled={!!manager.operation || !!target} onPress={() => { void manager.refresh(); }} />} />
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <FlatList style={styles.list} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" data={board ? board.categories : []} keyExtractor={item => item.id}
         ListHeaderComponent={<View style={styles.header}>
@@ -30,7 +31,6 @@ function CategoryContent({ manager }: { manager: ReturnType<typeof useCategoryMa
           {manager.operation && <ActivityIndicator color={GameColors.ink} accessibilityLabel="공지 분류 확인 중" />}
           {manager.error && <Text accessibilityRole="alert" style={styles.error}>{manager.error}</Text>}
           {manager.notice && <Text accessibilityLiveRegion="polite" style={styles.notice}>{manager.notice}</Text>}
-          <GameButton compact variant="secondary" label="분류 목록 다시 확인" disabled={!!manager.operation || !!target} onPress={() => { void manager.refresh(); }} />
           {board && <GameCard contentStyle={styles.form}>
             <Text accessibilityRole="header" style={styles.title}>새 분류</Text>
             <GameInput label="분류 이름" hint={`${noticeCharacterCount(manager.name) ?? '—'}/10자`} value={manager.name} onChangeText={manager.changeName} editable={!disabled} />

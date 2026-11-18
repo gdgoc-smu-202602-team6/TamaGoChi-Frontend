@@ -4,6 +4,7 @@ import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GameButton } from '@/components/ui/game-button';
 import { ScreenHeader } from '@/components/ui/screen-header';
+import { IconButton } from '@/components/ui/icon-button';
 import { GameCard } from '@/components/ui/game-card';
 import { GameConfirmDialog } from '@/components/ui/game-confirm-dialog';
 import { ClubLeaveEntry } from './components/club-leave-entry';
@@ -22,14 +23,13 @@ export function ClubMembersScreen({ clubId }: { clubId: string }) {
 }
 function MembersContent({ manager }: { manager: ReturnType<typeof useClubMembers> }) {
   const [target, setTarget] = useState<ClubMember | null>(null), [removeTarget, setRemoveTarget] = useState<ClubMember | null>(null), board = manager.board, disabled = !!manager.operation || !manager.verified || !!target || !!removeTarget;
-  return <SafeAreaView style={styles.screen}><ScreenHeader title="부원·역할 관리" onBack={() => { void manager.openList(); }} backLabel="공지로 돌아가기" backDisabled={!!manager.operation || !!target || !!removeTarget} />
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="부원·역할 관리" onBack={() => { void manager.openList(); }} backLabel="공지로 돌아가기" backDisabled={!!manager.operation || !!target || !!removeTarget} actions={<IconButton icon="refresh" label="부원 목록 새로고침" disabled={!!manager.operation || !!target || !!removeTarget} onPress={() => { void manager.refresh(); }} />} />
     <FlatList style={styles.list} contentContainerStyle={styles.content} data={board ? board.members : []} keyExtractor={item => item.id}
       ListHeaderComponent={<View style={styles.header}>
         {board && <Text style={styles.body}>{board.club.name} · 조회한 부원 {board.members.length}명</Text>}
         {manager.operation && <ActivityIndicator accessibilityLabel="부원 확인 중" color={GameColors.ink} />}
         {manager.error && <Text accessibilityRole="alert" style={styles.error}>{manager.error}</Text>}
         {manager.notice && <Text accessibilityLiveRegion="polite" style={styles.notice}>{manager.notice}</Text>}
-        <GameButton compact variant="secondary" label="부원 목록 다시 확인" disabled={!!manager.operation || !!target || !!removeTarget} onPress={() => { void manager.refresh(); }} />
         {board && <Text style={styles.caption}>운영진은 모든 관리 권한을 가지고, 부원은 관리 권한이 없어요. 운영진은 최소 한 명이 필요해요.</Text>}
       </View>}
       renderItem={({ item }) => {

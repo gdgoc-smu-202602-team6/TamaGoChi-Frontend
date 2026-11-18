@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GameButton } from '@/components/ui/game-button';
 import { ScreenHeader } from '@/components/ui/screen-header';
+import { IconButton } from '@/components/ui/icon-button';
 import { GameCard } from '@/components/ui/game-card';
 import { GameInput } from '@/components/ui/game-input';
 import { Palette } from '@/constants/palette';
@@ -25,7 +26,7 @@ export function ClubJoinScreen() {
   const joinedPreview = join.data?.clubs.some(club => club.id === join.preview?.id);
   const pendingPreview = join.data?.applications.some(one => one.clubId === join.preview?.id && one.state === 'PENDING');
   const rows: Row[] = [...(join.data?.applications.map(application => ({ kind: 'application' as const, application })) ?? []), ...(join.data?.clubs.map(club => ({ kind: 'club' as const, club })) ?? [])];
-  return <SafeAreaView style={styles.screen}><ScreenHeader title="동아리 가입" onBack={() => router.dismissTo('/')} backLabel="내 방으로 돌아가기" />
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="동아리 가입" onBack={() => router.dismissTo('/')} backLabel="내 방으로 돌아가기" actions={<IconButton icon="refresh" label="가입·신청 상태 새로고침" disabled={!!join.operation || join.refreshing} onPress={() => { void join.refresh(); }} />} />
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <FlatList<Row> style={styles.list} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled"
         data={rows} keyExtractor={row => row.kind === 'club' ? `club:${row.club.id}` : `application:${row.application.id}`}
@@ -53,7 +54,6 @@ export function ClubJoinScreen() {
                 <GameButton label={join.operation === 'apply' ? '신청 결과 확인 중…' : '가입 신청 보내기'} disabled={disabled || !join.partId} onPress={() => { void join.apply(); }} />
               </>}
           </GameCard>}
-          <GameButton compact variant="secondary" label="가입·신청 상태 다시 확인" disabled={!!join.operation || join.refreshing} onPress={() => { void join.refresh(); }} />
           {join.refreshing && <ActivityIndicator accessibilityLabel="가입 신청 정보 불러오는 중" color={GameColors.ink} />}
           {join.loadError && <Text accessibilityRole="alert" style={styles.error}>{join.loadError}</Text>}
           <Text style={styles.caption}>승인 전에도 개인 공부·내 방·상점은 이용할 수 있어요. 동아리 공지는 가입이 확인된 뒤 열 수 있어요.</Text>

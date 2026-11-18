@@ -3,6 +3,7 @@ import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, StyleSheet
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GameButton } from '@/components/ui/game-button';
 import { ScreenHeader } from '@/components/ui/screen-header';
+import { IconButton } from '@/components/ui/icon-button';
 import { GameCard } from '@/components/ui/game-card';
 import { GameColorPicker } from '@/components/ui/game-color-picker';
 import { GameConfirmDialog } from '@/components/ui/game-confirm-dialog';
@@ -19,7 +20,7 @@ export function ClubPartsScreen({ clubId }: { clubId: string }) {
 }
 function PartsContent({ manager }: { manager: ReturnType<typeof useClubParts> }) {
   const [target, setTarget] = useState<ClubPart | null>(null), board = manager.board, disabled = !!manager.operation || !manager.verified || !!target;
-  return <SafeAreaView style={styles.screen}><ScreenHeader title="파트 관리" onBack={() => { void manager.openList(); }} backLabel="공지로 돌아가기" backDisabled={!!manager.operation || !!target} />
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="파트 관리" onBack={() => { void manager.openList(); }} backLabel="공지로 돌아가기" backDisabled={!!manager.operation || !!target} actions={<IconButton icon="refresh" label="파트 목록 새로고침" disabled={!!manager.operation || !!target} onPress={() => { void manager.refresh(); }} />} />
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <FlatList style={styles.list} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" data={board ? board.parts : []} keyExtractor={item => item.id}
         ListHeaderComponent={<View style={styles.header}>
@@ -27,7 +28,6 @@ function PartsContent({ manager }: { manager: ReturnType<typeof useClubParts> })
           {manager.operation && <ActivityIndicator accessibilityLabel="파트 확인 중" color={GameColors.ink} />}
           {manager.error && <Text accessibilityRole="alert" style={styles.error}>{manager.error}</Text>}
           {manager.notice && <Text accessibilityLiveRegion="polite" style={styles.notice}>{manager.notice}</Text>}
-          <GameButton compact variant="secondary" label="파트 목록 다시 확인" disabled={!!manager.operation || !!target} onPress={() => { void manager.refresh(); }} />
           {board && <GameCard><Text accessibilityRole="header" style={styles.title}>새 파트</Text>
             <GameInput label="파트 이름" hint={`${noticeCharacterCount(manager.name) ?? '—'}/10자`} value={manager.name} editable={!disabled} onChangeText={manager.changeName} />
             <GameColorPicker label="파트" value={manager.color} disabled={disabled} onChange={manager.changeColor} />

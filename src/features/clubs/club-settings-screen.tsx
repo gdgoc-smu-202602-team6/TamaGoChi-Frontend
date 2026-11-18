@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GameButton } from '@/components/ui/game-button';
+import { IconButton } from '@/components/ui/icon-button';
 import { GameCard } from '@/components/ui/game-card';
 import { GameConfirmDialog } from '@/components/ui/game-confirm-dialog';
 import { GameInput } from '@/components/ui/game-input';
@@ -22,11 +23,10 @@ function SettingsContent({ settings }: { settings: ReturnType<typeof useClubSett
   return <SafeAreaView style={styles.screen}>
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView style={styles.list} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={styles.heading}><Text accessibilityRole="header" style={styles.title}>동아리 기본 설정</Text>{club && <Text style={styles.badge}>운영진</Text>}</View>
+        <View style={styles.heading}><Text accessibilityRole="header" style={styles.title}>동아리 기본 설정</Text>{club && <Text style={styles.badge}>운영진</Text>}<View style={styles.spacer} /><IconButton icon="refresh" label="설정 새로고침" disabled={!!settings.operation || !!target} onPress={() => { void settings.refresh(); }} /></View>
         {settings.operation && <ActivityIndicator accessibilityLabel="동아리 설정 확인 중" color={GameColors.ink} />}
         {settings.error && <Text accessibilityRole="alert" style={styles.error}>{settings.error}</Text>}
         {settings.notice && <Text accessibilityLiveRegion="polite" style={styles.notice}>{settings.notice}</Text>}
-        <GameButton compact variant="secondary" label="설정 다시 확인" disabled={!!settings.operation || !!target} onPress={() => { void settings.refresh(); }} />
         {club && <>
           <ClubPartsEntry key={club.id} clubId={club.id} clubName={club.name} />
           <ClubMembersEntry key={`members:${club.id}`} clubId={club.id} clubName={club.name} />
@@ -49,7 +49,7 @@ function SettingsContent({ settings }: { settings: ReturnType<typeof useClubSett
 }
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: GameColors.sky }, list: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center' }, content: { flexGrow: 1, padding: 18, paddingBottom: Spacing.four, gap: Spacing.three },
-  heading: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 12 }, title: { ...GameUi.typography.title, color: GameColors.ink }, badge: { ...GameUi.typography.caption, backgroundColor: GameColors.coral, color: GameColors.paper, padding: 8, borderWidth: 2, borderColor: GameColors.ink, borderRadius: 12 },
+  heading: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 12 }, spacer: { flex: 1 }, title: { ...GameUi.typography.title, color: GameColors.ink }, badge: { ...GameUi.typography.caption, backgroundColor: GameColors.coral, color: GameColors.paper, padding: 8, borderWidth: 2, borderColor: GameColors.ink, borderRadius: 12 },
   caption: { ...GameUi.typography.caption, color: GameColors.inkMuted }, label: { ...GameUi.typography.body, color: GameColors.ink, fontWeight: '800' }, error: GameUi.errorText, notice: { ...GameUi.typography.body, color: GameColors.ink, backgroundColor: GameColors.cream, borderRadius: 12, padding: 12 },
   codePanel: { backgroundColor: GameColors.cream, borderWidth: 2, borderStyle: 'dashed', borderColor: GameColors.inkMuted, borderRadius: 16, padding: 16, gap: 12 }, code: { ...GameUi.typography.number, color: GameColors.ink, fontSize: 28, lineHeight: 38 }, buttons: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
 });
