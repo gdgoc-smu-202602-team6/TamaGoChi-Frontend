@@ -13,7 +13,7 @@ import type { HomeService } from '@/types/home';
 import { GuestbookEntry } from '@/features/guestbook/guestbook-entry';
 import { SkyClouds } from '@/components/ui/sky-clouds';
 
-const ROOM_CHROME = 590;
+const ROOM_CHROME = 536;
 
 type HomeScreenProps = {
   service?: HomeService;
@@ -40,19 +40,20 @@ export function HomeScreen({ service, onStartStudy, onEditRoom, onVisitFriends, 
       <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
         <ScreenHeader title={state.status === 'ready' ? `${state.data.profile.nickname}의 방` : '내 방'} actions={<>
           {onVisitFriends && <IconButton icon="group" label="친구 방" onPress={onVisitFriends} />}
-          <GuestbookEntry variant="icon" label="방명록" onPress={onOpenGuestbook} />
         </>} />
         {state.status === 'ready' ? (
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.content}>
               {/* No panel: the status row sits on top, the room's top corner starts right under it, and
-                  decorating takes the stage's empty bottom-right corner. Only the room is narrowed on short
+                  the guestbook and decorating take the stage's empty bottom corners. Only the room is narrowed on short
                   screens, so the row and button never slide over it. */}
               <View style={styles.stage}>
                 <HomeStatus profile={state.data.profile} bugs={state.data.bugs.count} style={styles.status} />
                 <View style={[styles.room, { maxWidth: roomSize }]}>
                   <RoomPreview bugs={state.data.bugs.count} name={state.data.room.name} characterLabel={state.data.room.characterLabel} appearance={state.data.room.appearance} />
                 </View>
+                {/* As in the v4 mockup, the room's two actions share its empty bottom corners. */}
+                <GuestbookEntry label="방명록" onPress={onOpenGuestbook} style={styles.guestbook} />
                 <GameButton label="방 꾸미기" icon="pencil" compact variant="secondary" onPress={onEditRoom} style={styles.decorate} />
               </View>
               <StudySummary home={state.data} onStartStudy={onStartStudy} actionLabel={studyActionLabel} actionDisabled={studyActionDisabled} actionError={studyActionError} />
@@ -83,6 +84,7 @@ const styles = StyleSheet.create({
   stage: { gap: 6, paddingBottom: 20 },
   status: { alignSelf: 'stretch' },
   room: { width: '100%', alignSelf: 'center' },
+  guestbook: { position: 'absolute', left: 0, bottom: -4 },
   decorate: { position: 'absolute', right: 0, bottom: -4 },
   message: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Spacing.four, gap: Spacing.three },
   messageText: { ...GameUi.typography.body, color: GameColors.ink, textAlign: 'center' },

@@ -17,8 +17,7 @@ type StudySummaryProps = {
 };
 
 export function StudySummary({ home, onStartStudy, actionLabel, actionDisabled, actionError }: StudySummaryProps) {
-  const { attendance, bugs } = home;
-  const hasBugs = bugs.count > 0;
+  const { attendance } = home;
   const clock = formatStudyClock(home.todayStudySeconds);
   return (
     <GameCard>
@@ -31,15 +30,6 @@ export function StudySummary({ home, onStartStudy, actionLabel, actionDisabled, 
         </View>
         <ProgressMeter value={attendance.studySeconds} target={attendance.requiredSeconds} label="오늘 출석 진행률" />
       </View>
-      {hasBugs ? (
-        <View style={styles.progressBlock}>
-          <View style={styles.row}>
-            <Text style={[styles.progressTitle, { color: '#4E2C9E' }]}>버그 퇴치</Text>
-            <Text style={styles.caption}>다음 1마리까지 {formatRemainingMinutes(bugs.requiredSeconds - bugs.progressSeconds)}</Text>
-          </View>
-          <ProgressMeter value={bugs.progressSeconds} target={bugs.requiredSeconds} label="다음 버그 퇴치 진행률" color={GameColors.lavender} />
-        </View>
-      ) : null}
       <View style={styles.playArea}>
         <RoundActionButton icon="play" label={actionLabel ?? '공부 시작'} onPress={onStartStudy} busy={actionDisabled} iconOffset={4} />
       </View>
