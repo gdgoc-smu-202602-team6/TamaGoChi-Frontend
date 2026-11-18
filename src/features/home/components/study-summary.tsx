@@ -9,6 +9,8 @@ import type { HomeOverview } from '@/types/home';
 import { formatRemainingMinutes, formatStudyClock } from '@/utils/format-duration';
 
 type StudySummaryProps = {
+  /** Short screens (such as a phone browser with its toolbars): smaller digits so the play button fits. */
+  compact?: boolean;
   home: HomeOverview;
   onStartStudy?: () => void;
   actionLabel?: string;
@@ -16,13 +18,13 @@ type StudySummaryProps = {
   actionError?: string | null;
 };
 
-export function StudySummary({ home, onStartStudy, actionLabel, actionDisabled, actionError }: StudySummaryProps) {
+export function StudySummary({ home, onStartStudy, actionLabel, actionDisabled, actionError, compact }: StudySummaryProps) {
   const { attendance } = home;
   const clock = formatStudyClock(home.todayStudySeconds);
   return (
     <GameCard>
       <View style={styles.heading}><PixelIcon name="hourglass" size={20} /><Text style={styles.title}>오늘 공부 시간</Text></View>
-      <PixelNumber value={clock} label={`오늘 누적 공부시간 ${clock}`} height={72} />
+      <PixelNumber value={clock} label={`오늘 누적 공부시간 ${clock}`} height={compact ? 56 : 72} />
       <View style={styles.progressBlock}>
         <View style={styles.row}>
           <Text style={[styles.progressTitle, { color: GameColors.greenDark }]}>오늘 출석</Text>

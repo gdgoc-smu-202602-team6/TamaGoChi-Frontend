@@ -14,6 +14,8 @@ import { GuestbookEntry } from '@/features/guestbook/guestbook-entry';
 import { SkyClouds } from '@/components/ui/sky-clouds';
 
 const ROOM_CHROME = 536;
+// Same budget with the smaller digits and only a small gap left above the tab bar.
+const COMPACT_CHROME = 480;
 
 type HomeScreenProps = {
   service?: HomeService;
@@ -33,7 +35,11 @@ export function HomeScreen({ service, onStartStudy, onEditRoom, onVisitFriends, 
   // phones. ROOM_CHROME is the top bar, status row, study card and tab bar together.
   const { height } = useWindowDimensions(), insets = useSafeAreaInsets();
   // On phones the status bar and home indicator also take height (the tab bar keeps at least 10 below).
-  const roomSize = Math.max(240, height - insets.top - Math.max(insets.bottom, 10) + 10 - ROOM_CHROME);
+  const available = height - insets.top - Math.max(insets.bottom, 10) + 10;
+  // Short screens (an iPhone browser with its toolbars is about 660 tall) get smaller timer digits and
+  // a room down to 180, keeping the play button above the tab bar; only very short screens scroll.
+  const compact = available - ROOM_CHROME < 240;
+  const roomSize = compact ? Math.min(240, Math.max(180, available - COMPACT_CHROME)) : available - ROOM_CHROME;
   return (
     <View style={styles.screen}>
       <SkyClouds />
@@ -56,7 +62,7 @@ export function HomeScreen({ service, onStartStudy, onEditRoom, onVisitFriends, 
                 <GuestbookEntry label="방명록" onPress={onOpenGuestbook} style={styles.guestbook} />
                 <GameButton label="방 꾸미기" icon="pencil" compact variant="secondary" onPress={onEditRoom} style={styles.decorate} />
               </View>
-              <StudySummary home={state.data} onStartStudy={onStartStudy} actionLabel={studyActionLabel} actionDisabled={studyActionDisabled} actionError={studyActionError} />
+              <StudySummary compact={compact} home={state.data} onStartStudy={onStartStudy} actionLabel={studyActionLabel} actionDisabled={studyActionDisabled} actionError={studyActionError} />
             </View>
           </ScrollView>
         ) : (
