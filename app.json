@@ -52,6 +52,12 @@
         "projectId": "c3a76fcb-a8b1-4846-82b3-5f0f554a27ca"
       }
     },
-    "owner": "itshyunseo"
+    "owner": "itshyunseo",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c3a76fcb-a8b1-4846-82b3-5f0f554a27ca"
+    }
   }
 }
