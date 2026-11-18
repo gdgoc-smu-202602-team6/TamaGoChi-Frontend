@@ -77,10 +77,10 @@ function mockFixture({ level = 10, balance = 500 } = {}) {
 }
 test('mock purchases share the study ledger and persist atomically across reload', async () => {
   const f = mockFixture(); const session = await f.backend.startSession(); f.advance(120000);
-  await Promise.all([f.backend.purchase('mock-sparkle_stand'), f.backend.purchase('mock-green_plant'), f.backend.finishSession(session.id)]);
+  await Promise.all([f.backend.purchase('mock-cozy_scarf'), f.backend.purchase('mock-green_plant'), f.backend.finishSession(session.id)]);
   const shop = await f.reopen().getShop();
   assert.equal(shop.balance, 402); assert.equal((await f.backend.getHome()).profile.bolt, 402);
-  assert.ok(shop.ownedItemIds.includes('mock-sparkle_stand')); assert.ok(shop.equippedItemIds.includes('mock-green_plant'));
+  assert.ok(shop.ownedItemIds.includes('mock-cozy_scarf')); assert.ok(shop.equippedItemIds.includes('mock-green_plant'));
   assert.equal((await f.backend.getResult(session.id)).bolt, 2);
 });
 test('concurrent duplicate purchases charge once; owned requests do not re-equip', async () => {
@@ -97,21 +97,21 @@ test('concurrent duplicate purchases charge once; owned requests do not re-equip
 test('mock rejects locked, insufficient and unknown purchases without changing persisted data', async () => {
   const f = mockFixture({ level: 4, balance: 10 }); await f.backend.getShop(); const before = f.raw();
   await assert.rejects(f.backend.purchase('mock-pompom_beanie'), { reason: 'level-locked', detail: 5 });
-  await assert.rejects(f.backend.purchase('mock-sparkle_stand'), { reason: 'insufficient-volts', detail: 50 });
+  await assert.rejects(f.backend.purchase('mock-cozy_scarf'), { reason: 'insufficient-volts', detail: 50 });
   await assert.rejects(f.backend.purchase('unknown'), { reason: 'not-found' });
   assert.equal(f.raw(), before);
   await f.backend.purchase('mock-basic_clock'); assert.equal(f.raw(), before);
 });
 test('mock purchase save failure preserves both balance and ownership for retry', async () => {
   const f = mockFixture(); await f.backend.getShop(); const before = f.raw(); f.fail(true);
-  await assert.rejects(f.backend.purchase('mock-sparkle_stand'), { reason: 'storage' }); assert.equal(f.raw(), before);
-  f.fail(false); await f.backend.purchase('mock-sparkle_stand'); assert.equal((await f.backend.getShop()).balance, 440);
+  await assert.rejects(f.backend.purchase('mock-cozy_scarf'), { reason: 'storage' }); assert.equal(f.raw(), before);
+  f.fail(false); await f.backend.purchase('mock-cozy_scarf'); assert.equal((await f.backend.getShop()).balance, 440);
 });
 test('existing version-1 study records gain default ownership without reset; corrupt shop records are preserved', async () => {
   const f = mockFixture(); const session = await f.backend.startSession(); f.advance(60000); await f.backend.finishSession(session.id);
   const before = f.raw(); assert.equal(JSON.parse(before).shop, undefined);
   assert.ok((await f.backend.getShop()).ownedItemIds.includes('mock-shabby_gosiwon')); assert.equal(f.raw(), before);
-  await f.backend.purchase('mock-sparkle_stand'); assert.equal((await f.backend.getResult(session.id)).bolt, 1);
+  await f.backend.purchase('mock-cozy_scarf'); assert.equal((await f.backend.getResult(session.id)).bolt, 1);
   const corrupt = JSON.stringify({ ...JSON.parse(f.raw()), shop: { ownedItemIds: [], equipped: { HEAD: 'not-owned' } } });
   f.setRaw(corrupt); await assert.rejects(f.backend.getShop(), { code: 'invalid-record' }); assert.equal(f.raw(), corrupt);
 });

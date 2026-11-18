@@ -19,7 +19,6 @@ export const mockShopItems: readonly ShopItem[] = [
   item('basic_clock', 'CLOCK', '시계', 'BASIC', 0, 1, true),
   item('basic_window', 'WINDOW', '창문', 'BASIC', 0, 1, true),
   item('basic_desk', 'DESK', '책상', 'BASIC', 0, 1, true),
-  item('sparkle_stand', 'LAMP', '반짝 스탠드', 'COMMON', 60, 1),
   item('green_plant', 'PLANT', '초록 화분', 'COMMON', 40, 1),
   item('bookshelf_of_knowledge', 'BOOKSHELF', '지식의 책장', 'EPIC', 120, 10),
   item('royal_rug', 'RUG', '왕실 러그', 'RARE', 80, 5),
