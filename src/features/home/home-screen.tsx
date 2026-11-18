@@ -1,5 +1,5 @@
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { GameButton } from '@/components/ui/game-button';
 import { IconButton } from '@/components/ui/icon-button';
@@ -11,6 +11,9 @@ import { StudySummary } from '@/features/home/components/study-summary';
 import { useHome } from '@/features/home/hooks/use-home';
 import type { HomeService } from '@/types/home';
 import { GuestbookEntry } from '@/features/guestbook/guestbook-entry';
+import { SkyClouds } from '@/components/ui/sky-clouds';
+
+const ROOM_CHROME = 590;
 
 type HomeScreenProps = {
   service?: HomeService;
@@ -27,11 +30,13 @@ type HomeScreenProps = {
 export function HomeScreen({ service, onStartStudy, onEditRoom, onVisitFriends, onOpenGuestbook, refreshKey, studyActionLabel, studyActionDisabled, studyActionError }: HomeScreenProps) {
   const { state, retry } = useHome(service, refreshKey);
   // The play button should sit above the tab bar without scrolling, so the room shrinks on shorter
-  // phones. 550 is roughly the top bar, study card and tab bar together; small phones still scroll.
-  const { height } = useWindowDimensions();
-  const roomSize = Math.max(240, height - 550);
+  // phones. ROOM_CHROME is the top bar, status row, study card and tab bar together.
+  const { height } = useWindowDimensions(), insets = useSafeAreaInsets();
+  // On phones the status bar and home indicator also take height (the tab bar keeps at least 10 below).
+  const roomSize = Math.max(240, height - insets.top - Math.max(insets.bottom, 10) + 10 - ROOM_CHROME);
   return (
     <View style={styles.screen}>
+      <SkyClouds />
       <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
         <ScreenHeader title={state.status === 'ready' ? `${state.data.profile.nickname}의 방` : '내 방'} actions={<>
           {onVisitFriends && <IconButton icon="group" label="친구 방" onPress={onVisitFriends} />}
@@ -40,15 +45,14 @@ export function HomeScreen({ service, onStartStudy, onEditRoom, onVisitFriends, 
         {state.status === 'ready' ? (
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.content}>
-              {/* The status row and decorate button span the full content width so they stay in the empty
-                  corners even when a short window shrinks the room; only the room itself is narrowed. */}
+              {/* No panel: the status row sits on top, the room's top corner starts right under it, and
+                  decorating takes the stage's empty bottom-right corner. Only the room is narrowed on short
+                  screens, so the row and button never slide over it. */}
               <View style={styles.stage}>
                 <HomeStatus profile={state.data.profile} bugs={state.data.bugs.count} style={styles.status} />
                 <View style={[styles.room, { maxWidth: roomSize }]}>
                   <RoomPreview bugs={state.data.bugs.count} name={state.data.room.name} characterLabel={state.data.room.characterLabel} appearance={state.data.room.appearance} />
                 </View>
-                {/* Like the status row, decorating sits in the stage's empty bottom-right corner, not on the
-                    room, so a smaller room never slides its floor under the button. */}
                 <GameButton label="방 꾸미기" icon="pencil" compact variant="secondary" onPress={onEditRoom} style={styles.decorate} />
               </View>
               <StudySummary home={state.data} onStartStudy={onStartStudy} actionLabel={studyActionLabel} actionDisabled={studyActionDisabled} actionError={studyActionError} />
@@ -76,9 +80,9 @@ const styles = StyleSheet.create({
   scrollContent: { flexGrow: 1, paddingTop: 14, paddingBottom: Spacing.four },
   content: { width: '100%', maxWidth: GameUi.contentWidth, alignSelf: 'center', paddingHorizontal: 18, gap: Spacing.three },
   // The bottom padding keeps the room's front floor edge above the decorate button.
-  stage: { alignItems: 'center', paddingBottom: 20 },
-  room: { width: '100%' },
-  status: { position: 'absolute', left: 0, right: 0, top: 0, zIndex: 1 },
+  stage: { gap: 6, paddingBottom: 20 },
+  status: { alignSelf: 'stretch' },
+  room: { width: '100%', alignSelf: 'center' },
   decorate: { position: 'absolute', right: 0, bottom: -4 },
   message: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: Spacing.four, gap: Spacing.three },
   messageText: { ...GameUi.typography.body, color: GameColors.ink, textAlign: 'center' },

@@ -15,12 +15,13 @@ import { NoticeCard } from './components/notice-card';
 import { useNotices } from './hooks/use-notices';
 import { useNoticeWriteAccess } from './hooks/use-notice-write-access';
 import { ClubNoticeSelector, ClubUnreadRetry } from './components/club-notice-selector';
+import { SkyClouds } from '@/components/ui/sky-clouds';
 
 export function NoticeScreen() {
   const clubs = useClubs();
   const selected = clubs.clubs.find(club => club.id === clubs.selectedId);
   if (clubs.status === 'ready' && !clubs.switching && selected) return <ClubNotices key={selected.id} club={selected} />;
-  return <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
+  return <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}><SkyClouds />
     <ScreenHeader title="공지" actions={<IconButton icon="settings" label="설정" onPress={() => router.push('/settings')} />} />
     <View style={styles.message}>
       {clubs.status === 'loading' || clubs.switching ? <ActivityIndicator accessibilityLabel="동아리 확인 중" color={GameColors.ink} /> : <GameCard>
@@ -43,7 +44,7 @@ function ClubNotices({ club }: { club: JoinedClub }) {
   }
   async function manage(noticeId: string) { if (await access.verify()) router.push({ pathname: '/clubs/[clubId]/notices/[noticeId]/edit', params: { clubId: club.id, noticeId } }); }
   const category = notices.board?.categories.find(one => one.id === notices.filter.categoryId);
-  return <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
+  return <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}><SkyClouds />
     {/* The club is the screen's context, so its tabs live in the top bar, one level above the category filters. */}
     <ScreenHeader title="공지" actions={<>
       <IconButton icon="refresh" label="공지·동아리 새로고침" disabled={notices.loading} onPress={() => { void notices.refresh(); void clubs.refresh(); }} />
