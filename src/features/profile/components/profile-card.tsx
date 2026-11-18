@@ -15,7 +15,8 @@ export function ProfileCard({ profile, inventory, inventoryLoading }: { profile:
     <View style={styles.info}>
       <View style={styles.heading}><Text accessibilityRole="header" style={styles.nickname}>{profile.nickname}</Text><Text style={styles.level}>LV.{profile.level}</Text></View>
       <ProgressMeter value={progress} target={target} label="레벨 XP 진행률" />
-      <Text style={styles.caption}>{profile.xp.toLocaleString()} / {profile.nextLevelXp.toLocaleString()} XP</Text>
+      {/* XP within this level, matching the bar. The cumulative total stays in the spoken label. */}
+      <Text accessibilityLabel={`이번 레벨 ${progress} / ${target} XP, 누적 ${profile.xp} XP`} style={styles.caption}>{progress.toLocaleString()} / {target.toLocaleString()} XP</Text>
       <View style={styles.wallet}><PixelIcon name="bolt" size={18} /><Text accessibilityLabel={`${profile.balance} Bolt`} style={styles.balance}>{profile.balance.toLocaleString()} Bolt</Text></View>
       <Text style={styles.caption}>{inventory ? `보유 아이템 ${inventory.ownedCount}개 · ` : ''}{profile.dayNumber}일째 함께하는 중</Text>
       {!inventory && <Text style={styles.caption}>{inventoryLoading ? '장착 정보 확인 중…' : '장착 정보 확인 필요'}</Text>}

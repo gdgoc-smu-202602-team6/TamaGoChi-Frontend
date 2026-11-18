@@ -25,7 +25,7 @@ export function ShopItemCard({ item, shop, pending, disabled, onPurchase }: {
       </View>
     </View>
     <Text accessibilityRole="header" numberOfLines={1} style={styles.name}>{item.name}</Text>
-    <Text style={styles.price}>{item.price.toLocaleString()} Bolt{item.roomSize ? ` · ${item.roomSize}×${item.roomSize}` : ''}</Text>
+    <Text style={styles.price}>{item.price > 0 ? `${item.price.toLocaleString()} Bolt` : '기본 제공'}{item.roomSize ? ` · ${item.roomSize}×${item.roomSize}` : ''}</Text>
     <GameButton compact label={label} icon={state === 'locked' ? 'lock' : state === 'equipped' ? 'check' : undefined} accessibilityLabel={`${item.name} · ${spoken}`} variant={variant} disabled={disabled || state !== 'available'} onPress={onPurchase} />
   </GameCard>;
 }
