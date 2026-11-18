@@ -10,15 +10,21 @@ import { itemPlaceholder } from './item-placeholder';
  * `pixels` is the crop size in source pixels: the room draws it at the base room's pixel scale.
  * Wall art is drawn in perspective for one wall and mirrored for the other.
  * Rooms also carry their floor and wall measurements (see DesignerRoom).
+ * Accessories are drawn at the characters' pixel scale; `variants` holds versions drawn for other
+ * characters (keyed by the character's Item.code), the base art being the robot's.
  */
-export type ItemArt = { source: ImageProps['source']; pixels: readonly [number, number]; wall?: Extract<PlacementSurface, 'LEFT_WALL' | 'RIGHT_WALL'>; room?: DesignerRoom };
+export type ItemArt = { source: ImageProps['source']; pixels: readonly [number, number]; wall?: Extract<PlacementSurface, 'LEFT_WALL' | 'RIGHT_WALL'>; room?: DesignerRoom; variants?: Readonly<Record<string, Omit<ItemArt, 'variants'>>> };
 const art: Readonly<Record<string, ItemArt>> = {
   basic_window: { source: require('@/assets/game/window.png'), pixels: [13, 21], wall: 'LEFT_WALL' },
   basic_clock: { source: require('@/assets/game/clock.png'), pixels: [11, 12], wall: 'RIGHT_WALL' },
   basic_desk: { source: require('@/assets/game/desk.png'), pixels: [19, 21] },
   pompom_beanie: { source: require('@/assets/game/beanie.png'), pixels: [18, 10] },
   study_glasses: { source: require('@/assets/game/glasses.png'), pixels: [12, 5] },
-  cozy_scarf: { source: require('@/assets/game/scarf.png'), pixels: [16, 7] },
+  cozy_scarf: { source: require('@/assets/game/scarf.png'), pixels: [16, 7], variants: {
+    hamster: { source: require('@/assets/game/scarf-hamster.png'), pixels: [26, 7] },
+    fox: { source: require('@/assets/game/scarf-fox.png'), pixels: [20, 7] },
+    frog: { source: require('@/assets/game/scarf-frog.png'), pixels: [26, 7] },
+  } },
   // Room tiers: 3×3, 4×4, 5×5 and 6×6 floors.
   shabby_gosiwon: { source: require('@/assets/game/room-gosiwon.png'), pixels: [72, 93], room: { pixels: [72, 93], centerX: 36, backY: 48.5, halfWidth: 35, wallHeight: 48 } },
   cozy_one_room: { source: require('@/assets/game/room-one-room.png'), pixels: [94, 104], room: { pixels: [94, 104], centerX: 47, backY: 48.5, halfWidth: 46, wallHeight: 48 } },
@@ -33,6 +39,12 @@ const art: Readonly<Record<string, ItemArt>> = {
 
 export function itemArt(item: ShopItem): ItemArt | undefined {
   return art[item.code];
+}
+
+/** Accessory art for a character: its own version when the designer drew one, else the robot's. */
+export function accessoryArt(item: ShopItem, characterCode = 'robot'): Omit<ItemArt, 'variants'> | undefined {
+  const base = art[item.code];
+  return base?.variants?.[characterCode] ?? base;
 }
 
 // Both shop and room use this registry. Items without designer art keep the code-drawn placeholder.

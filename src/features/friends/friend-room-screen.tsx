@@ -9,14 +9,16 @@ import { Palette } from '@/constants/palette';
 import { RoomScene } from '@/features/room/components/room-scene';
 import { useFriendVisit } from './hooks/use-friends';
 import { studyDuration } from './study-duration';
-import { GuestbookList } from '@/features/guestbook/guestbook-list';
+import { GuestbookBoard } from '@/features/guestbook/guestbook-list';
+import { useGuestbook } from '@/features/guestbook/hooks/use-guestbook';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { IconButton } from '@/components/ui/icon-button';
 
 export function FriendRoomScreen({ clubId, memberId }: { clubId: string; memberId: string }) {
   const state = useFriendVisit(clubId, memberId), friend = state.data?.friend;
   const target = useMemo(() => ({ kind: 'member' as const, clubId, memberId }), [clubId, memberId]);
-  return <SafeAreaView style={styles.screen}><ScreenHeader title={friend ? `${friend.member.nickname || '닉네임 정보 없음'}의 방` : '친구의 방'} backDisabled={state.operation === 'like'} onBack={() => router.dismissTo('/friends')} backLabel="친구 목록으로 돌아가기" actions={<IconButton icon="refresh" label="방 다시 확인" disabled={!!state.operation} onPress={() => { void state.refresh(); }} />} /><GuestbookList target={target} header={<View style={styles.content}>
+  const guestbook = useGuestbook(target);
+  return <SafeAreaView style={styles.screen}><ScreenHeader title={friend ? `${friend.member.nickname || '닉네임 정보 없음'}의 방` : '친구의 방'} backDisabled={state.operation === 'like'} onBack={() => router.dismissTo('/friends')} backLabel="친구 목록으로 돌아가기" actions={<IconButton icon="refresh" label="방과 방명록 다시 확인" disabled={!!state.operation || !!guestbook.operation} onPress={() => { void state.refresh(); void guestbook.refresh(); }} />} /><GuestbookBoard target={target} state={guestbook} header={<View style={styles.content}>
     {state.operation && <ActivityIndicator accessibilityLabel="방 상태 확인 중" color={GameColors.ink} />}{state.error && <Text accessibilityRole="alert" style={styles.error}>{state.error}</Text>}
     {friend && <>
       <View style={styles.heading}><Text style={styles.body}>{state.data!.club.name}</Text><Text style={[styles.part, { backgroundColor: Palette[friend.part.color].background, color: Palette[friend.part.color].text }]}>{friend.part.name}</Text></View>

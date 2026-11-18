@@ -2,6 +2,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 
 import { GameButton } from '@/components/ui/game-button';
 import { GameCard } from '@/components/ui/game-card';
+import { IconButton } from '@/components/ui/icon-button';
 import { Palette } from '@/constants/palette';
 import { GameColors, GameUi } from '@/constants/theme';
 import type { Notice, NoticeCategory } from '@/types/notice';
@@ -28,7 +29,8 @@ export function NoticeCard({ notice, categories, authors, detail, onToggle, onRe
       {detail.notice && <Text selectable style={styles.body}>{detail.notice.body}</Text>}
       {detail.error && <><Text accessibilityRole="alert" style={styles.error}>{detail.error}</Text><GameButton compact label="내용 다시 불러오기" onPress={onRetry} /></>}
       {detail.readError && <><Text accessibilityRole="alert" style={styles.error}>읽음 상태를 저장하지 못했어요. {detail.readError}</Text><GameButton compact label="읽음 다시 확인" onPress={onRetry} /></>}
-      {onManage && detail.notice && !detail.loading && <GameButton compact variant="secondary" label="수정·삭제" accessibilityLabel={`${shown.title} 수정·삭제`} onPress={onManage} />}
+      {/* Editing is for managers only: a quiet pencil at the body's corner instead of a full-width button. */}
+      {onManage && detail.notice && !detail.loading && <View style={styles.manage}><IconButton icon="pencil" label={`${shown.title} 수정·삭제`} onPress={onManage} /></View>}
     </View>}
   </GameCard>;
 }
@@ -47,5 +49,6 @@ const styles = StyleSheet.create({
   toggleText: { ...GameUi.typography.body, color: GameColors.inkMuted, fontWeight: '700' },
   bodyArea: { paddingTop: 12, borderTopWidth: 1.5, borderColor: GameColors.line, borderStyle: 'dashed', gap: 10 },
   body: { ...GameUi.typography.body, fontSize: 15, lineHeight: 23, color: GameColors.ink },
+  manage: { alignSelf: 'flex-end', marginTop: -6, marginBottom: -10, marginRight: -10 },
   error: GameUi.errorText,
 });
