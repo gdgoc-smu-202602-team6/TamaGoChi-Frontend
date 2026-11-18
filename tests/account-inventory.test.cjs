@@ -92,7 +92,7 @@ test('account local cleanup uses exact account/backend roots and preserves other
   assert.deepEqual(accountLocalDataKeys([...selected, ...others], base, user.id), selected);
 });
 
-const item = (id, slot, defaultOwned = false) => ({ id, slot, code: id, category: slot === 'ROOM' ? 'ROOM_SIZE' : slot === 'DESK' ? 'FURNITURE' : 'ACCESSORY', name: id, grade: 'BASIC', price: 0, minLevel: 1, defaultOwned, ...(slot === 'ROOM' ? { roomSize: 3 } : {}) });
+const item = (id, slot, defaultOwned = false) => ({ id, slot, code: id, category: slot === 'ROOM' ? 'ROOM_SIZE' : slot === 'DESK' ? 'FURNITURE' : 'ACCESSORY', name: id, grade: 'BASIC', price: 0, minLevel: 1, defaultOwned, onSale: true, ...(slot === 'ROOM' ? { roomSize: 3 } : {}) });
 function inventory() { const items = [item('room','ROOM',true),item('desk','DESK',true),item('hat','HEAD'),item('hat-other','HEAD'),item('glasses','FACE'),item('scarf','NECK')]; return { items, ownedItemIds: items.map(one => one.id), layout: { equipped: ['room','desk','scarf','hat','glasses'].map(id => ({ itemId: id, slot: items.find(one => one.id === id).slot })), placements: [] }, condition: { hearts: 4, bugs: 0, bugProgressSeconds: 0 } }; }
 test('profile counts all unique owned items including defaults and displays only equipped HEAD/FACE/NECK', () => {
   const room = inventory(), before = JSON.stringify(room), result = profileInventory(room); assert.equal(result.ownedCount, 6); assert.deepEqual(result.accessories.map(one => one.id), ['hat','glasses','scarf']); assert.equal(JSON.stringify(room), before);

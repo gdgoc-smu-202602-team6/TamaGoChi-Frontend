@@ -13,13 +13,12 @@ const placementPolicies: Partial<Record<ItemSlot, PlacementPolicy>> = {
 
 // Preview data based on the backend seed of API 0.2.0; never a fallback for API catalog failures.
 function item(code: string, slot: ItemSlot, name: string, grade: ItemGrade, price: number, minLevel: number, defaultOwned = false, roomSize?: number): ShopItem {
-  return { id: `mock-${code}`, code, slot, category: categoryForSlot(slot), name, grade, price, minLevel, defaultOwned, ...(roomSize ? { roomSize } : {}), ...(placementPolicies[slot] ? { placementPolicy: placementPolicies[slot] } : {}) };
+  return { id: `mock-${code}`, code, slot, category: categoryForSlot(slot), name, grade, price, minLevel, defaultOwned, onSale: true, ...(roomSize ? { roomSize } : {}), ...(placementPolicies[slot] ? { placementPolicy: placementPolicies[slot] } : {}) };
 }
 export const mockShopItems: readonly ShopItem[] = [
   item('basic_clock', 'CLOCK', '시계', 'BASIC', 0, 1, true),
   item('basic_window', 'WINDOW', '창문', 'BASIC', 0, 1, true),
   item('basic_desk', 'DESK', '책상', 'BASIC', 0, 1, true),
-  item('sparkle_stand', 'LAMP', '반짝 스탠드', 'COMMON', 60, 1),
   item('green_plant', 'PLANT', '초록 화분', 'COMMON', 40, 1),
   item('bookshelf_of_knowledge', 'BOOKSHELF', '지식의 책장', 'EPIC', 120, 10),
   item('royal_rug', 'RUG', '왕실 러그', 'RARE', 80, 5),

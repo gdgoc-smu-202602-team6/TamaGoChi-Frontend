@@ -4,6 +4,7 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleShe
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GameButton } from '@/components/ui/game-button';
 import { ScreenHeader } from '@/components/ui/screen-header';
+import { IconButton } from '@/components/ui/icon-button';
 import { GameCard } from '@/components/ui/game-card';
 import { GameConfirmDialog } from '@/components/ui/game-confirm-dialog';
 import { GameColors, GameUi, Spacing } from '@/constants/theme';
@@ -26,14 +27,13 @@ function NoticeEditContent({ editor }: { editor: ReturnType<typeof useNoticeEdit
   const disabled = !!editor.operation || !editor.verified || !!editor.blocked || modal;
   function leave(action: () => void) { if (editor.operation) return; if (prevent) { leaveAction.current = action; setLeavePrompt(true); } else action(); }
   function confirmLeave() { setAllowLeave(true); disablePrevention(); setLeavePrompt(false); leaveAction.current?.(); }
-  return <SafeAreaView style={styles.screen}><ScreenHeader title="공지 수정" onBack={() => leave(() => router.dismissTo('/notice'))} backDisabled={!!editor.operation || modal} backLabel="공지로 돌아가기" actions={snapshot && <GameButton compact label={editor.operation === 'save' ? '저장 중…' : '저장'} accessibilityLabel="공지 수정 저장" disabled={disabled || !editor.dirty} onPress={() => { void editor.save(); }} />} />
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="공지 수정" onBack={() => leave(() => router.dismissTo('/notice'))} backDisabled={!!editor.operation || modal} backLabel="공지로 돌아가기" actions={<>{!editor.removed && <IconButton icon="refresh" label="수정 상태 새로고침" disabled={!!editor.operation || modal} onPress={() => { void editor.refresh(); }} />}{snapshot && <GameButton compact label={editor.operation === 'save' ? '저장 중…' : '저장'} accessibilityLabel="공지 수정 저장" disabled={disabled || !editor.dirty} onPress={() => { void editor.save(); }} />}</>} />
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}><View style={styles.content}>
         {snapshot && <Text style={styles.body}>{snapshot.board.club.name}</Text>}
         {editor.operation && <ActivityIndicator color={GameColors.ink} accessibilityLabel="공지 관리 처리 중" />}
         {editor.error && <Text accessibilityRole="alert" style={styles.error}>{editor.error}</Text>}
         {editor.notice && <Text accessibilityLiveRegion="polite" style={styles.notice}>{editor.notice}</Text>}
-        {!editor.removed && <GameButton compact variant="secondary" label="수정 상태 다시 확인" disabled={!!editor.operation || modal} onPress={() => { void editor.refresh(); }} />}
         {editor.blocked && <GameCard><Text style={styles.body}>{editor.blocked === 'changed' ? '현재 서버 내용을 확인한 뒤 다시 편집해 주세요.' : '결과를 확인할 때까지 저장·삭제를 기다려 주세요. 상태 확인은 요청을 반복하지 않아요.'}</Text>
           <GameButton label="서버 내용 다시 불러오기" disabled={!!editor.operation || modal} onPress={() => { if (editor.dirty) setReloadPrompt(true); else void editor.refresh(true); }} />
         </GameCard>}

@@ -6,7 +6,7 @@ const { createMockStudyBackend, MOCK_STUDY_STORAGE_KEY } = require('../.expo/tes
 const { changeRoomEquipment, moveRoomTarget, sameRoomLayout, validateRoomLayout, floorToScene, sceneToFloor, placementToScene, dragOnFloor, roomAppearance, roomSize } = require('../.expo/tests/utils/room-layout.js');
 
 const id = n => `${String(n).padStart(8, '0')}-1111-4111-8111-111111111111`;
-const item = (n, slot, roomSize) => ({ id: id(n), code: `item_${n}`, name: `Item ${n}`, slot, category: slot === 'ROOM' ? 'ROOM_SIZE' : slot === 'WALLPAPER' ? 'WALLPAPER' : ['HEAD','FACE','NECK'].includes(slot) ? 'ACCESSORY' : 'FURNITURE', grade: 'BASIC', price: 0, minLevel: 1, defaultOwned: true, ...(roomSize ? { roomSize } : {}) });
+const item = (n, slot, roomSize) => ({ id: id(n), code: `item_${n}`, name: `Item ${n}`, slot, category: slot === 'ROOM' ? 'ROOM_SIZE' : slot === 'WALLPAPER' ? 'WALLPAPER' : ['HEAD','FACE','NECK'].includes(slot) ? 'ACCESSORY' : 'FURNITURE', grade: 'BASIC', price: 0, minLevel: 1, defaultOwned: true, onSale: true, ...(roomSize ? { roomSize } : {}) });
 const catalog = [item(1,'ROOM',3),item(2,'DESK'),item(3,'PLANT'),item(4,'BOOKSHELF'),item(5,'RUG'),item(6,'HEAD'),item(7,'ROOM',6),item(8,'DESK')];
 const owned = catalog.map(item => item.id);
 const baseline = { equipped: [{ slot:'ROOM',itemId:id(1) },{ slot:'DESK',itemId:id(2) }], placements:[{target:'DESK',x:1.5,y:0},{target:'CHARACTER',x:1.31,y:2.15}] };

@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GameButton } from '@/components/ui/game-button';
 import { GameCard } from '@/components/ui/game-card';
-import { PixelIcon } from '@/components/ui/pixel-icon';
+import { BoltBalance } from '@/components/ui/bolt-balance';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { SegmentedTabs } from '@/components/ui/segmented-tabs';
 import { GameColors, GameUi, Spacing } from '@/constants/theme';
@@ -20,9 +20,7 @@ export function ShopScreen() {
   const entries = shop.data?.items.filter(item => item.category === category) ?? [];
   return <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}><SkyClouds />
     {/* The balance stays in view while choosing what to buy. */}
-    <ScreenHeader title="상점" actions={shop.data && <View accessible accessibilityLabel={`보유 ${shop.data.balance.toLocaleString()} Bolt`} style={styles.balance}>
-      <PixelIcon name="bolt" size={18} /><Text style={styles.balanceText}>{shop.data.balance.toLocaleString()}</Text>
-    </View>}>
+    <ScreenHeader title="상점" actions={shop.data && <BoltBalance value={shop.data.balance} />}>
       <View style={styles.tabs}><SegmentedTabs label="상점 분류" value={category} onChange={setCategory} options={shopCategories.map(id => ({ id, name: categoryLabels[id] }))} /></View>
     </ScreenHeader>
     <FlatList
@@ -50,8 +48,6 @@ const styles = StyleSheet.create({
   content: { flexGrow: 1, paddingHorizontal: 18, paddingTop: 14, paddingBottom: Spacing.four },
   heading: { gap: 12 },
   tabs: { paddingHorizontal: 10, paddingBottom: 10 },
-  balance: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: GameColors.paper, borderWidth: GameUi.borderWidth, borderColor: GameColors.ink, borderRadius: GameUi.radius.badge, paddingVertical: 4, paddingHorizontal: 10 },
-  balanceText: { ...GameUi.typography.caption, fontWeight: '800', color: GameColors.ink },
   row: { gap: 8, marginBottom: 10 },
   message: { ...GameUi.typography.body, color: GameColors.ink },
   notice: { ...GameUi.typography.body, fontWeight: '700', color: GameColors.ink, padding: 12, backgroundColor: GameColors.cream, borderWidth: GameUi.borderWidth, borderColor: GameColors.border, borderRadius: 12, overflow: 'hidden' },

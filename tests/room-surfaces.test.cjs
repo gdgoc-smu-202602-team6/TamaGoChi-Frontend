@@ -68,9 +68,9 @@ test('solid items refuse overlaps only on the same surface; touching edges and a
   validateRoomLayout(withRug, catalog, owned);
 });
 test('unplaced/non-policy equipment cannot be dragged and duplicate targets across walls are rejected', () => {
-  const lamp = bySlot('LAMP'), layout = { ...baseline, equipped: [...baseline.equipped, { slot: 'LAMP', itemId: lamp.id }] };
-  assert.equal(availableTargets(layout, catalog).includes('LAMP'), false);
-  assert.throws(() => moveRoomTarget(layout, 'LAMP', 0, 0, catalog), { reason: 'invalid' });
+  const beanie = bySlot('HEAD'), layout = { ...baseline, equipped: [...baseline.equipped, { slot: 'HEAD', itemId: beanie.id }] };
+  assert.equal(availableTargets(layout, catalog).includes('HEAD'), false);
+  assert.throws(() => moveRoomTarget(layout, 'HEAD', 0, 0, catalog), { reason: 'invalid' });
   assert.throws(() => validateRoomLayout({ ...baseline, placements: [baseline.placements[0], { ...baseline.placements[0], surface: 'LEFT_WALL' }] }, catalog, owned), { reason: 'invalid' });
 });
 test('resizing scales wall horizontal positions, keeps wall height positions and fits floor footprints', () => {

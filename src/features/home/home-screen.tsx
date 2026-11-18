@@ -1,6 +1,7 @@
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { BoltBalance } from '@/components/ui/bolt-balance';
 import { GameButton } from '@/components/ui/game-button';
 import { IconButton } from '@/components/ui/icon-button';
 import { ScreenHeader } from '@/components/ui/screen-header';
@@ -45,6 +46,8 @@ export function HomeScreen({ service, onStartStudy, onEditRoom, onVisitFriends, 
       <SkyClouds />
       <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
         <ScreenHeader title={state.status === 'ready' ? `${state.data.profile.nickname}의 방` : '내 방'} actions={<>
+          {/* Same chip as the shop, so the balance earned by studying is visible from the room. */}
+          {state.status === 'ready' && <BoltBalance value={state.data.profile.bolt} />}
           {onVisitFriends && <IconButton icon="group" label="친구 방" onPress={onVisitFriends} />}
         </>} />
         {state.status === 'ready' ? (

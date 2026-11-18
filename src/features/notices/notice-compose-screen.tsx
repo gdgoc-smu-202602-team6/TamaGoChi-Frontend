@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GameButton } from '@/components/ui/game-button';
 import { ScreenHeader } from '@/components/ui/screen-header';
+import { IconButton } from '@/components/ui/icon-button';
 import { GameCard } from '@/components/ui/game-card';
 import { GameToggle } from '@/components/ui/game-toggle';
 import { isMockMode } from '@/constants/api';
@@ -26,7 +27,7 @@ export function NoticeComposeScreen({ clubId }: { clubId: string }) {
     else action();
   }
   function confirmLeave() { setAllowLeave(true); disablePrevention(); setLeavePrompt(false); leaveAction.current?.(); }
-  return <SafeAreaView style={styles.screen}><ScreenHeader title="공지 쓰기" onBack={() => leave(() => router.dismissTo('/notice'))} backDisabled={!!editor.operation} backLabel="공지로 돌아가기" actions={board && board.status.kind === 'ready' && <GameButton compact label={publishing ? '등록 중…' : '공지 올리기'} disabled={disabled || !board.categories.length} onPress={() => { void editor.publish(); }} />} />
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="공지 쓰기" onBack={() => leave(() => router.dismissTo('/notice'))} backDisabled={!!editor.operation} backLabel="공지로 돌아가기" actions={<><IconButton icon="refresh" label="작성 상태 새로고침" disabled={!!editor.operation || leavePrompt || resetPrompt} onPress={() => { void editor.refresh(); }} />{board && board.status.kind === 'ready' && <GameButton compact label={publishing ? '등록 중…' : '공지 올리기'} disabled={disabled || !board.categories.length} onPress={() => { void editor.publish(); }} />}</>} />
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
         <View style={styles.content}>
@@ -38,7 +39,6 @@ export function NoticeComposeScreen({ clubId }: { clubId: string }) {
             <GameButton label="계속 작성·확인하기" onPress={() => { setLeavePrompt(false); leaveAction.current = null; }} />
             <GameButton variant="secondary" label="화면 나가기" onPress={confirmLeave} />
           </GameCard>}
-          <GameButton compact variant="secondary" label="작성 상태 다시 확인" disabled={!!editor.operation || leavePrompt || resetPrompt} onPress={() => { void editor.refresh(); }} />
           {board && board.status.kind === 'ready' && <GameCard contentStyle={styles.form}>
             <NoticeFields draft={draft} categories={board.categories} disabled={disabled} label="공지 작성" onChange={editor.change}>
               <GameToggle label="푸시 알림 보내기" hint="등록 후 서버에 알림 발송을 요청해요." value={draft.notify} disabled={disabled} onChange={notify => editor.change({ notify })} />

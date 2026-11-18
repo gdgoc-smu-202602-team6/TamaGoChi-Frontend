@@ -20,6 +20,7 @@
     "expo-status-bar": "~58.0.4",
     "expo-symbols": "~58.0.4",
     "expo-system-ui": "~58.0.7",
+    "expo-updates": "~58.0.22",
     "expo-web-browser": "~58.0.7",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -46,7 +47,9 @@
     "check:web-dev": "node scripts/check-web-dev.cjs",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "test": "tsc --project tsconfig.tests.json && node --test tests/*.test.cjs"
+    "test": "tsc --project tsconfig.tests.json && node --test tests/*.test.cjs",
+    "update:production": "node scripts/eas-update.cjs production",
+    "update:preview": "node scripts/eas-update.cjs preview"
   },
   "private": true
 }

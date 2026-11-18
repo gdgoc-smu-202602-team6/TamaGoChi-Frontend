@@ -9,7 +9,7 @@ import type { ClubMember } from '@/types/club-members';
 
 function message(error: unknown) {
   if (!(error instanceof ClubMembershipError)) return apiErrorMessage(error);
-  return { invalid: '현재 부원 자격을 확인해 주세요.', changed: '확인 중 부원 자격이 바뀌었어요. 현재 정보를 확인한 뒤 다시 선택해 주세요.', 'last-manager': '마지막 관리자는 탈퇴할 수 없어요. 먼저 다른 부원에게 부원 관리 권한을 부여해 주세요.', uncertain: '탈퇴 결과를 확인하지 못했어요. 부원 자격 다시 확인은 조회만 합니다.', storage: '저장된 부원 자격을 읽거나 저장하지 못했어요.' }[error.reason];
+  return { invalid: '현재 부원 자격을 확인해 주세요.', changed: '확인 중 부원 자격이 바뀌었어요. 현재 정보를 확인한 뒤 다시 선택해 주세요.', 'last-manager': '마지막 운영진은 탈퇴할 수 없어요. 먼저 다른 부원을 운영진으로 지정해 주세요.', uncertain: '탈퇴 결과를 확인하지 못했어요. 부원 자격 다시 확인은 조회만 합니다.', storage: '저장된 부원 자격을 읽거나 저장하지 못했어요.' }[error.reason];
 }
 export function useClubMembership(clubId: string) {
   const { clubMembership: service } = useGameServices(), { forgetClub, error: clubError } = useClubs();

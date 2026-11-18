@@ -26,7 +26,7 @@ const isList = path => path.includes('?state=RUNNING');
 
 test('Home uses server stats and room condition without locally settling the KST service day', async () => {
   const calls = [];
-  const house = { id, code: 'house', name: '서버 방', slot: 'ROOM', category: 'ROOM_SIZE', grade: 'BASIC', price: 0, minLevel: 1, defaultOwned: true, roomSize: 3 };
+  const house = { id, code: 'house', name: '서버 방', slot: 'ROOM', category: 'ROOM_SIZE', grade: 'BASIC', price: 0, minLevel: 1, defaultOwned: true, onSale: true, roomSize: 3 };
   const home = createApiHomeService({ async request(path) {
     calls.push(path);
     return { data: path === '/items' ? { items: [house] } : path === '/users/me/items' ? { items: [{ itemId: id, pricePaid: 0 }] } : path.endsWith('/stats') ? { volts: 987, level: 7, todaySeconds: 1810, todayAttended: true } : path.endsWith('/room') ? { userId: 'user', equipped: [{ slot: 'ROOM', itemId: id }], placements: [], condition: { hearts: 2, bugs: 3, bugProgressSeconds: 3590 } } : { nickname: '서버냥' }, headers: new Headers() };

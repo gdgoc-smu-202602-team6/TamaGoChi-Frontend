@@ -226,6 +226,7 @@ export function createMockStudyBackend({ storage, initialHome, isOnline, now = D
       const item = mockShopItems.find(one => one.id === itemId);
       if (!item) throw new ShopError('not-found');
       if (shop.ownedItemIds.includes(item.id)) return;
+      if (!item.onSale) throw new ShopError('not-on-sale');
       if (levelState(state).level < item.minLevel) throw new ShopError('level-locked', item.minLevel);
       if (state.bolt < item.price) throw new ShopError('insufficient-volts', item.price - state.bolt);
       state.bolt -= item.price;

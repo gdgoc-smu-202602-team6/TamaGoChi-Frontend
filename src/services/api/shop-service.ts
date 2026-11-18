@@ -18,7 +18,7 @@ function catalogItem(value: unknown): ShopItem {
   const data = record(value);
   if (!isId(data.id) || typeof data.code !== 'string' || !data.code || typeof data.name !== 'string' || !data.name
     || !itemSlots.includes(data.slot as ShopItem['slot']) || !shopCategories.includes(data.category as ShopItem['category'])
-    || !['BASIC', 'COMMON', 'RARE', 'EPIC'].includes(data.grade as string) || !integer(data.price) || !integer(data.minLevel, 1) || typeof data.defaultOwned !== 'boolean') throw new ApiError('response');
+    || !['BASIC', 'COMMON', 'RARE', 'EPIC'].includes(data.grade as string) || !integer(data.price) || !integer(data.minLevel, 1) || typeof data.defaultOwned !== 'boolean' || typeof data.onSale !== 'boolean') throw new ApiError('response');
   const item = data as ShopItem;
   if (data.placementPolicy !== undefined) {
     const policy = record(data.placementPolicy);
@@ -72,6 +72,7 @@ export function createApiShopService(client: HttpClient): ShopService {
         if (ownedItem(response.data) !== itemId) throw new ApiError('response');
       } catch (error) {
         if (error instanceof ApiError) {
+          if (error.status === 409 && error.code === 'not-on-sale') throw new ShopError('not-on-sale');
           if (error.status === 409 && error.code === 'level-locked') throw new ShopError('level-locked', error.details?.requiredLevel);
           if (error.status === 409 && error.code === 'insufficient-volts') throw new ShopError('insufficient-volts', error.details?.shortBy);
           if (error.status === 404) throw new ShopError('not-found');

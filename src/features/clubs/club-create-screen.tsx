@@ -4,6 +4,7 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollVie
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GameButton } from '@/components/ui/game-button';
+import { IconButton } from '@/components/ui/icon-button';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { GameCard } from '@/components/ui/game-card';
 import { GameInput } from '@/components/ui/game-input';
@@ -20,7 +21,7 @@ export function ClubCreateScreen() {
   async function reset() {
     if (await create.reset()) { setName(''); setParts([{ key: ++sequence.current, name: '', color: 'GREEN' }]); setMyPart(null); setConfirmReset(false); }
   }
-  return <SafeAreaView style={styles.screen}><ScreenHeader title="동아리 만들기" onBack={() => router.dismissTo('/clubs/join')} backLabel="가입·신청으로 돌아가기" />
+  return <SafeAreaView style={styles.screen}><ScreenHeader title="동아리 만들기" onBack={() => router.dismissTo('/clubs/join')} backLabel="가입·신청으로 돌아가기" actions={<IconButton icon="refresh" label="생성 상태 새로고침" disabled={disabled} onPress={() => { void create.refresh(); }} />} />
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
         <View style={styles.content}>
@@ -68,7 +69,6 @@ export function ClubCreateScreen() {
               <GameButton compact variant="secondary" label="결과 확인 유지" disabled={disabled} onPress={() => setConfirmReset(false)} />
             </View>}
           </GameCard>}
-          <GameButton compact variant="secondary" label="생성 상태 다시 확인" disabled={disabled} onPress={() => { void create.refresh(); }} />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

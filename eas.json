@@ -9,17 +9,24 @@
       "env": {
         "EXPO_PUBLIC_DATA_MODE": "api",
         "EXPO_PUBLIC_API_BASE_URL": "https://api.tmgoc.kro.kr"
-      }
+      },
+      "channel": "preview"
     },
     "production": {
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_DATA_MODE": "api",
         "EXPO_PUBLIC_API_BASE_URL": "https://api.tmgoc.kro.kr"
-      }
+      },
+      "channel": "production"
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascAppId": "6836236611",
+        "appleTeamId": "2SQLR2C75K"
+      }
+    }
   }
 }

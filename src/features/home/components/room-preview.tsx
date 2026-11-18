@@ -36,10 +36,6 @@ export function RoomPreview({ bugs, name, characterLabel, assets, appearance }: 
       <Image source={sources.room} contentFit="contain" style={StyleSheet.absoluteFill} />
       <Image source={sources.desk} contentFit="contain" style={styles.desk} />
       <Image source={sources.plant} contentFit="contain" style={styles.plant} />
-      {bugs > 0 && <>
-        <View style={styles.dustOne} />
-        <View style={styles.dustTwo} />
-      </>}
       <View style={styles.characterShadow} />
       <Image source={sources.character} contentFit="contain" style={styles.character} />
       {bugPositions.slice(0, bugs).map((position, index) => (
@@ -57,6 +53,4 @@ const styles = StyleSheet.create({
   character: { position: 'absolute', left: '43%', top: '55%', width: '16%', height: '26%' },
   characterShadow: { position: 'absolute', left: '41%', top: '78%', width: '20%', height: '5%', borderRadius: 40, backgroundColor: '#9B96B280' },
   bug: { position: 'absolute' },
-  dustOne: { position: 'absolute', left: '35%', top: '62%', width: '12%', height: '4%', backgroundColor: '#A4A1B870', transform: [{ rotate: '-25deg' }] },
-  dustTwo: { position: 'absolute', left: '65%', top: '77%', width: '12%', height: '4%', backgroundColor: '#A4A1B870', transform: [{ rotate: '25deg' }] },
 });

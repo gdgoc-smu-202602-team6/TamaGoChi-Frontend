@@ -16,6 +16,8 @@ export type ShopItem = {
   readonly price: number;
   readonly minLevel: number;
   readonly defaultOwned: boolean;
+  /** False once the item is off sale: nobody can buy it, owners keep it (API 0.2.0). */
+  readonly onSale: boolean;
   readonly roomSize?: number;
   readonly placementPolicy?: PlacementPolicy;
 };
@@ -31,7 +33,7 @@ export type ShopService = {
   purchase: (itemId: string) => Promise<void>;
 };
 export class ShopError extends Error {
-  constructor(readonly reason: 'level-locked' | 'insufficient-volts' | 'not-found' | 'storage', readonly detail?: number) {
+  constructor(readonly reason: 'not-on-sale' | 'level-locked' | 'insufficient-volts' | 'not-found' | 'storage', readonly detail?: number) {
     super(`Shop ${reason}`);
     this.name = 'ShopError';
   }
