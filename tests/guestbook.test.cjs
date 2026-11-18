@@ -7,7 +7,7 @@ const { ApiError } = require('../.expo/tests/services/api/http-client.js');
 const { guestbookText, guestbookLength } = require('../.expo/tests/utils/guestbook.js');
 const id = n => `${String(n).padStart(8,'0')}-1111-4111-8111-111111111111`;
 const mine = {kind:'mine'}, target = {kind:'member',clubId:id(1),memberId:id(101)};
-const member=(n,clubId=id(1),userId=n===100?'viewer':n===101?'owner':'writer')=>({id:id(n),clubId,userId,nickname:userId,partId:id(50),roleId:id(51),joinedAt:'2026-11-01T00:00:00Z'});
+const member=(n,clubId=id(1),userId=n===100?'viewer':n===101?'owner':'writer')=>({id:id(n),clubId,userId,nickname:userId,partId:id(50),role:'MEMBER',joinedAt:'2026-11-01T00:00:00Z'});
 const entry=(n,userId,clubId=id(1),authorUserId='writer')=>({id:id(n),clubId,userId,authorUserId,body:`응원 ${n}`,createdAt:'2026-11-03T00:00:00Z'});
 function memory() {const data=new Map(),writes=[];let fail=null;const store={get:async key=>{if(fail==='read')throw new Error('disk');return data.get(key)??null;},set:async(key,value)=>{if(fail==='write'||fail==='receipt'&&value?.includes('created'))throw new Error('disk');writes.push({key,value});if(value===null)data.delete(key);else data.set(key,value);}};return{data,writes,store,fail:value=>{fail=value;}};}
 function fixture(override=()=>undefined) {

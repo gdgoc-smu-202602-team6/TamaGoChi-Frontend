@@ -7,7 +7,7 @@ const { createMockClubMembershipService } = require('../.expo/tests/mocks/club-m
 const { ApiError } = require('../.expo/tests/services/api/http-client.js');
 const id = n => `${String(n).padStart(8, '0')}-1111-4111-8111-111111111111`;
 const copy = value => structuredClone(value);
-const member = (n, userId = `friend-${n}`) => ({ id: id(1000+n), clubId: id(1), userId, nickname: `친구 ${n}`, partId: id(2), roleId: id(3), joinedAt: '2026-11-01T00:00:00Z' });
+const member = (n, userId = `friend-${n}`) => ({ id: id(1000+n), clubId: id(1), userId, nickname: `친구 ${n}`, partId: id(2), role: 'MEMBER', joinedAt: '2026-11-01T00:00:00Z' });
 const items = [{ id: id(10), code: 'shabby_gosiwon', name: '방', slot: 'ROOM', category: 'ROOM_SIZE', grade: 'BASIC', price: 0, minLevel: 1, defaultOwned: true, roomSize: 3 }, { id: id(11), code: 'basic_desk', name: '책상', slot: 'DESK', category: 'FURNITURE', grade: 'BASIC', price: 0, minLevel: 1, defaultOwned: true }];
 const room = userId => ({ userId, equipped: items.map(one => ({ slot: one.slot, itemId: one.id })), placements: [{ target:'CHARACTER', x:1.25, y:2 }], condition: { hearts:3, bugs:2, bugProgressSeconds:45 }, likeCount:7, likedByMe:false });
 const stats = userId => ({ userId, volts:100, level:4, todaySeconds: userId.endsWith('2') ? 7200 : 1200, todayAttended:true });

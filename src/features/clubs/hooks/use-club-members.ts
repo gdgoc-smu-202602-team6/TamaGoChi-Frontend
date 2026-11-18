@@ -10,7 +10,7 @@ import { ClubMembersError, type ClubMember, type ClubMembersBoard, type MemberRo
 function message(error: unknown) {
   if (membersAccessLost(error)) return '이 동아리의 부원·역할을 관리할 권한이 없거나 접근 상태가 바뀌었어요.';
   if (!(error instanceof ClubMembersError)) return apiErrorMessage(error);
-  return { invalid: '부원과 선택한 역할을 확인해 주세요.', forbidden: '부원 관리 권한이 없어요.', changed: '확인 중 부원이나 역할이 바뀌었어요. 현재 목록을 확인하고 다시 선택해 주세요.', 'last-manager': '마지막 관리자의 권한은 해제할 수 없어요. 먼저 다른 부원에게 부원 관리 권한을 부여해 주세요.', uncertain: '역할 변경 결과를 확인하지 못했어요. 부원 목록 다시 확인은 조회만 합니다.', storage: '저장된 부원 역할을 읽거나 저장하지 못했어요.' }[error.reason];
+  return { invalid: '부원과 선택한 역할을 확인해 주세요.', forbidden: '부원 관리 권한이 없어요.', changed: '확인 중 부원이나 역할이 바뀌었어요. 현재 목록을 확인하고 다시 선택해 주세요.', 'last-manager': '마지막 운영진은 부원으로 바꿀 수 없어요. 먼저 다른 부원을 운영진으로 지정해 주세요.', uncertain: '역할 변경 결과를 확인하지 못했어요. 부원 목록 다시 확인은 조회만 합니다.', storage: '저장된 부원 역할을 읽거나 저장하지 못했어요.' }[error.reason];
 }
 export function useClubMembers(clubId: string) {
   const { clubMembers: service } = useGameServices(), clubs = useClubs();
@@ -27,7 +27,7 @@ export function useClubMembers(clubId: string) {
       const next = await service.getBoard(clubId);
       if (alive.current) {
         apply(next);
-        if (pending.current) { const task = pending.current, expected = task.kind === 'role' ? task.action.member : task.member, actual = next.members.find(one => one.id === expected.id); setNotice(task.kind === 'role' && actual?.roleId === task.action.role.id ? '현재 목록에서 역할 상태를 확인했어요.' : task.kind === 'remove' && !actual ? '현재 목록에 대상 부원이 없음을 확인했어요.' : '최신 목록을 불러왔어요. 결과를 확인한 뒤 작업을 다시 선택해 주세요.'); pending.current = null; }
+        if (pending.current) { const task = pending.current, expected = task.kind === 'role' ? task.action.member : task.member, actual = next.members.find(one => one.id === expected.id); setNotice(task.kind === 'role' && actual?.role === task.action.role ? '현재 목록에서 역할 상태를 확인했어요.' : task.kind === 'remove' && !actual ? '현재 목록에 대상 부원이 없음을 확인했어요.' : '최신 목록을 불러왔어요. 결과를 확인한 뒤 작업을 다시 선택해 주세요.'); pending.current = null; }
       }
     } catch (reason) { if (alive.current) { if (membersAccessLost(reason)) clear(); setError(message(reason)); } }
     finally { busy.current = false; if (alive.current) setOperation(null); }
@@ -59,7 +59,7 @@ export function useClubMembers(clubId: string) {
       if (!alive.current) return;
       if (membersAccessLost(reason)) clear();
       else if (!(reason instanceof ClubMembersError && reason.reason === 'uncertain')) { pending.current = null; try { const next = await service.getBoard(clubId); if (alive.current) apply(next); } catch (readError) { if (alive.current && membersAccessLost(readError)) clear(); } }
-      if (alive.current) setError(reason instanceof ClubMembersError && reason.reason === 'uncertain' ? '강퇴 결과를 확인하지 못했어요. 부원 목록 다시 확인은 조회만 합니다.' : reason instanceof ClubMembersError && reason.reason === 'last-manager' ? '마지막 관리자는 강퇴할 수 없어요. 먼저 다른 부원에게 부원 관리 권한을 부여해 주세요.' : message(reason));
+      if (alive.current) setError(reason instanceof ClubMembersError && reason.reason === 'uncertain' ? '강퇴 결과를 확인하지 못했어요. 부원 목록 다시 확인은 조회만 합니다.' : reason instanceof ClubMembersError && reason.reason === 'last-manager' ? '마지막 운영진은 강퇴할 수 없어요. 먼저 다른 부원을 운영진으로 지정해 주세요.' : message(reason));
     } finally { busy.current = false; if (alive.current) setOperation(null); }
   }
   async function openList() {
