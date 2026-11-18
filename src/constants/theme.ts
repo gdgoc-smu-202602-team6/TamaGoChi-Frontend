@@ -78,6 +78,10 @@ export const GameColors = {
   yellowLight: '#FFF0B8',
   orange: '#F5A623',
   green: '#5EC34A',
+  /** v4 ground strip under the tab bar: grass edge, dirt and pebbles. */
+  grassDark: '#3F9E36',
+  dirt: '#C98246',
+  pebble: '#A8652F',
   greenLight: '#D4F2C9',
   greenDark: '#24601D',
   pink: '#FF9FBB',

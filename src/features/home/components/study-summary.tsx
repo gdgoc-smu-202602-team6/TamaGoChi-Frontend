@@ -9,6 +9,8 @@ import type { HomeOverview } from '@/types/home';
 import { formatRemainingMinutes, formatStudyClock } from '@/utils/format-duration';
 
 type StudySummaryProps = {
+  /** Short screens (such as a phone browser with its toolbars): smaller digits so the play button fits. */
+  compact?: boolean;
   home: HomeOverview;
   onStartStudy?: () => void;
   actionLabel?: string;
@@ -16,14 +18,13 @@ type StudySummaryProps = {
   actionError?: string | null;
 };
 
-export function StudySummary({ home, onStartStudy, actionLabel, actionDisabled, actionError }: StudySummaryProps) {
-  const { attendance, bugs } = home;
-  const hasBugs = bugs.count > 0;
+export function StudySummary({ home, onStartStudy, actionLabel, actionDisabled, actionError, compact }: StudySummaryProps) {
+  const { attendance } = home;
   const clock = formatStudyClock(home.todayStudySeconds);
   return (
     <GameCard>
       <View style={styles.heading}><PixelIcon name="hourglass" size={20} /><Text style={styles.title}>오늘 공부 시간</Text></View>
-      <PixelNumber value={clock} label={`오늘 누적 공부시간 ${clock}`} height={72} />
+      <PixelNumber value={clock} label={`오늘 누적 공부시간 ${clock}`} height={compact ? 56 : 72} />
       <View style={styles.progressBlock}>
         <View style={styles.row}>
           <Text style={[styles.progressTitle, { color: GameColors.greenDark }]}>오늘 출석</Text>
@@ -31,15 +32,6 @@ export function StudySummary({ home, onStartStudy, actionLabel, actionDisabled, 
         </View>
         <ProgressMeter value={attendance.studySeconds} target={attendance.requiredSeconds} label="오늘 출석 진행률" />
       </View>
-      {hasBugs ? (
-        <View style={styles.progressBlock}>
-          <View style={styles.row}>
-            <Text style={[styles.progressTitle, { color: '#4E2C9E' }]}>버그 퇴치</Text>
-            <Text style={styles.caption}>다음 1마리까지 {formatRemainingMinutes(bugs.requiredSeconds - bugs.progressSeconds)}</Text>
-          </View>
-          <ProgressMeter value={bugs.progressSeconds} target={bugs.requiredSeconds} label="다음 버그 퇴치 진행률" color={GameColors.lavender} />
-        </View>
-      ) : null}
       <View style={styles.playArea}>
         <RoundActionButton icon="play" label={actionLabel ?? '공부 시작'} onPress={onStartStudy} busy={actionDisabled} iconOffset={4} />
       </View>

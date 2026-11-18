@@ -12,6 +12,7 @@ import { ProfileCard } from './components/profile-card';
 import { WeeklyChart } from './components/weekly-chart';
 import { useProfile } from './hooks/use-profile';
 import { useProfileInventory } from './hooks/use-profile-inventory';
+import { SkyClouds } from '@/components/ui/sky-clouds';
 
 export function ProfileScreen() {
   const profile = useProfile(), inventory = useProfileInventory();
@@ -21,7 +22,7 @@ export function ProfileScreen() {
     { title: '이번 주', value: formatStudySummary(data.weekSeconds), color: GameColors.pink },
     { title: '연속 출석', value: `${data.attendanceStreak}일`, color: '#8FD97A' },
   ] : [];
-  return <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}><ScreenHeader title="마이" actions={<IconButton icon="settings" label="설정" onPress={() => router.push('/settings')} />} />
+  return <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}><SkyClouds /><ScreenHeader title="마이" actions={<IconButton icon="settings" label="설정" onPress={() => router.push('/settings')} />} />
     <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll} refreshControl={<RefreshControl refreshing={profile.refreshing || inventory.loading} onRefresh={() => { void profile.refresh(); void inventory.refresh(); }} tintColor={GameColors.ink} />}>
       <View style={styles.content}>
         {profile.refreshing && <ActivityIndicator color={GameColors.ink} accessibilityLabel="마이 불러오는 중" />}

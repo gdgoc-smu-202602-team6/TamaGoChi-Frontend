@@ -12,12 +12,13 @@ import { shopCategories, type ShopCategory } from '@/types/shop';
 import { ShopItemCard } from './components/shop-item-card';
 import { categoryLabels } from './constants';
 import { useShop } from './hooks/use-shop';
+import { SkyClouds } from '@/components/ui/sky-clouds';
 
 export function ShopScreen() {
   const [category, setCategory] = useState<ShopCategory>('FURNITURE');
   const shop = useShop();
   const entries = shop.data?.items.filter(item => item.category === category) ?? [];
-  return <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
+  return <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}><SkyClouds />
     {/* The balance stays in view while choosing what to buy. */}
     <ScreenHeader title="상점" actions={shop.data && <View accessible accessibilityLabel={`보유 ${shop.data.balance.toLocaleString()} Bolt`} style={styles.balance}>
       <PixelIcon name="bolt" size={18} /><Text style={styles.balanceText}>{shop.data.balance.toLocaleString()}</Text>

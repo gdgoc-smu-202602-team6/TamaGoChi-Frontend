@@ -1,0 +1,25 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_DATA_MODE": "api",
+        "EXPO_PUBLIC_API_BASE_URL": "https://api.tmgoc.kro.kr"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_DATA_MODE": "api",
+        "EXPO_PUBLIC_API_BASE_URL": "https://api.tmgoc.kro.kr"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
