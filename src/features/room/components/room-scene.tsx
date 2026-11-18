@@ -65,10 +65,9 @@ function RoomObject({ point, previous, size, wallHeight, wallScene, policy, art,
   </View>;
 }
 
-// Floor spots for bugs and dust, as fractions of the floor, so they stay on any room size.
+// Floor spots for bugs, as fractions of the floor, so they stay on any room size.
 const floorSpot = (fx: number, fy: number) => floorToScene(fx, fy, 1);
 const bugSpots = [floorSpot(.25, .85), floorSpot(.85, .45), floorSpot(.7, .95)];
-const dustSpots = [floorSpot(.3, .6), floorSpot(.7, .75)];
 
 export function RoomScene({ appearance, bugs, label = '내 방', interaction }: SceneProps) {
   const [width, setWidth] = useState(0);
@@ -88,7 +87,6 @@ export function RoomScene({ appearance, bugs, label = '내 방', interaction }: 
     {frame && <Image source={roomSource} contentFit="fill" accessible={false} style={[styles.designerRoom, { left: px(frame.left), top: py(frame.top), width: px(frame.width), height: py(frame.height) }]} />}
     {shell && <Image source={shell} style={StyleSheet.absoluteFill} contentFit="contain" accessible={false} />}
     {(['WINDOW', 'CLOCK', 'LAMP'] as const).map(slot => item(slot) && !targets.includes(slot) && <Image key={slot} source={itemSource(item(slot)!, true)} contentFit="contain" accessible={false} style={[styles.fixed, slot === 'WINDOW' ? styles.window : slot === 'CLOCK' ? styles.clock : styles.lamp]} />)}
-    {bugs > 0 && dustSpots.map((spot, index) => <View key={index} style={[styles.dust, { left: px(spot.x - 29), top: py(spot.y - 10), transform: [{ rotate: index ? wallSkew : `-${wallSkew}` }] }]} />)}
     {targets.map(target => {
       const policy = appearance.wallHeight ? surfacePolicy(layout, target, appearance.items) : undefined, onWall = policy?.surfaceKind === 'WALL', thing = target === 'CHARACTER' ? undefined : item(target)!;
       const art = thing ? itemArt(thing) : undefined;
@@ -105,5 +103,5 @@ const styles = StyleSheet.create({
   designerRoom: { position: 'absolute' },
   // Legacy rooms without wall placement keep fixed spots for the window, clock and lamp.
   fixed: { position: 'absolute', zIndex: 2 }, window: { left: '21.8%', top: '21.5%', width: '20%', height: '25%' }, clock: { left: '65.8%', top: '25.6%', width: '12.1%', height: '13.3%' }, lamp: { left: '69.1%', top: '45.8%', width: '12.9%', height: '25%' },
-  bug: { position: 'absolute', zIndex: 500 }, dust: { position: 'absolute', width: '12%', height: '4%', backgroundColor: '#A4A1B870' },
+  bug: { position: 'absolute', zIndex: 500 },
 });
