@@ -13,7 +13,7 @@ const placementPolicies: Partial<Record<ItemSlot, PlacementPolicy>> = {
 
 // Preview data based on the backend seed of API 0.2.0; never a fallback for API catalog failures.
 function item(code: string, slot: ItemSlot, name: string, grade: ItemGrade, price: number, minLevel: number, defaultOwned = false, roomSize?: number): ShopItem {
-  return { id: `mock-${code}`, code, slot, category: categoryForSlot(slot), name, grade, price, minLevel, defaultOwned, ...(roomSize ? { roomSize } : {}), ...(placementPolicies[slot] ? { placementPolicy: placementPolicies[slot] } : {}) };
+  return { id: `mock-${code}`, code, slot, category: categoryForSlot(slot), name, grade, price, minLevel, defaultOwned, onSale: true, ...(roomSize ? { roomSize } : {}), ...(placementPolicies[slot] ? { placementPolicy: placementPolicies[slot] } : {}) };
 }
 export const mockShopItems: readonly ShopItem[] = [
   item('basic_clock', 'CLOCK', '시계', 'BASIC', 0, 1, true),

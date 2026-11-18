@@ -14,9 +14,9 @@ export function ShopItemCard({ item, shop, pending, disabled, onPurchase }: {
   const state = itemPurchaseState(item, shop);
   const grade = gradeStyles[item.grade];
   // Short button text for the three-column grid; the price sits above it and the full text stays in the accessibility label.
-  const label = pending ? '확인 중' : state === 'equipped' ? '장착 중' : state === 'owned' ? '보유 중' : state === 'locked' ? `LV.${item.minLevel}` : state === 'unaffordable' ? 'Bolt 부족' : '구매';
+  const label = pending ? '확인 중' : state === 'equipped' ? '장착 중' : state === 'owned' ? '보유 중' : state === 'off-sale' ? '판매 종료' : state === 'locked' ? `LV.${item.minLevel}` : state === 'unaffordable' ? 'Bolt 부족' : '구매';
   const spoken = pending ? '확인 중' : state === 'locked' ? `LV.${item.minLevel} 해금` : state === 'available' ? `${item.price.toLocaleString()} Bolt 구매` : label;
-  const variant = state === 'owned' || state === 'equipped' ? 'success' : state === 'locked' ? 'dark' : 'primary';
+  const variant = state === 'owned' || state === 'equipped' ? 'success' : state === 'locked' || state === 'off-sale' ? 'dark' : 'primary';
   return <GameCard style={styles.card} contentStyle={styles.surface}>
     <View style={styles.preview}>
       <ItemPreview item={item} locked={state === 'locked'} />

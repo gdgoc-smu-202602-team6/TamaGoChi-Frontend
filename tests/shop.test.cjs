@@ -3,10 +3,10 @@ const assert = require('node:assert/strict');
 const { createApiShopService } = require('../.expo/tests/services/api/shop-service.js');
 const { createHttpClient, ApiError } = require('../.expo/tests/services/api/http-client.js');
 const { createMockStudyBackend, MOCK_STUDY_STORAGE_KEY } = require('../.expo/tests/mocks/study-backend.js');
-const { itemPurchaseState } = require('../.expo/tests/utils/shop.js');
+const { itemPurchaseState, shopErrorText } = require('../.expo/tests/utils/shop.js');
 
 const id = n => `${String(n).padStart(8, '0')}-1111-4111-8111-111111111111`;
-const lamp = { id: id(1), code: 'new-lamp', slot: 'LAMP', category: 'FURNITURE', name: 'New lamp', grade: 'COMMON', price: 37, minLevel: 2, defaultOwned: false };
+const lamp = { id: id(1), code: 'new-lamp', slot: 'LAMP', category: 'FURNITURE', name: 'New lamp', grade: 'COMMON', price: 37, minLevel: 2, defaultOwned: false, onSale: true };
 function apiFixture(change = {}) {
   const calls = [];
   const responses = {
@@ -47,7 +47,7 @@ test('HTTP Problem Details retain only safe numeric shop fields and map 409 conf
   await assert.rejects(client.request('/test'), error => error.details.shortBy === undefined && error.details.requiredLevel === undefined);
 });
 test('catalog validates category/slot, money, UUID, room size and duplicate IDs without mock fallback', async () => {
-  for (const change of [{ price: -1 }, { price: 1.5 }, { slot: 'UNKNOWN' }, { category: 'ACCESSORY' }, { id: 'local' }, { minLevel: 0 }, { grade: 'LEGENDARY' }, { slot: 'ROOM', category: 'ROOM_SIZE' }]) {
+  for (const change of [{ price: -1 }, { price: 1.5 }, { slot: 'UNKNOWN' }, { category: 'ACCESSORY' }, { id: 'local' }, { minLevel: 0 }, { grade: 'LEGENDARY' }, { slot: 'ROOM', category: 'ROOM_SIZE' }, { onSale: undefined }, { onSale: 'yes' }]) {
     await assert.rejects(apiFixture({ '/items': { items: [{ ...lamp, ...change }] } }).service.getShop(), { kind: 'response' });
   }
   await assert.rejects(apiFixture({ '/items': { items: [lamp, lamp] } }).service.getShop(), { kind: 'response' });
@@ -66,6 +66,15 @@ test('purchase state prioritizes equipped/owned before level or balance and neve
   assert.equal(itemPurchaseState(lamp, { ...shop, ownedItemIds: [lamp.id], equippedItemIds: [lamp.id] }), 'equipped');
   assert.equal(itemPurchaseState(lamp, { ...shop, level: 10 }), 'unaffordable');
   assert.equal(itemPurchaseState(lamp, { ...shop, level: 10, balance: lamp.price }), 'available');
+});
+test('off-sale items cannot be bought, owners keep them, and the server refusal has its own message', async () => {
+  const offSale = { ...lamp, onSale: false }, rich = { level: 10, balance: 999, ownedItemIds: [], equippedItemIds: [] };
+  assert.equal(itemPurchaseState(offSale, rich), 'off-sale');
+  assert.equal(itemPurchaseState(offSale, { ...rich, ownedItemIds: [lamp.id] }), 'owned');
+  assert.equal(itemPurchaseState(offSale, { ...rich, ownedItemIds: [lamp.id], equippedItemIds: [lamp.id] }), 'equipped');
+  assert.equal((await apiFixture({ '/items': { items: [offSale] } }).service.getShop()).items[0].onSale, false);
+  const client = createHttpClient({ baseUrl: 'https://fixture.invalid', fetcher: async () => new Response(JSON.stringify({ type: 'https://fixture.invalid/problems/not-on-sale', title: 'Conflict', status: 409 }), { status: 409 }) });
+  await assert.rejects(createApiShopService(client).purchase(id(1)), error => error.reason === 'not-on-sale' && shopErrorText(error) === '지금은 판매하지 않는 아이템이에요.');
 });
 
 function mockFixture({ level = 10, balance = 500 } = {}) {
